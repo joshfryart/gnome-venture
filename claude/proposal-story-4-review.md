@@ -50,3 +50,8 @@ Checked and fine: gardening is a required step in every Maplewold, Maizehollow a
 6. **Happening errands.** Yes: one-off stop acts that keep their extras.
 7. **Companions and the Stranger.** Puzzle Pals as companion rewards: yes. Stranger has no tie to Wren: yes.
 8. **Crops and numbers.** The 14 signature crops are confirmed. Run the balance sim (Standing, XP, Petals, Lv 45-55 fights) before any weight is locked.
+
+## Update (Josh, 2026-11-27)
+- No new crops: the 14 signature crops already exist (verified against `crops.txt`).
+- Puzzle Pals remain released by jigsaw; the Maplewold jigsaw (Advanced or Expert) is now M1 step 2, a Lv 1 step.
+- Puzzle Pal spawns rewritten to reachable regions only. See `game/includes/puzzle_pals.php` (`ppal_spawn_nodes`, `ppal_spawn_prune`, `ppal_spawns`) and `game/includes/progression.php` (`accessible_regions`, `region_gate_open`).

@@ -61,7 +61,7 @@ Pass 4 rules that make every main step doable:
 | `unlock=place:slug` | NEW | a secret place appears on the area map (a hidden haven or wonder, counts as a find) |
 | `unlock=theme:slug` | NEW | a cosmetic variant of one tier of one stop type, pickable by any adopter who has it (a row in `stop_tier_themes.txt`) |
 | `unlock=shop:slug` | NEW | one more line of goods at tier 2 stalls of the area (for everybody once anyone has done it at that stop, like the glow) |
-| `unlock=pal:key` | NEW | a companion: one authored Puzzle Pal (`puzzle_pals.txt` row), uncommon |
+| `unlock=pal:key` | DROPPED (Josh 2026-11-27) | Puzzle Pals are released only by finishing a jigsaw on Advanced or Expert (`ppal_on_solve`), never by a quest reward |
 
 "Extra" on a side quest is paid on first completion only. A repeatable quest pays its small `c/xp/fp` each time after.
 
@@ -90,12 +90,13 @@ Slot note (pass 4, checked against `stop_adopt.php`): `raise` counts stops raise
 | # | Step | Kind | Lv |
 |---|---|---|---|
 | 1 | Reach the Maplewold, read Wren's cover note | `visit` | 1 |
-| 2 | Sow Wren's seed packet: harvest 2 staples (oats, lentil) | `grow staple 2` | 1-2 |
-| 3 | Do three things at the dark market hamlet, then adopt it (first adoption free) | `adopt zone:1` | 1-2 |
-| 4 | Build its Bench & lantern post | `raise tier:1,zone:1` | 2-3 |
-| 5 | A lost lamb: find it off the road and walk it back to the hamlet | `escort who:lamb,to:stop` | 2-3 |
-| 6 | Rebuild the Sugar Shack (3 Flint + 50; 2 Timber Planks; 1 Rope + 100) | `stage` x3 | 3-4 |
-| 7 | Prairie leaf | `seal leaf` | 4 |
+| 2 | **Finish the Maplewold jigsaw on Advanced or Expert.** Its Puzzle Pals are released and start waiting at Maplewold places on your map (Expert also earns the trophy) | `puzzle pic:jig-maplewold,tier:advanced+` (hooks `ppal_on_solve`) | 1 |
+| 3 | Sow Wren's seed packet: harvest 2 staples (oats, lentil) | `grow staple 2` | 1-2 |
+| 4 | Do three things at the dark market hamlet, then adopt it (first adoption free) | `adopt zone:1` | 1-2 |
+| 5 | Build its Bench & lantern post | `raise tier:1,zone:1` | 2-3 |
+| 6 | A lost lamb: find it off the road and walk it back to the hamlet | `escort who:lamb,to:stop` | 2-3 |
+| 7 | Rebuild the Sugar Shack (3 Flint + 50; 2 Timber Planks; 1 Rope + 100) | `stage` x3 | 3-4 |
+| 8 | Prairie leaf | `seal leaf` | 4 |
 Leaf note: "The old book said the prairie lamps were lit 'by whoever is passing'. I have crossed that out and written your name."
 
 **M2. Hand It Back.** Old Maplewood, Lv 4-7. Giver: Bodkin and Thrum. Repair: the mill sluice.
@@ -555,3 +556,8 @@ Trigger grammar (errands and threads), all read live: `tier>=N@zone:Z` / `@type:
 4. **Companions** are mapped to Puzzle Pals because that is the only companion system in the data. Drop the 4 if that is wrong.
 5. **Creatures 38-55**: 7 side quests and 3 main steps name creatures from the 38-55 proposal list (dhole-pack, meerkat-mob, hamadryas-baboon, one-horned-rhino, grey-parrot-gossip, secretary-bird, proboscis-monkey, giant-salamander, mantis-shrimp, tasmanian-devil); do not trim those. The seven lairs are existing lairs whose guardians are generated (`ensure_lair_bosses`); the list now gives them as level/drop overrides at band top (45 / 55), not as new creatures.
 6. All Petal, XP and hand-in numbers are unsimulated.
+
+## Pass 5 changes (Josh, 2026-11-27)
+- Signature crops: no new crops. All 14 already exist in `crops.txt` (checked: wild-rice, amaranth, barley, breadfruit, yerba-mate, olive, buckwheat, date, turmeric, fonio, teff, persimmon, rice, taro).
+- Puzzle Pals stay released by jigsaw (Advanced or Expert). M1 step 2 makes the Maplewold jigsaw part of the Lv 1 quest line. The 4 companion side-quest extras (`na-s08`, `nwe-s08`, `cb-s05`, `esa-s05`) no longer grant a pal; give each a different extra (rare seed or stop theme).
+- Pals now spawn only in regions the gnome has access to (code done: `accessible_regions()`, `ppal_spawn_nodes()`, `ppal_spawn_prune()`).

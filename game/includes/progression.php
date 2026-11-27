@@ -63,6 +63,7 @@ function record_region_visit(int $uid, ?int $regionId): bool
     if (q_val('SELECT 1 FROM region_visits WHERE user_id = ? AND region_id = ?', [$uid, $regionId])) return false;
     try {
         db_insert('region_visits', ['user_id' => $uid, 'region_id' => $regionId, 'first_at' => now()]);
+        try { q('UPDATE users SET ppal_spawn_day = NULL WHERE id = ?', [$uid]); } catch (Throwable) {}   // a new region is open: Puzzle Pals get topped up on the next page
         return true;
     } catch (Throwable) {
         return false;   // a double click got there first
@@ -73,6 +74,28 @@ function record_region_visit(int $uid, ?int $regionId): bool
 function visited_regions(int $uid): array
 {
     return array_map('intval', q('SELECT region_id FROM region_visits WHERE user_id = ?', [$uid])->fetchAll(PDO::FETCH_COLUMN));
+}
+
+/**
+ * Regions this gnome has access to: their home region, any region with one of their gardens, any region they have walked to, and the
+ * region they stand in. Puzzle Pal spawns use this; the Seal gates (proposal-maplewold-bands-and-seals.md) will narrow it with region_gate_open().
+ * Returns region ids.
+ */
+function accessible_regions(int $uid): array
+{
+    $ids = visited_regions($uid);
+    $row = q_one('SELECT region_id, location_id FROM users WHERE id = ?', [$uid]) ?: [];
+    if (!empty($row['region_id'])) $ids[] = (int)$row['region_id'];
+    if (!empty($row['location_id'])) $ids[] = (int)q_val('SELECT region_id FROM locations WHERE id = ?', [(int)$row['location_id']]);
+    foreach (q('SELECT DISTINCT region_id FROM plots WHERE user_id = ? AND region_id IS NOT NULL', [$uid])->fetchAll(PDO::FETCH_COLUMN) as $r) $ids[] = (int)$r;
+    $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+    return array_values(array_filter($ids, fn($rid) => region_gate_open($uid, $rid)));
+}
+
+/** Seal gate hook: is the road into this region open for this gnome? Always true until the Seals ship. */
+function region_gate_open(int $uid, int $regionId): bool
+{
+    return true;
 }
 
 /** Can this gnome fast-travel straight to a region? Home, any region with one of their gardens, or anywhere they've walked to. */

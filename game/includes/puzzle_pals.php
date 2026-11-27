@@ -772,21 +772,39 @@ function ppal_spawns_reset(): void
 }
 
 /**
- * Places a pal may wait at: every road stop and town (a pal can glimmer on a "?" stop you have not visited, which is the nudge to go there) and the off-road
- * places this gnome has found; never a hub or a lair. Returns list of ['id', 'name', 'level'].
+ * Places a pal may wait at: road stops and towns, and the off-road places this gnome has found, but only in regions the gnome has access to
+ * (accessible_regions(): home, gardens, walked to, where they stand, and not behind a closed Seal gate). A pal never waits in a region the gnome cannot reach yet;
+ * never a hub or a lair. Returns list of ['id', 'name', 'level', 'region_id'].
  */
 function ppal_spawn_nodes(int $uid): array
 {
     require_once __DIR__ . '/progression.php';
     require_once __DIR__ . '/roads.php';
+    $open = array_fill_keys(accessible_regions($uid), true);
+    if (!$open) return [];
     $road = array_fill_keys(array_map('intval', q("SELECT a_id FROM routes WHERE kind = 'road' UNION SELECT b_id FROM routes WHERE kind = 'road'")->fetchAll(PDO::FETCH_COLUMN)), true);
     $out = [];
     foreach (q("SELECT id, name, slug, kind, region_id FROM locations WHERE kind IN ('market', 'village', 'haven', 'wonder') AND region_id IS NOT NULL ORDER BY id")->fetchAll() as $l) {
         $id = (int)$l['id'];
+        if (!isset($open[(int)$l['region_id']])) continue;
         if (!isset($road[$id]) && !place_known($uid, $l)) continue;
-        $out[] = ['id' => $id, 'name' => (string)$l['name'], 'level' => location_min_level($id)];
+        $out[] = ['id' => $id, 'name' => (string)$l['name'], 'level' => location_min_level($id), 'region_id' => (int)$l['region_id']];
     }
     return $out;
+}
+
+/** Drop this gnome's waiting pals that sit in a region they cannot reach (a gate closed, or spawns made under the old any-region rule). Returns how many went. */
+function ppal_spawn_prune(int $uid): int
+{
+    require_once __DIR__ . '/progression.php';
+    $open = array_fill_keys(accessible_regions($uid), true);
+    $gone = 0;
+    foreach (q('SELECT s.id, l.region_id FROM ppal_spawns s LEFT JOIN locations l ON l.id = s.loc_id WHERE s.user_id = ?', [$uid])->fetchAll() as $r) {
+        if (!empty($r['region_id']) && isset($open[(int)$r['region_id']])) continue;
+        q('DELETE FROM ppal_spawns WHERE id = ?', [(int)$r['id']]);
+        $gone++;
+    }
+    return $gone;
 }
 
 /**
@@ -825,12 +843,13 @@ function ppal_spawns(int $uid, bool $reset = false): array
         require_once __DIR__ . '/progression.php';
         $have = ppal_found_map($uid);
         $rel = ppal_releases($uid);
+        $open = array_fill_keys(accessible_regions($uid), true);
         foreach (q('SELECT pal_key, pic_id, loc_id FROM ppal_spawns WHERE user_id = ? ORDER BY id', [$uid])->fetchAll() as $r) {
             $pic = isset($rel[(int)$r['pic_id']]) ? ppal_pic((int)$r['pic_id']) : null;
             $pal = $pic ? ppal_find_pal($pic, (string)$r['pal_key']) : null;
             if (!$pal || isset($have[$pal['key']]) || isset($c[$uid][(int)$r['loc_id']])) continue;
-            $loc = q_one('SELECT name FROM locations WHERE id = ?', [(int)$r['loc_id']]);
-            if (!$loc) continue;
+            $loc = q_one('SELECT name, region_id FROM locations WHERE id = ?', [(int)$r['loc_id']]);
+            if (!$loc || !isset($open[(int)$loc['region_id']])) continue;   // not in a region this gnome can reach (old spawns): not shown
             $c[$uid][(int)$r['loc_id']] = ['pal' => $pal, 'pic' => $pic, 'level' => location_min_level((int)$r['loc_id']), 'loc' => (string)$loc['name']];
         }
     } catch (Throwable $e) { error_log('ppal_spawns: ' . $e->getMessage()); }
@@ -855,6 +874,7 @@ function ppal_spawn_refresh(array $u, int $extra = 0): int
         if ($extra <= 0 && $prevDay === $day) return 0;
         $rel = ppal_releases($uid);
         if (!$rel) return 0;
+        if (ppal_spawn_prune($uid) > 0) ppal_spawns_reset();   // pals waiting where the gnome cannot go go back in the pool
         if ($extra <= 0 && q('UPDATE users SET ppal_spawn_day = ? WHERE id = ? AND (ppal_spawn_day IS NULL OR ppal_spawn_day <> ?)', [$day, $uid, $day])->rowCount() !== 1) return 0;   // a second tab got there first
         $have = ppal_found_map($uid);
         $waiting = ppal_spawns($uid);
