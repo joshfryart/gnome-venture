@@ -94,6 +94,8 @@ ASSUME = dict(
                                 #   Dam Debt, Tunnels, Aurora Camp, Keeper's Hut, Cairnback Pass, Hollow Peak, Owl's Den); secrets add to both
     pages_rule='mean',          # pages row = 5 x mean(places share, crops share, folk share): its count is not defined in the proposal
     opt_pursuit=(0.25, 1.0),    # per-run share of optional side content the gnome does before looking at the meter
+    chapter_petals=[150, 225, 300, 375, 450, 525, 600],   # story-2 1.4: band 1 chapter Petals 150-600 rising by zone (linear reading)
+    preplant=False,             # True: the gnome sows the chapter crops on day 1 instead of when the step asks
     meter_from='M7',            # 'M7': the gnome reads Wren's meter once M6 is done and M7 is under way; 'main': only when the main line is done
 )
 
@@ -397,7 +399,7 @@ class StopModel:
         sp = [a for a in self.special if rng.random() < self.cond_prob(a['cond'])]
         rng.shuffle(sp)
         sp = sp[:3]
-        ans = [s for s, b in ANSWER.items() if b in unfilled]
+        ans = [s for s, b in ANSWER.items() if b in unfilled and not NO_ANSWER]
         ans.sort(key=lambda s: crc('ans|%d|%s|%s' % (day, self.name, s)))
         ans = ans[:2]
         rest = sorted(self.rest, key=lambda a: crc('day|%d|%s|%s' % (day, self.name, a['slug'])))
@@ -419,6 +421,7 @@ class StopModel:
         return r
 
 ANSWER_ACTS, THREAD_ACT = {}, None
+NO_ANSWER = False   # what-if: the four answer acts are not offered
 
 def do_acts(stop, offered, n_acts, rng, bars_state, policy, can_craft=True):
     """Do up to n_acts acts from the offer. Returns pay dict and adds bar points to bars_state (dict bar -> points, capped 100).
@@ -835,6 +838,8 @@ def run_gnome(seed, crops, acts, needs, bars, fighter, chapter_xp, jobs_on=False
     villages = [s[0] for s in NA_STOPS if s[3] == 'village']
     zone_of = {s[0]: s[2] for s in NA_STOPS}
     g.wanted.update({'oats': 1, 'lentil': 1})
+    if ASSUME['preplant']:   # a planner sows the chapter crops on day 1 (wild rice for the bed, apple, hops, goldenrod)
+        g.wanted.update({'wild-rice': 6, 'apple': 1, 'hops': 2, 'flower:goldenrod': 1})
     opt_crops = [c for c in ('soybean', 'kidney-bean', 'raspberry') if rng.random() < opt]
     opt_flowers = [f for f in NA_FLOWERS[1:] if rng.random() < opt / 2][:2]
     stops_per_day = rng.choice(ASSUME['stops_per_day'])
@@ -1015,7 +1020,7 @@ def run_gnome(seed, crops, acts, needs, bars, fighter, chapter_xp, jobs_on=False
                 g.ch_done.add(name)
                 g.ch_day[name] = day
                 ci = [c[0] for c in CH].index(name)
-                g.earn(150 + 75 * ci, 'chapters')   # story-2 1.4: band 1 chapter Petals 150 to 600 rising by zone
+                g.earn(ASSUME['chapter_petals'][ci], 'chapters')   # story-2 1.4: band 1 chapter Petals 150 to 600 rising by zone
                 g.add_xp(chapter_xp[name], 'chapters')
         for i, (name, zone, steps) in enumerate(CH):
             if name in g.ch_open:
@@ -1306,7 +1311,7 @@ def q(v):
 
 
 def main():
-    global ANSWER_ACTS, THREAD_ACT, MONEY_CROP, MONEY_SELL, BASKET_SELL
+    global ANSWER_ACTS, THREAD_ACT, MONEY_CROP, MONEY_SELL, BASKET_SELL, NO_ANSWER
     ap = argparse.ArgumentParser()
     ap.add_argument('--runs', type=int, default=400)
     ap.add_argument('--bar-runs', type=int, default=300)
@@ -1391,12 +1396,21 @@ def main():
             statistics.median(single), min(single), max(single), statistics.median(allm), min(allm), max(allm), 100 * sum(1 for x in single if 6 <= x <= 10) / len(single)))
         lat = latch_all(res, (3, 4), 300, rng)
         P('    days to latch every bar of these %d stops (3-4 stops a day, perfect routing): p10 %d, p50 %d, p90 %d' % ((len(res),) + lat))
+    NO_ANSWER = True
+    res = bar_pace(NA_STOPS, acts, needs, bars, a.bar_runs // 3, rng, 'list', 5)
+    NO_ANSWER = False
+    single = [r['bars'][b][1] for r in res.values() for b in BARS3]
+    allm = [r['all3'][1] for r in res.values()]
+    P('  what-if, NA without the four answer acts (list, 5 acts): single bar median %.1f (range %d-%d), all three median %.1f (range %d-%d)' % (
+        statistics.median(single), min(single), max(single), statistics.median(allm), min(allm), max(allm)))
     wcsv('bar_pace.csv', bp_rows)
 
     # ------------------------------------------------------------------ Maplewold runs
     MAIN_ONLY = dict(opt_pursuit=(0.0, 0.0), meter_from='main')
     variants = [('non-fighter', False, 'rebased', False, {}), ('fighter', True, 'rebased', False, {}),
                 ('non-fighter main-line-only', False, 'rebased', False, MAIN_ONLY), ('fighter main-line-only', True, 'rebased', False, MAIN_ONLY),
+                ('non-fighter planner', False, 'rebased', False, dict(preplant=True, stops_per_day=(3,))),
+                ('non-fighter planner, M1-M2 pay 400', False, 'rebased', False, dict(preplant=True, stops_per_day=(3,), chapter_petals=[400, 400, 300, 375, 450, 525, 600])),
                 ('non-fighter', False, 'rebased', True, {}), ('non-fighter 16 beds', False, 'rebased', False, dict(beds_by_level={1: 16})),
                 ('non-fighter all-best-crop', False, 'rebased', False, dict(money_mode='best')),
                 ('non-fighter', False, 'doc', False, {}), ('fighter', True, 'doc', False, {})]

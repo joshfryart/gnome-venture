@@ -62,11 +62,11 @@ So "per game day" below always means **per sleep of that gnome** (clock on) or p
 ### 2.1 Bands
 | Tier | Areas | Band | Total XP at top | `REGION_LEVELS` (band floor) | Lair (band top) |
 |---|---|---|---|---|---|
-| 1 Home | Maplewold (NA) | 1-15 | 75.7k | 1 | 15 |
-| 2 Twins | Maizehollow (CA), Mistmoor (NWE) | 15-25 | 626k | 15 | 25 |
-| 3 Second ring | Sunsprinkle (CB), Rainroot (SA), Olivewhistle (SE), Birchbramble (EE) | 25-35 | 2.5M | 25 | 35 |
-| 4 Far ring | Dunewhisper (MENA), Spicepeak (CSA), Greatcanopy (WCA), Thornacre (ESA) | 35-45 | 7.0M | 35 | 45 |
-| 5 Edge | Blossomreach (EA), Monsoon Tangle (SEA), Coralscatter (OC) | 45-55 | 16M | 45 | 55 |
+| 1 Home | Maplewold (NA) | 1-15 | 18.4k | 1 | 15 |
+| 2 Twins | Maizehollow (CA), Mistmoor (NWE) | 15-25 | 97.5k | 15 | 25 |
+| 3 Second ring | Sunsprinkle (CB), Rainroot (SA), Olivewhistle (SE), Birchbramble (EE) | 25-35 | 283k | 25 | 35 |
+| 4 Far ring | Dunewhisper (MENA), Spicepeak (CSA), Greatcanopy (WCA), Thornacre (ESA) | 35-45 | 619k | 35 | 45 |
+| 5 Edge | Blossomreach (EA), Monsoon Tangle (SEA), Coralscatter (OC) | 45-55 | 1.15M | 45 | 55 |
 
 Zones ladder inside an area (tier 2: 15-17, 18-20, 21-23, 24-25). Level is a badge, never a lock. Past the band top, action XP in that area is x0.25.
 
@@ -545,3 +545,11 @@ Follow-up work: (a) **DONE 2026-11-27**: the 2 villages and their 6 perks are in
 ## Implementation status (2.8.85, behind `seals_open`, default 0)
 Build plan 6 and 11 in code: `game/includes/seals.php` (Standing with high-water marks in `region_standing_best`, Seals in `region_seals`, `GATE_NEEDS` / `GATE_ROAD_NEEDS`, Warden text), `region_gate_open()` in `progression.php`, gates in `start_expedition` (adventure.php), `travel_to` / `can_fast_travel`, `visible_routes`, `next_region_suggestion`; Standing card on Wren's Journey chapter; test `tests/seals_standing.sh`. Deviations: N = road villages until off-road adoption (build plan 5); Errands row counts rest stop villager errands (`stop_errands`); Garden in flower = native flowers grown; Almanac pages full at 60% of the area's place and crop pages (no folk pages yet); Seed Bed row 0 (TODO, build plan 8); lair peaceful act not counted. Max today 94, non-fighter 84. Roads CB-WCA and SA-ESA are in `GATE_NEEDS` but not yet in `ROAD_PAIRS` (build plan 13).
 
+
+## 15. SIMULATION RESULTS (2026-11-27, `proposal-sim-standing.md`)
+- **XP totals were wrong** in sections 2.1/3 and the bands doc: `xp_for_level` is already a running total. Real XP at the band top: Lv 15 18,375 · Lv 25 97,500 · Lv 35 283k · Lv 45 619k · Lv 55 1.15M. Tables corrected above. The impact model's XP-per-day baseline used the old numbers: rerun it before locking XP-based perks.
+- Petals (Q1) PASS: 3,600 Petals affordable by game day 26; the real cost is stone and planks (~218 energy, 1.9 game days).
+- Standing (Q2) CONCERN: a non-fighter who only plays the chapters sits at 80.2 (0.2 slack, 91% of runs reach 80; 75.2 without the Owl). Options: require 3 errands plus one more helper errand (about 82.5), or set the Seal at 78. Seal day about 34 (non-fighter) / 32 (fighter).
+- XP (Q3) CONCERN: chapters sized on the wrong total would put a gnome at Lv 18-19 by the Seal. Recommend chapters pay 40% of the real band XP (7,350 for M1-M7).
+- Bars (Q4) PASS: 7 visit-days per bar, 41 game days for all 54 marks, only with the four answer acts and 5 acts a visit.
+- Maizehollow (Q5) PASS: Petals stop mattering from tier 2 (1,170-1,420 a day).

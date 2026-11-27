@@ -11,7 +11,7 @@ Builds on: `includes/progression.php` (REGION_LEVELS), `includes/roads.php` (ROA
 - Gate: none. Level is a "recommended" badge. Roads are always open. Fast travel needs one walk there.
 - Maplewold: 4 zones (Prairie, Old Maplewood, Foghorn Shallows, Frostbitten North), 10 villages, 6 landmarks. Only 3 villages are on a road (Poppyburrow, Honeybrook, Cloverholt, all Bramblesweep Prairie; `lay_roads` takes starter-zone villages first). The other 7 are off-road. Only road villages can be adopted (`place_ui.php` checks `on_road`), so the Maplewold has 3 adoptable stops; most areas have 3 to 7. Roads: NA-CA, NA-NWE, NA-EA (dead end Clovercove).
 - Journey: 4 chapters only (NA, CA, NWE, CB). Each = 4 tasks + 3 build stages. 14 regions, 10 chapters missing.
-- XP (xp_for_level, steep from L10, +15%): total XP to L5 2,000 · L10 16,500 · L15 75,650 · L25 625,700 · L35 2.51M · L45 7.04M.
+- XP (xp_for_level, steep from L10, +15%): total XP to L5 2,000 · L10 16,500 · L15 18,375 · L25 97,500 · L35 283k · L45 619k · L55 1.15M (corrected: XP is a running total, see proposal-sim-standing.md).
 - Creature data tops at Lv 37 (roads.php note). Lairs sit at region level + 4 (`LAIR_LEVEL_1115`, roads.php), except the Owl (10) and the Silverback Spider (20).
 - Fixed routes are clamped to Lv 40 (`route_danger`, adventure.php ~179).
 
@@ -20,11 +20,11 @@ Rule: a band = the levels you earn by finishing that area. Bands of ~10 levels. 
 
 | Tier | Areas | Band | Total XP at top |
 |---|---|---|---|
-| 1 Home | Maplewold | 1-15 | 75.7k |
-| 2 Twin neighbours | Maizehollow, Mistmoor | 15-25 | 626k |
-| 3 Second ring | Sunsprinkle (CB), Rainroot (SA) off CA · Olivewhistle (SE), Birchbramble (EE) off NWE | 25-35 | 2.5M |
+| 1 Home | Maplewold | 1-15 | 18.4k |
+| 2 Twin neighbours | Maizehollow, Mistmoor | 15-25 | 97.5k |
+| 3 Second ring | Sunsprinkle (CB), Rainroot (SA) off CA · Olivewhistle (SE), Birchbramble (EE) off NWE | 25-35 | 283k |
 | 4 Far ring | Dunewhisper (MENA), Spicepeak (CSA), Greatcanopy (WCA), Thornacre (ESA) | 35-45 | 7.0M |
-| 5 Edge | Blossomreach (EA), Monsoon Tangle (SEA), Coralscatter (OC) | 45-55 | 16M |
+| 5 Edge | Blossomreach (EA), Monsoon Tangle (SEA), Coralscatter (OC) | 45-55 | 1.15M |
 
 Notes:
 - Map graph (`ROAD_PAIRS`, checked in pass 4): it does **not** fully fit. Tier 2 to 3: CA-CB, CA-SA, NWE-SE, NWE-EE (good). Tier 3 to 4: only SE-MENA and EE-CSA. **Sunsprinkle (CB) and Rainroot (SA) have no road to any tier 4 area.** Inside tier 4: MENA-WCA, MENA-CSA, WCA-ESA, ESA-CSA. Tier 4 to 5: only CSA-EA and CSA-SEA. **SA-OC joins tier 3 straight to tier 5.** NA-EA is the Clovercove dead end. Inside tier 5: EA-SEA, SEA-OC.

@@ -1,361 +1,441 @@
 variant,day,runs,level,petals,gross_cum,lit,standing_p10,standing_p50,standing_p90
-"non-fighter, chapter XP rebased, jobs off",1,20,1.0,538.0,47.5,0.0,0.49,0.49,0.49
-"non-fighter, chapter XP rebased, jobs off",2,20,1.0,603.0,122.0,0.0,0.49,0.49,0.49
-"non-fighter, chapter XP rebased, jobs off",3,20,1.0,586.5,163.0,0.0,0.49,0.49,0.49
-"non-fighter, chapter XP rebased, jobs off",4,20,2.0,616.0,232.0,0.0,0.49,1.32,2.49
-"non-fighter, chapter XP rebased, jobs off",5,20,2.0,692.0,379.0,0.0,2.64,4.64,5.47
-"non-fighter, chapter XP rebased, jobs off",6,20,3.0,427.0,409.5,1.0,8.78,9.13,12.45
-"non-fighter, chapter XP rebased, jobs off",7,20,5.0,518.0,589.5,1.0,10.77,11.25,14.09
-"non-fighter, chapter XP rebased, jobs off",8,20,6.0,816.0,906.5,1.0,12.23,14.17,16.03
-"non-fighter, chapter XP rebased, jobs off",9,20,6.0,-198.5,922.0,2.0,14.49,16.96,18.43
-"non-fighter, chapter XP rebased, jobs off",10,20,6.0,-59.0,1205.0,2.0,16.34,18.56,20.5
-"non-fighter, chapter XP rebased, jobs off",11,20,6.0,223.0,1489.0,2.0,17.7,21.88,24.72
-"non-fighter, chapter XP rebased, jobs off",12,20,7.0,469.0,1870.0,2.0,20.27,23.94,29.98
-"non-fighter, chapter XP rebased, jobs off",13,20,7.0,432.5,2175.0,2.0,23.11,27.66,32.65
-"non-fighter, chapter XP rebased, jobs off",14,20,7.0,289.5,2376.5,2.0,26.19,29.97,36.15
-"non-fighter, chapter XP rebased, jobs off",15,20,8.0,239.5,2661.5,2.0,27.53,32.8,37.1
-"non-fighter, chapter XP rebased, jobs off",16,20,8.0,434.0,3085.5,2.0,30.25,33.64,37.7
-"non-fighter, chapter XP rebased, jobs off",17,20,9.0,698.5,3595.5,2.0,33.43,36.82,42.12
-"non-fighter, chapter XP rebased, jobs off",18,20,10.0,814.5,4195.0,2.0,36.46,39.78,45.36
-"non-fighter, chapter XP rebased, jobs off",19,20,10.0,1087.5,4594.5,2.0,39.1,42.76,48.07
-"non-fighter, chapter XP rebased, jobs off",20,20,10.0,1206.0,4949.5,2.5,42.9,46.92,52.44
-"non-fighter, chapter XP rebased, jobs off",21,20,11.0,837.0,5310.0,3.0,45.85,49.5,55.41
-"non-fighter, chapter XP rebased, jobs off",22,20,11.0,430.0,5536.5,3.0,48.88,51.96,57.72
-"non-fighter, chapter XP rebased, jobs off",23,20,11.0,546.5,5871.5,3.0,50.64,54.52,58.88
-"non-fighter, chapter XP rebased, jobs off",24,20,11.0,714.5,6321.0,3.0,53.13,57.11,61.93
-"non-fighter, chapter XP rebased, jobs off",25,20,11.0,828.0,6839.5,4.0,56.52,61.71,67.6
-"non-fighter, chapter XP rebased, jobs off",26,20,11.5,1059.0,7464.5,5.0,60.23,67.61,72.43
-"non-fighter, chapter XP rebased, jobs off",27,20,12.0,1022.0,8272.0,6.0,64.49,73.12,76.86
-"non-fighter, chapter XP rebased, jobs off",28,20,12.0,1280.0,8963.0,7.0,68.3,76.62,79.21
-"non-fighter, chapter XP rebased, jobs off",29,20,12.0,1525.5,9471.0,7.0,74.99,77.47,79.69
-"non-fighter, chapter XP rebased, jobs off",30,20,13.0,2125.0,10433.0,7.0,75.87,79.07,82.73
-"non-fighter, chapter XP rebased, jobs off",31,20,13.0,2464.0,11161.0,7.0,76.58,82.56,85.2
-"non-fighter, chapter XP rebased, jobs off",32,20,13.0,3260.0,11946.0,7.0,82.07,85.2,87.2
-"non-fighter, chapter XP rebased, jobs off",33,20,13.0,3900.5,12842.5,7.0,82.56,85.67,87.67
-"non-fighter, chapter XP rebased, jobs off",34,20,13.5,4664.0,13643.5,7.0,84.07,86.27,87.67
-"non-fighter, chapter XP rebased, jobs off",35,20,14.0,5239.5,14520.0,7.0,85.67,87.67,87.67
-"non-fighter, chapter XP rebased, jobs off",36,20,14.0,5905.0,15324.5,7.0,85.67,87.67,87.67
-"non-fighter, chapter XP rebased, jobs off",37,20,14.0,6443.0,16005.0,7.0,86.73,87.67,87.67
-"non-fighter, chapter XP rebased, jobs off",38,20,14.0,7277.0,16793.0,7.0,87.67,87.67,87.67
-"non-fighter, chapter XP rebased, jobs off",39,20,14.0,7946.0,17586.5,7.0,87.67,87.67,87.67
-"non-fighter, chapter XP rebased, jobs off",40,20,14.0,8797.0,18402.0,7.0,87.67,87.67,87.67
-"fighter, chapter XP rebased, jobs off",1,20,1.0,545.5,51.5,0.0,0.49,0.49,1.6
-"fighter, chapter XP rebased, jobs off",2,20,1.0,624.0,142.5,0.0,0.49,0.49,1.6
-"fighter, chapter XP rebased, jobs off",3,20,2.0,651.0,218.0,0.0,0.49,0.49,2.08
-"fighter, chapter XP rebased, jobs off",4,20,2.0,665.5,322.5,0.0,0.49,2.08,2.92
-"fighter, chapter XP rebased, jobs off",5,20,2.0,759.5,430.5,0.0,2.15,4.15,5.75
-"fighter, chapter XP rebased, jobs off",6,20,3.0,531.5,472.5,1.0,7.27,9.61,12.72
-"fighter, chapter XP rebased, jobs off",7,20,5.5,609.0,689.5,1.0,10.77,12.36,15.68
-"fighter, chapter XP rebased, jobs off",8,20,6.0,883.0,1003.0,1.0,12.23,15.54,17.98
-"fighter, chapter XP rebased, jobs off",9,20,6.0,87.0,1051.5,2.0,14.21,17.85,20.91
-"fighter, chapter XP rebased, jobs off",10,20,6.0,277.0,1353.0,2.0,17.1,20.42,22.6
-"fighter, chapter XP rebased, jobs off",11,20,7.0,579.0,1662.5,2.0,18.47,22.37,24.22
-"fighter, chapter XP rebased, jobs off",12,20,7.0,445.0,2000.0,2.0,22.11,24.91,32.95
-"fighter, chapter XP rebased, jobs off",13,20,8.0,197.5,2142.0,2.0,26.51,29.41,34.79
-"fighter, chapter XP rebased, jobs off",14,20,8.0,286.5,2471.5,2.0,29.2,32.89,36.47
-"fighter, chapter XP rebased, jobs off",15,20,9.0,342.5,2971.5,2.0,31.62,37.1,40.34
-"fighter, chapter XP rebased, jobs off",16,20,9.5,763.0,3441.0,2.0,38.48,42.53,46.98
-"fighter, chapter XP rebased, jobs off",17,20,11.0,1111.5,4213.5,2.0,42.54,46.86,49.76
-"fighter, chapter XP rebased, jobs off",18,20,11.0,1042.0,4635.0,2.0,45.38,49.71,55.42
-"fighter, chapter XP rebased, jobs off",19,20,11.0,1147.0,5026.0,2.0,48.39,54.05,57.55
-"fighter, chapter XP rebased, jobs off",20,20,11.0,684.0,5490.5,3.0,51.98,56.85,60.5
-"fighter, chapter XP rebased, jobs off",21,20,11.0,968.5,5900.5,3.0,54.99,58.99,61.98
-"fighter, chapter XP rebased, jobs off",22,20,11.0,945.5,6177.0,3.0,57.3,61.3,64.11
-"fighter, chapter XP rebased, jobs off",23,20,12.0,1201.5,6628.0,3.0,60.66,64.12,68.31
-"fighter, chapter XP rebased, jobs off",24,20,12.0,1315.0,7253.5,4.0,64.6,68.25,74.34
-"fighter, chapter XP rebased, jobs off",25,20,12.5,1225.5,7886.0,5.0,68.8,73.08,77.92
-"fighter, chapter XP rebased, jobs off",26,20,13.0,1226.5,8634.0,6.0,75.79,79.38,82.56
-"fighter, chapter XP rebased, jobs off",27,20,13.0,1139.5,9209.0,7.0,78.62,83.18,84.69
-"fighter, chapter XP rebased, jobs off",28,20,13.0,1694.5,9993.5,7.0,80.47,83.58,84.69
-"fighter, chapter XP rebased, jobs off",29,20,14.0,2225.0,10557.0,7.0,82.22,84.07,88.67
-"fighter, chapter XP rebased, jobs off",30,20,14.0,3053.5,11495.0,7.0,87.07,89.07,90.67
-"fighter, chapter XP rebased, jobs off",31,20,14.0,3849.0,12459.0,7.0,87.47,89.56,92.67
-"fighter, chapter XP rebased, jobs off",32,20,15.0,4871.0,13643.5,7.0,87.47,90.67,92.67
-"fighter, chapter XP rebased, jobs off",33,20,15.0,5549.0,14493.5,7.0,90.67,92.67,92.67
-"fighter, chapter XP rebased, jobs off",34,20,15.0,6295.5,15286.0,7.0,90.67,92.67,92.67
-"fighter, chapter XP rebased, jobs off",35,20,15.0,6979.0,16003.5,7.0,90.67,92.67,92.67
-"fighter, chapter XP rebased, jobs off",36,20,15.0,7649.5,16690.0,7.0,92.67,92.67,92.67
-"fighter, chapter XP rebased, jobs off",37,20,16.0,8274.0,17442.5,7.0,92.67,92.67,92.67
-"fighter, chapter XP rebased, jobs off",38,20,16.0,9114.5,18354.0,7.0,92.67,92.67,92.67
-"fighter, chapter XP rebased, jobs off",39,20,16.0,9754.0,18993.5,7.0,92.67,92.67,92.67
-"fighter, chapter XP rebased, jobs off",40,20,16.0,10536.5,19848.0,7.0,92.67,92.67,92.67
-"non-fighter main-line-only, chapter XP rebased, jobs off",1,20,1.0,538.0,47.5,0.0,0.49,0.49,0.49
-"non-fighter main-line-only, chapter XP rebased, jobs off",2,20,1.0,603.0,122.0,0.0,0.49,0.49,0.49
-"non-fighter main-line-only, chapter XP rebased, jobs off",3,20,1.0,636.0,163.0,0.0,0.49,0.49,0.49
-"non-fighter main-line-only, chapter XP rebased, jobs off",4,20,2.0,668.0,224.5,0.0,0.49,1.32,1.81
-"non-fighter main-line-only, chapter XP rebased, jobs off",5,20,2.0,661.0,372.0,0.0,2.15,2.99,3.47
-"non-fighter main-line-only, chapter XP rebased, jobs off",6,20,2.5,357.5,427.5,1.0,7.13,7.13,10.45
-"non-fighter main-line-only, chapter XP rebased, jobs off",7,20,5.0,407.5,577.5,1.0,8.77,8.77,12.09
-"non-fighter main-line-only, chapter XP rebased, jobs off",8,20,5.0,585.5,800.5,1.0,10.23,10.71,13.54
-"non-fighter main-line-only, chapter XP rebased, jobs off",9,20,6.0,-126.5,895.0,2.0,11.38,14.7,16.69
-"non-fighter main-line-only, chapter XP rebased, jobs off",10,20,6.0,108.5,1149.0,2.0,14.06,17.66,25.77
-"non-fighter main-line-only, chapter XP rebased, jobs off",11,20,6.0,328.5,1437.5,2.0,17.66,18.63,27.9
-"non-fighter main-line-only, chapter XP rebased, jobs off",12,20,7.0,612.0,1851.5,2.0,18.98,21.95,29.7
-"non-fighter main-line-only, chapter XP rebased, jobs off",13,20,7.0,368.5,2135.5,2.0,21.48,25.98,32.02
-"non-fighter main-line-only, chapter XP rebased, jobs off",14,20,7.0,231.0,2324.0,2.0,24.62,28.29,34.33
-"non-fighter main-line-only, chapter XP rebased, jobs off",15,20,9.0,564.0,2851.5,2.0,25.94,31.01,36.18
-"non-fighter main-line-only, chapter XP rebased, jobs off",16,20,9.0,532.0,3302.5,2.0,27.17,33.7,37.02
-"non-fighter main-line-only, chapter XP rebased, jobs off",17,20,10.0,879.0,4004.0,2.0,32.52,36.18,40.48
-"non-fighter main-line-only, chapter XP rebased, jobs off",18,20,10.0,935.5,4412.5,2.0,35.65,39.99,43.23
-"non-fighter main-line-only, chapter XP rebased, jobs off",19,20,10.0,1170.5,4786.5,2.0,37.67,42.88,46.05
-"non-fighter main-line-only, chapter XP rebased, jobs off",20,20,10.0,598.5,4999.5,3.0,41.76,46.02,49.83
-"non-fighter main-line-only, chapter XP rebased, jobs off",21,20,11.0,766.5,5332.5,3.0,44.27,48.5,52.65
-"non-fighter main-line-only, chapter XP rebased, jobs off",22,20,11.0,547.0,5551.0,3.0,47.1,51.74,54.61
-"non-fighter main-line-only, chapter XP rebased, jobs off",23,20,11.0,481.0,5881.0,3.0,48.25,52.89,56.6
-"non-fighter main-line-only, chapter XP rebased, jobs off",24,20,11.0,826.5,6389.0,3.0,52.41,56.11,62.41
-"non-fighter main-line-only, chapter XP rebased, jobs off",25,20,11.0,912.5,6962.0,4.0,55.24,59.08,65.25
-"non-fighter main-line-only, chapter XP rebased, jobs off",26,20,12.0,966.0,7703.5,5.0,58.07,66.23,69.44
-"non-fighter main-line-only, chapter XP rebased, jobs off",27,20,12.0,1030.5,8236.5,6.0,65.59,70.42,72.76
-"non-fighter main-line-only, chapter XP rebased, jobs off",28,20,12.0,1238.5,8798.5,7.0,70.43,72.76,73.25
-"non-fighter main-line-only, chapter XP rebased, jobs off",29,20,12.0,1720.0,9404.0,7.0,72.28,72.76,73.25
-"non-fighter main-line-only, chapter XP rebased, jobs off",30,20,13.0,2204.0,10476.5,7.0,72.28,73.25,78.74
-"non-fighter main-line-only, chapter XP rebased, jobs off",31,20,13.0,2756.5,11128.5,7.0,77.76,78.25,78.74
-"non-fighter main-line-only, chapter XP rebased, jobs off",32,20,13.0,3112.5,11755.0,7.0,77.76,78.74,80.74
-"non-fighter main-line-only, chapter XP rebased, jobs off",33,20,13.0,4096.5,12887.5,7.0,78.25,80.74,85.2
-"non-fighter main-line-only, chapter XP rebased, jobs off",34,20,14.0,4978.5,13774.5,7.0,78.25,85.2,85.67
-"non-fighter main-line-only, chapter XP rebased, jobs off",35,20,14.0,5608.5,14641.0,7.0,79.76,85.2,85.67
-"non-fighter main-line-only, chapter XP rebased, jobs off",36,20,14.0,6250.5,15371.5,7.0,84.73,85.67,87.2
-"non-fighter main-line-only, chapter XP rebased, jobs off",37,20,14.0,6850.5,16109.5,7.0,85.2,85.67,87.67
-"non-fighter main-line-only, chapter XP rebased, jobs off",38,20,14.0,7313.0,16615.0,7.0,85.67,87.67,87.67
-"non-fighter main-line-only, chapter XP rebased, jobs off",39,20,14.0,7875.0,17306.5,7.0,85.67,87.67,87.67
-"non-fighter main-line-only, chapter XP rebased, jobs off",40,20,14.0,8742.5,18156.0,7.0,87.2,87.67,87.67
-"fighter main-line-only, chapter XP rebased, jobs off",1,20,1.0,545.5,51.5,0.0,0.49,0.49,0.49
-"fighter main-line-only, chapter XP rebased, jobs off",2,20,1.0,624.5,137.0,0.0,0.49,0.49,0.49
-"fighter main-line-only, chapter XP rebased, jobs off",3,20,2.0,659.5,179.5,0.0,0.49,0.49,0.49
-"fighter main-line-only, chapter XP rebased, jobs off",4,20,2.0,722.0,293.5,0.0,0.49,0.97,1.32
-"fighter main-line-only, chapter XP rebased, jobs off",5,20,2.0,724.0,402.5,0.0,1.81,2.15,2.99
-"fighter main-line-only, chapter XP rebased, jobs off",6,20,3.0,422.0,444.5,1.0,6.78,7.27,9.61
-"fighter main-line-only, chapter XP rebased, jobs off",7,20,5.0,483.0,640.0,1.0,8.77,9.25,12.09
-"fighter main-line-only, chapter XP rebased, jobs off",8,20,6.0,735.0,894.0,1.0,10.23,10.71,14.03
-"fighter main-line-only, chapter XP rebased, jobs off",9,20,6.0,84.0,995.5,2.0,12.53,14.7,16.69
-"fighter main-line-only, chapter XP rebased, jobs off",10,20,6.0,350.0,1284.5,2.0,14.34,18.14,20.98
-"fighter main-line-only, chapter XP rebased, jobs off",11,20,7.0,643.0,1614.5,2.0,18.14,20.49,27.02
-"fighter main-line-only, chapter XP rebased, jobs off",12,20,7.0,417.0,1919.5,2.0,19.98,24.13,29.36
-"fighter main-line-only, chapter XP rebased, jobs off",13,20,7.5,266.0,2158.0,2.0,23.12,26.92,31.04
-"fighter main-line-only, chapter XP rebased, jobs off",14,20,8.0,351.5,2428.5,2.0,26.37,29.26,34.33
-"fighter main-line-only, chapter XP rebased, jobs off",15,20,10.0,459.0,2969.0,2.0,28.29,34.82,39.82
-"fighter main-line-only, chapter XP rebased, jobs off",16,20,10.0,856.0,3519.0,2.0,35.58,40.65,43.28
-"fighter main-line-only, chapter XP rebased, jobs off",17,20,11.0,1154.5,4152.5,2.0,38.6,44.99,49.24
-"fighter main-line-only, chapter XP rebased, jobs off",18,20,11.0,1001.5,4619.5,2.0,42.16,47.49,50.32
-"fighter main-line-only, chapter XP rebased, jobs off",19,20,11.0,981.5,5005.5,2.0,45.05,50.17,52.63
-"fighter main-line-only, chapter XP rebased, jobs off",20,20,11.0,776.5,5431.0,3.0,46.85,54.08,56.68
-"fighter main-line-only, chapter XP rebased, jobs off",21,20,11.0,956.5,5884.5,3.0,50.28,56.28,58.24
-"fighter main-line-only, chapter XP rebased, jobs off",22,20,11.0,1012.5,6186.5,3.0,52.59,58.38,59.79
-"fighter main-line-only, chapter XP rebased, jobs off",23,20,12.0,1311.0,6683.5,3.0,55.76,60.76,67.9
-"fighter main-line-only, chapter XP rebased, jobs off",24,20,12.0,1281.5,7186.5,4.0,59.26,63.6,70.73
-"fighter main-line-only, chapter XP rebased, jobs off",25,20,12.0,1294.5,7740.5,5.0,62.84,66.43,75.42
-"fighter main-line-only, chapter XP rebased, jobs off",26,20,13.0,1477.0,8553.0,6.0,67.75,74.1,78.25
-"fighter main-line-only, chapter XP rebased, jobs off",27,20,13.0,1147.0,9157.0,7.0,75.42,78.25,78.74
-"fighter main-line-only, chapter XP rebased, jobs off",28,20,13.0,1583.5,9691.0,7.0,75.91,78.25,78.74
-"fighter main-line-only, chapter XP rebased, jobs off",29,20,13.0,2462.5,10748.5,7.0,77.76,78.74,83.74
-"fighter main-line-only, chapter XP rebased, jobs off",30,20,14.0,3210.0,11718.5,7.0,82.37,83.74,85.74
-"fighter main-line-only, chapter XP rebased, jobs off",31,20,14.0,3999.0,12440.5,7.0,83.74,84.22,90.67
-"fighter main-line-only, chapter XP rebased, jobs off",32,20,14.5,4794.0,13341.0,7.0,83.74,86.22,90.67
-"fighter main-line-only, chapter XP rebased, jobs off",33,20,15.0,5395.0,14231.5,7.0,83.74,90.67,90.67
-"fighter main-line-only, chapter XP rebased, jobs off",34,20,15.0,6112.5,15088.0,7.0,85.74,90.67,92.67
-"fighter main-line-only, chapter XP rebased, jobs off",35,20,15.0,6812.0,15750.0,7.0,90.67,90.67,92.67
-"fighter main-line-only, chapter XP rebased, jobs off",36,20,15.0,7977.5,16979.0,7.0,90.67,92.2,92.67
-"fighter main-line-only, chapter XP rebased, jobs off",37,20,16.0,8653.5,17803.5,7.0,90.67,92.67,92.67
-"fighter main-line-only, chapter XP rebased, jobs off",38,20,16.0,9309.5,18456.0,7.0,92.2,92.67,92.67
-"fighter main-line-only, chapter XP rebased, jobs off",39,20,16.0,10057.0,19284.0,7.0,92.2,92.67,92.67
-"fighter main-line-only, chapter XP rebased, jobs off",40,20,16.0,10889.0,20116.5,7.0,92.67,92.67,92.67
-"non-fighter, chapter XP rebased, jobs on",1,20,1.0,574.5,85.5,0.0,0.49,0.49,0.49
-"non-fighter, chapter XP rebased, jobs on",2,20,1.0,660.0,185.0,0.0,0.49,0.49,0.49
-"non-fighter, chapter XP rebased, jobs on",3,20,2.0,689.5,271.5,0.0,0.49,0.49,0.97
-"non-fighter, chapter XP rebased, jobs on",4,20,2.0,833.0,436.5,0.0,0.97,1.81,2.97
-"non-fighter, chapter XP rebased, jobs on",5,20,3.0,940.0,579.5,0.0,3.12,4.64,5.47
-"non-fighter, chapter XP rebased, jobs on",6,20,3.0,655.5,684.0,1.0,9.27,10.45,12.45
-"non-fighter, chapter XP rebased, jobs on",7,20,6.0,1096.5,1206.5,1.0,11.25,14.09,15.2
-"non-fighter, chapter XP rebased, jobs on",8,20,6.0,1100.0,1563.0,1.0,12.23,15.54,18.27
-"non-fighter, chapter XP rebased, jobs on",9,20,6.0,132.5,1687.0,2.0,15.64,17.85,22.77
-"non-fighter, chapter XP rebased, jobs on",10,20,6.0,539.0,2117.5,2.0,17.31,20.42,24.6
-"non-fighter, chapter XP rebased, jobs on",11,20,7.0,412.5,2503.0,2.0,20.28,23.81,27.32
-"non-fighter, chapter XP rebased, jobs on",12,20,7.0,338.5,2661.5,2.0,22.26,26.8,32.06
-"non-fighter, chapter XP rebased, jobs on",13,20,7.0,485.5,3141.0,2.0,24.09,29.8,34.45
-"non-fighter, chapter XP rebased, jobs on",14,20,8.0,969.5,3845.0,2.0,25.88,32.03,35.72
-"non-fighter, chapter XP rebased, jobs on",15,20,8.0,1047.5,4345.0,2.0,29.59,33.78,39.53
-"non-fighter, chapter XP rebased, jobs on",16,20,10.0,1647.0,5211.0,2.0,33.18,38.17,42.21
-"non-fighter, chapter XP rebased, jobs on",17,20,10.0,1839.0,5688.5,2.0,37.25,41.41,45.25
-"non-fighter, chapter XP rebased, jobs on",18,20,11.0,2229.5,6285.0,2.0,40.77,44.97,49.2
-"non-fighter, chapter XP rebased, jobs on",19,20,11.0,1366.0,6697.5,3.0,44.34,49.41,53.56
-"non-fighter, chapter XP rebased, jobs on",20,20,11.0,1551.0,7094.0,3.0,49.27,51.57,55.16
-"non-fighter, chapter XP rebased, jobs on",21,20,11.0,1916.5,7596.0,3.0,50.73,53.88,58.47
-"non-fighter, chapter XP rebased, jobs on",22,20,11.0,2231.0,8190.5,3.0,52.81,56.69,60.78
-"non-fighter, chapter XP rebased, jobs on",23,20,11.0,2567.0,8793.0,4.0,55.69,60.56,64.76
-"non-fighter, chapter XP rebased, jobs on",24,20,11.0,2775.5,9416.0,5.0,60.68,64.87,70.49
-"non-fighter, chapter XP rebased, jobs on",25,20,12.0,2951.5,10201.0,6.0,66.97,71.26,75.47
-"non-fighter, chapter XP rebased, jobs on",26,20,12.0,3163.5,10998.0,7.0,70.18,75.96,79.07
-"non-fighter, chapter XP rebased, jobs on",27,20,13.0,3663.0,11803.5,7.0,73.65,77.69,79.69
-"non-fighter, chapter XP rebased, jobs on",28,20,13.0,4684.0,13347.0,7.0,76.1,79.07,82.56
-"non-fighter, chapter XP rebased, jobs on",29,20,13.0,5691.5,14586.0,7.0,78.87,82.56,85.67
-"non-fighter, chapter XP rebased, jobs on",30,20,13.0,6295.0,15248.0,7.0,81.58,85.18,85.67
-"non-fighter, chapter XP rebased, jobs on",31,20,13.0,6961.0,16035.5,7.0,82.07,85.18,85.67
-"non-fighter, chapter XP rebased, jobs on",32,20,14.0,7776.5,16790.5,7.0,82.67,85.18,85.67
-"non-fighter, chapter XP rebased, jobs on",33,20,14.0,8654.0,18029.0,7.0,85.18,85.67,87.67
-"non-fighter, chapter XP rebased, jobs on",34,20,14.0,9809.5,19052.0,7.0,85.67,87.67,87.67
-"non-fighter, chapter XP rebased, jobs on",35,20,14.0,11015.0,20076.0,7.0,85.67,87.67,87.67
-"non-fighter, chapter XP rebased, jobs on",36,20,14.0,11720.0,20951.5,7.0,85.67,87.67,87.67
-"non-fighter, chapter XP rebased, jobs on",37,20,15.0,12433.5,21702.0,7.0,87.67,87.67,87.67
-"non-fighter, chapter XP rebased, jobs on",38,20,15.0,13174.5,22663.0,7.0,87.67,87.67,87.67
-"non-fighter, chapter XP rebased, jobs on",39,20,15.0,13849.5,23482.5,7.0,87.67,87.67,87.67
-"non-fighter, chapter XP rebased, jobs on",40,20,15.0,14538.5,24259.5,7.0,87.67,87.67,87.67
-"non-fighter 16 beds, chapter XP rebased, jobs off",1,20,1.0,538.0,47.5,0.0,0.49,0.49,0.49
-"non-fighter 16 beds, chapter XP rebased, jobs off",2,20,1.0,603.0,122.0,0.0,0.49,0.49,0.49
-"non-fighter 16 beds, chapter XP rebased, jobs off",3,20,1.0,586.5,163.0,0.0,0.49,0.49,0.49
-"non-fighter 16 beds, chapter XP rebased, jobs off",4,20,2.0,616.0,232.0,0.0,0.49,1.32,2.49
-"non-fighter 16 beds, chapter XP rebased, jobs off",5,20,2.0,692.0,379.0,0.0,2.64,4.64,5.47
-"non-fighter 16 beds, chapter XP rebased, jobs off",6,20,3.0,427.0,409.5,1.0,8.78,9.13,12.45
-"non-fighter 16 beds, chapter XP rebased, jobs off",7,20,5.0,518.0,589.5,1.0,10.77,11.25,14.09
-"non-fighter 16 beds, chapter XP rebased, jobs off",8,20,6.0,816.0,906.5,1.0,12.23,14.17,16.03
-"non-fighter 16 beds, chapter XP rebased, jobs off",9,20,6.0,-182.5,922.0,2.0,14.49,17.22,18.48
-"non-fighter 16 beds, chapter XP rebased, jobs off",10,20,6.0,3.5,1203.0,2.0,16.34,19.05,20.91
-"non-fighter 16 beds, chapter XP rebased, jobs off",11,20,6.0,357.0,1505.5,2.0,17.7,21.88,24.72
-"non-fighter 16 beds, chapter XP rebased, jobs off",12,20,7.0,536.0,1879.0,2.0,20.27,24.98,31.36
-"non-fighter 16 beds, chapter XP rebased, jobs off",13,20,7.0,315.5,2152.5,2.0,24.94,28.82,34.3
-"non-fighter 16 beds, chapter XP rebased, jobs off",14,20,7.0,253.5,2373.0,2.0,27.25,31.69,37.1
-"non-fighter 16 beds, chapter XP rebased, jobs off",15,20,7.0,434.0,2700.5,2.0,27.53,35.01,38.55
-"non-fighter 16 beds, chapter XP rebased, jobs off",16,20,8.0,788.0,3104.0,2.0,29.38,37.1,39.04
-"non-fighter 16 beds, chapter XP rebased, jobs off",17,20,10.0,1327.5,3845.0,2.0,35.23,40.41,44.12
-"non-fighter 16 beds, chapter XP rebased, jobs off",18,20,10.0,1362.0,4160.5,2.0,37.72,43.37,46.97
-"non-fighter 16 beds, chapter XP rebased, jobs off",19,20,10.0,1527.5,4590.0,2.0,40.95,45.49,49.26
-"non-fighter 16 beds, chapter XP rebased, jobs off",20,20,10.0,895.5,4788.5,3.0,45.29,50.64,53.16
-"non-fighter 16 beds, chapter XP rebased, jobs off",21,20,10.0,998.0,4994.5,3.0,47.55,52.27,55.78
-"non-fighter 16 beds, chapter XP rebased, jobs off",22,20,10.5,1069.5,5328.0,3.0,49.86,54.54,58.09
-"non-fighter 16 beds, chapter XP rebased, jobs off",23,20,11.0,1211.5,5512.5,3.0,51.01,56.49,60.68
-"non-fighter 16 beds, chapter XP rebased, jobs off",24,20,11.0,1283.0,6115.0,4.0,55.35,62.16,65.25
-"non-fighter 16 beds, chapter XP rebased, jobs off",25,20,11.0,1177.0,6466.5,5.0,59.74,66.21,68.84
-"non-fighter 16 beds, chapter XP rebased, jobs off",26,20,11.0,1174.5,6942.5,6.0,64.13,70.57,74.01
-"non-fighter 16 beds, chapter XP rebased, jobs off",27,20,12.0,1296.0,7650.0,7.0,68.83,75.4,78.38
-"non-fighter 16 beds, chapter XP rebased, jobs off",28,20,12.0,1690.5,8143.5,7.0,74.1,76.1,79.21
-"non-fighter 16 beds, chapter XP rebased, jobs off",29,20,12.0,2014.0,8763.5,7.0,74.8,79.07,81.18
-"non-fighter 16 beds, chapter XP rebased, jobs off",30,20,12.0,2698.5,9465.5,7.0,78.58,82.07,85.18
-"non-fighter 16 beds, chapter XP rebased, jobs off",31,20,12.0,3154.5,10160.0,7.0,79.18,83.67,85.18
-"non-fighter 16 beds, chapter XP rebased, jobs off",32,20,12.0,3676.5,10637.5,7.0,81.36,84.21,85.67
-"non-fighter 16 beds, chapter XP rebased, jobs off",33,20,13.0,4089.5,11219.5,7.0,82.07,84.21,85.67
-"non-fighter 16 beds, chapter XP rebased, jobs off",34,20,13.0,4493.0,11618.0,7.0,82.47,84.69,87.18
-"non-fighter 16 beds, chapter XP rebased, jobs off",35,20,13.0,4934.0,12053.0,7.0,83.2,85.2,87.67
-"non-fighter 16 beds, chapter XP rebased, jobs off",36,20,13.0,5396.5,12518.0,7.0,83.2,85.2,87.67
-"non-fighter 16 beds, chapter XP rebased, jobs off",37,20,13.0,5706.5,12783.0,7.0,83.2,85.2,87.67
-"non-fighter 16 beds, chapter XP rebased, jobs off",38,20,13.0,6299.0,13268.5,7.0,83.2,85.67,87.67
-"non-fighter 16 beds, chapter XP rebased, jobs off",39,20,13.0,6587.0,13649.5,7.0,83.2,85.67,87.67
-"non-fighter 16 beds, chapter XP rebased, jobs off",40,20,14.0,7442.0,14637.0,7.0,83.2,87.67,87.67
-"non-fighter all-best-crop, chapter XP rebased, jobs off",1,20,1.0,538.0,47.5,0.0,0.49,0.49,0.49
-"non-fighter all-best-crop, chapter XP rebased, jobs off",2,20,1.0,607.0,122.5,0.0,0.49,0.49,0.97
-"non-fighter all-best-crop, chapter XP rebased, jobs off",3,20,1.0,581.5,174.5,0.0,0.49,0.49,0.97
-"non-fighter all-best-crop, chapter XP rebased, jobs off",4,20,2.0,571.0,248.5,0.0,0.49,1.32,2.49
-"non-fighter all-best-crop, chapter XP rebased, jobs off",5,20,2.0,598.0,405.0,0.0,2.64,4.92,5.26
-"non-fighter all-best-crop, chapter XP rebased, jobs off",6,20,3.0,273.5,417.5,1.0,9.13,9.61,12.45
-"non-fighter all-best-crop, chapter XP rebased, jobs off",7,20,5.0,327.0,578.5,1.0,10.77,11.25,14.09
-"non-fighter all-best-crop, chapter XP rebased, jobs off",8,20,6.0,564.5,840.0,1.0,12.71,14.45,18.61
-"non-fighter all-best-crop, chapter XP rebased, jobs off",9,20,6.0,-150.0,945.0,2.0,14.36,17.0,20.92
-"non-fighter all-best-crop, chapter XP rebased, jobs off",10,20,6.0,-8.0,1205.0,2.0,16.63,19.27,24.2
-"non-fighter all-best-crop, chapter XP rebased, jobs off",11,20,6.0,339.5,1558.5,2.0,18.07,23.56,28.0
-"non-fighter all-best-crop, chapter XP rebased, jobs off",12,20,7.0,353.5,1930.5,2.0,21.3,25.73,31.5
-"non-fighter all-best-crop, chapter XP rebased, jobs off",13,20,7.0,321.5,2178.5,2.0,25.22,28.07,32.61
-"non-fighter all-best-crop, chapter XP rebased, jobs off",14,20,7.0,395.0,2485.5,2.0,26.69,31.61,36.78
-"non-fighter all-best-crop, chapter XP rebased, jobs off",15,20,8.0,261.0,2791.5,2.0,29.62,34.75,38.55
-"non-fighter all-best-crop, chapter XP rebased, jobs off",16,20,8.0,352.5,3179.5,2.0,29.62,36.25,39.57
-"non-fighter all-best-crop, chapter XP rebased, jobs off",17,20,8.0,387.0,3598.5,2.0,32.31,37.58,40.75
-"non-fighter all-best-crop, chapter XP rebased, jobs off",18,20,10.0,712.0,4167.0,2.0,33.53,40.41,43.99
-"non-fighter all-best-crop, chapter XP rebased, jobs off",19,20,10.0,899.5,4647.0,2.0,38.1,44.13,48.81
-"non-fighter all-best-crop, chapter XP rebased, jobs off",20,20,10.0,1161.0,5227.5,2.0,40.54,47.44,51.01
-"non-fighter all-best-crop, chapter XP rebased, jobs off",21,20,11.0,399.5,5358.5,3.0,43.83,51.43,55.07
-"non-fighter all-best-crop, chapter XP rebased, jobs off",22,20,11.0,578.5,5722.0,3.0,45.77,53.62,57.36
-"non-fighter all-best-crop, chapter XP rebased, jobs off",23,20,11.0,412.5,5975.0,3.0,49.23,55.93,59.62
-"non-fighter all-best-crop, chapter XP rebased, jobs off",24,20,11.0,448.5,6324.5,3.0,51.4,58.61,60.82
-"non-fighter all-best-crop, chapter XP rebased, jobs off",25,20,11.0,613.0,6717.5,3.0,53.53,60.84,64.28
-"non-fighter all-best-crop, chapter XP rebased, jobs off",26,20,11.0,843.5,7326.5,4.0,58.26,63.31,68.69
-"non-fighter all-best-crop, chapter XP rebased, jobs off",27,20,12.0,1029.0,8137.0,5.0,60.26,68.74,72.92
-"non-fighter all-best-crop, chapter XP rebased, jobs off",28,20,12.0,1189.5,8734.0,6.0,62.82,74.07,76.38
-"non-fighter all-best-crop, chapter XP rebased, jobs off",29,20,12.0,1388.5,9450.5,7.0,68.49,76.9,79.21
-"non-fighter all-best-crop, chapter XP rebased, jobs off",30,20,13.0,1648.5,10321.0,7.0,73.19,77.75,79.69
-"non-fighter all-best-crop, chapter XP rebased, jobs off",31,20,13.0,2137.5,10943.0,7.0,76.43,78.86,83.67
-"non-fighter all-best-crop, chapter XP rebased, jobs off",32,20,13.0,2058.0,11758.5,7.0,76.51,83.07,85.67
-"non-fighter all-best-crop, chapter XP rebased, jobs off",33,20,13.0,2604.5,12595.5,7.0,76.51,84.83,87.67
-"non-fighter all-best-crop, chapter XP rebased, jobs off",34,20,13.0,3733.5,13340.0,7.0,82.37,85.18,87.67
-"non-fighter all-best-crop, chapter XP rebased, jobs off",35,20,14.0,4570.5,14527.0,7.0,82.75,86.83,87.67
-"non-fighter all-best-crop, chapter XP rebased, jobs off",36,20,14.0,5227.0,15357.5,7.0,82.83,86.83,87.67
-"non-fighter all-best-crop, chapter XP rebased, jobs off",37,20,14.0,5802.5,15789.0,7.0,84.0,86.83,87.67
-"non-fighter all-best-crop, chapter XP rebased, jobs off",38,20,14.0,6526.5,16574.0,7.0,84.0,86.83,87.67
-"non-fighter all-best-crop, chapter XP rebased, jobs off",39,20,14.0,7337.0,17425.5,7.0,84.0,86.83,87.67
-"non-fighter all-best-crop, chapter XP rebased, jobs off",40,20,14.0,7889.0,18079.0,7.0,84.0,87.67,87.67
-"non-fighter, chapter XP doc, jobs off",1,20,1.0,538.0,47.5,0.0,0.49,0.49,0.49
-"non-fighter, chapter XP doc, jobs off",2,20,1.0,603.0,122.0,0.0,0.49,0.49,0.49
-"non-fighter, chapter XP doc, jobs off",3,20,1.0,586.5,163.0,0.0,0.49,0.49,0.49
-"non-fighter, chapter XP doc, jobs off",4,20,2.0,616.0,232.0,0.0,0.49,1.32,2.49
-"non-fighter, chapter XP doc, jobs off",5,20,2.0,692.0,379.0,0.0,2.64,4.64,5.47
-"non-fighter, chapter XP doc, jobs off",6,20,3.0,427.0,409.5,1.0,8.78,9.13,12.45
-"non-fighter, chapter XP doc, jobs off",7,20,10.0,518.0,589.5,1.0,10.77,11.25,14.09
-"non-fighter, chapter XP doc, jobs off",8,20,10.0,766.5,939.0,1.0,12.23,15.28,16.86
-"non-fighter, chapter XP doc, jobs off",9,20,10.0,-161.5,968.5,2.0,14.53,18.2,20.28
-"non-fighter, chapter XP doc, jobs off",10,20,10.0,130.0,1237.5,2.0,15.99,20.24,23.75
-"non-fighter, chapter XP doc, jobs off",11,20,10.0,583.5,1866.0,2.0,19.05,21.88,25.98
-"non-fighter, chapter XP doc, jobs off",12,20,10.0,306.5,2145.0,2.0,21.26,25.69,30.29
-"non-fighter, chapter XP doc, jobs off",13,20,10.0,181.0,2310.0,2.0,23.41,28.58,33.15
-"non-fighter, chapter XP doc, jobs off",14,20,10.0,539.5,2755.0,2.0,26.41,31.44,35.41
-"non-fighter, chapter XP doc, jobs off",15,20,11.0,272.5,3090.5,2.0,29.62,34.12,36.96
-"non-fighter, chapter XP doc, jobs off",16,20,11.0,471.0,3475.0,2.0,29.62,34.96,37.79
-"non-fighter, chapter XP doc, jobs off",17,20,12.0,790.5,4199.0,2.0,32.07,38.9,41.32
-"non-fighter, chapter XP doc, jobs off",18,20,14.0,949.0,4773.0,2.0,36.18,42.14,44.55
-"non-fighter, chapter XP doc, jobs off",19,20,14.0,1107.5,5198.0,2.0,39.19,44.89,47.87
-"non-fighter, chapter XP doc, jobs off",20,20,14.0,654.5,5678.0,3.0,42.43,49.44,52.06
-"non-fighter, chapter XP doc, jobs off",21,20,14.0,726.0,5959.5,3.0,45.12,51.35,53.87
-"non-fighter, chapter XP doc, jobs off",22,20,14.0,776.0,6484.0,3.0,49.02,53.87,56.18
-"non-fighter, chapter XP doc, jobs off",23,20,14.0,723.0,6833.0,3.0,50.48,55.51,58.61
-"non-fighter, chapter XP doc, jobs off",24,20,14.0,796.0,7429.0,4.0,56.33,60.43,65.04
-"non-fighter, chapter XP doc, jobs off",25,20,15.0,1093.0,8055.5,4.0,58.64,63.95,70.43
-"non-fighter, chapter XP doc, jobs off",26,20,16.0,1427.0,8785.0,5.0,61.82,70.62,74.29
-"non-fighter, chapter XP doc, jobs off",27,20,16.0,1429.0,9680.5,6.0,67.34,74.85,77.61
-"non-fighter, chapter XP doc, jobs off",28,20,16.0,1803.5,10349.0,7.0,72.72,77.07,79.21
-"non-fighter, chapter XP doc, jobs off",29,20,17.0,2362.5,11048.0,7.0,74.99,78.67,79.69
-"non-fighter, chapter XP doc, jobs off",30,20,17.0,3130.0,11889.0,7.0,78.18,80.67,84.69
-"non-fighter, chapter XP doc, jobs off",31,20,17.0,3562.0,12574.5,7.0,78.72,83.67,87.18
-"non-fighter, chapter XP doc, jobs off",32,20,17.0,4765.5,13767.5,7.0,80.96,84.73,87.18
-"non-fighter, chapter XP doc, jobs off",33,20,18.0,5597.5,14835.5,7.0,83.67,86.69,87.67
-"non-fighter, chapter XP doc, jobs off",34,20,18.0,6465.5,15831.0,7.0,83.67,86.69,87.67
-"non-fighter, chapter XP doc, jobs off",35,20,18.0,7023.5,16410.0,7.0,83.67,87.67,87.67
-"non-fighter, chapter XP doc, jobs off",36,20,18.0,7808.5,17338.5,7.0,85.67,87.67,87.67
-"non-fighter, chapter XP doc, jobs off",37,20,18.0,8279.0,17971.5,7.0,85.67,87.67,87.67
-"non-fighter, chapter XP doc, jobs off",38,20,18.0,9009.0,18703.0,7.0,85.67,87.67,87.67
-"non-fighter, chapter XP doc, jobs off",39,20,19.0,9767.5,19438.5,7.0,87.67,87.67,87.67
-"non-fighter, chapter XP doc, jobs off",40,20,19.0,10318.5,20012.0,7.0,87.67,87.67,87.67
-"fighter, chapter XP doc, jobs off",1,20,1.0,545.5,51.5,0.0,0.49,0.49,1.6
-"fighter, chapter XP doc, jobs off",2,20,1.0,624.0,142.5,0.0,0.49,0.49,1.6
-"fighter, chapter XP doc, jobs off",3,20,2.0,651.0,218.0,0.0,0.49,0.49,2.08
-"fighter, chapter XP doc, jobs off",4,20,2.0,665.5,322.5,0.0,0.49,2.08,2.92
-"fighter, chapter XP doc, jobs off",5,20,2.0,759.5,430.5,0.0,2.15,4.15,5.75
-"fighter, chapter XP doc, jobs off",6,20,3.0,531.5,472.5,1.0,7.27,9.61,12.72
-"fighter, chapter XP doc, jobs off",7,20,10.0,609.0,689.5,1.0,10.77,12.36,15.68
-"fighter, chapter XP doc, jobs off",8,20,10.0,841.5,1082.0,1.0,17.71,20.14,23.46
-"fighter, chapter XP doc, jobs off",9,20,10.0,152.5,1160.0,2.0,19.8,22.67,25.28
-"fighter, chapter XP doc, jobs off",10,20,10.0,336.0,1378.5,2.0,21.42,25.1,30.98
-"fighter, chapter XP doc, jobs off",11,20,10.0,681.0,1940.0,2.0,23.82,27.37,35.26
-"fighter, chapter XP doc, jobs off",12,20,11.0,369.5,2239.5,2.0,28.97,31.41,40.41
-"fighter, chapter XP doc, jobs off",13,20,11.0,202.5,2443.0,2.0,31.28,36.44,40.41
-"fighter, chapter XP doc, jobs off",14,20,11.0,566.5,2960.5,2.0,31.3,38.43,42.72
-"fighter, chapter XP doc, jobs off",15,20,11.0,449.5,3408.5,2.0,33.98,38.78,43.55
-"fighter, chapter XP doc, jobs off",16,20,11.0,727.0,3946.0,2.0,36.67,39.89,44.87
-"fighter, chapter XP doc, jobs off",17,20,13.0,1175.5,4795.0,2.0,40.74,45.21,47.89
-"fighter, chapter XP doc, jobs off",18,20,14.0,1143.5,5313.0,2.0,44.41,48.6,52.1
-"fighter, chapter XP doc, jobs off",19,20,15.0,1413.5,5840.0,2.0,45.87,51.71,54.24
-"fighter, chapter XP doc, jobs off",20,20,15.0,729.5,6123.0,3.0,51.01,55.72,58.79
-"fighter, chapter XP doc, jobs off",21,20,15.0,1172.5,6743.5,3.0,53.18,57.18,60.84
-"fighter, chapter XP doc, jobs off",22,20,15.0,1170.0,7150.0,3.0,55.31,59.49,63.15
-"fighter, chapter XP doc, jobs off",23,20,15.0,1438.0,7599.5,3.0,58.7,62.6,65.56
-"fighter, chapter XP doc, jobs off",24,20,15.0,1537.5,8148.5,4.0,64.86,67.82,70.25
-"fighter, chapter XP doc, jobs off",25,20,15.0,1674.0,9000.0,5.0,68.29,71.97,73.57
-"fighter, chapter XP doc, jobs off",26,20,17.0,1826.5,9971.0,6.0,76.68,79.64,81.72
-"fighter, chapter XP doc, jobs off",27,20,17.0,2150.5,10741.5,7.0,80.47,83.1,85.18
-"fighter, chapter XP doc, jobs off",28,20,18.0,3170.5,11891.0,7.0,87.56,89.07,90.18
-"fighter, chapter XP doc, jobs off",29,20,18.0,3953.5,12724.5,7.0,87.56,89.07,90.67
-"fighter, chapter XP doc, jobs off",30,20,18.0,4806.5,13587.0,7.0,87.69,89.56,90.67
-"fighter, chapter XP doc, jobs off",31,20,18.0,5497.5,14373.0,7.0,87.69,90.18,90.67
-"fighter, chapter XP doc, jobs off",32,20,18.0,6338.0,15172.0,7.0,88.67,90.67,92.67
-"fighter, chapter XP doc, jobs off",33,20,19.0,7339.0,16273.5,7.0,88.67,90.67,92.67
-"fighter, chapter XP doc, jobs off",34,20,19.0,8168.5,17248.5,7.0,90.67,92.67,92.67
-"fighter, chapter XP doc, jobs off",35,20,19.0,8879.5,18000.0,7.0,90.67,92.67,92.67
-"fighter, chapter XP doc, jobs off",36,20,20.0,9952.0,19070.0,7.0,90.67,92.67,92.67
-"fighter, chapter XP doc, jobs off",37,20,20.0,10552.0,19883.5,7.0,92.67,92.67,92.67
-"fighter, chapter XP doc, jobs off",38,20,20.0,11114.0,20492.5,7.0,92.67,92.67,92.67
-"fighter, chapter XP doc, jobs off",39,20,20.0,11898.5,21406.0,7.0,92.67,92.67,92.67
-"fighter, chapter XP doc, jobs off",40,20,20.0,12848.0,22310.0,7.0,92.67,92.67,92.67
+"non-fighter, chapter XP rebased, jobs off",1,400,1.0,544.0,55.0,0.0,0.49,0.49,0.49
+"non-fighter, chapter XP rebased, jobs off",2,400,1.0,576.0,110.0,0.0,0.49,0.49,0.49
+"non-fighter, chapter XP rebased, jobs off",3,400,1.0,553.0,161.0,0.0,0.49,0.49,0.97
+"non-fighter, chapter XP rebased, jobs off",4,400,2.0,597.0,233.0,0.0,0.49,1.32,3.32
+"non-fighter, chapter XP rebased, jobs off",5,400,2.0,697.5,374.0,0.0,2.15,4.15,5.75
+"non-fighter, chapter XP rebased, jobs off",6,400,3.0,411.0,407.5,1.0,7.61,9.13,10.93
+"non-fighter, chapter XP rebased, jobs off",7,400,5.0,516.0,612.0,1.0,9.93,11.25,14.09
+"non-fighter, chapter XP rebased, jobs off",8,400,6.0,775.5,888.5,1.0,11.74,13.68,17.0
+"non-fighter, chapter XP rebased, jobs off",9,400,6.0,-189.0,931.0,2.0,13.85,16.43,20.33
+"non-fighter, chapter XP rebased, jobs off",10,400,6.0,15.5,1213.0,2.0,15.51,18.95,23.6
+"non-fighter, chapter XP rebased, jobs off",11,400,6.0,267.0,1554.0,2.0,17.87,21.88,26.81
+"non-fighter, chapter XP rebased, jobs off",12,400,7.0,467.0,1900.5,2.0,20.59,24.7,29.52
+"non-fighter, chapter XP rebased, jobs off",13,400,7.0,409.5,2192.0,2.0,23.11,28.02,33.23
+"non-fighter, chapter XP rebased, jobs off",14,400,7.0,282.0,2473.0,2.0,25.94,30.98,36.15
+"non-fighter, chapter XP rebased, jobs off",15,400,8.0,325.0,2767.0,2.0,28.08,32.85,37.78
+"non-fighter, chapter XP rebased, jobs off",16,400,8.0,437.5,3160.5,2.0,29.61,34.68,39.04
+"non-fighter, chapter XP rebased, jobs off",17,400,10.0,728.5,3746.0,2.0,32.02,37.88,42.26
+"non-fighter, chapter XP rebased, jobs off",18,400,10.0,930.0,4294.5,2.0,35.06,40.89,45.72
+"non-fighter, chapter XP rebased, jobs off",19,400,10.0,1175.5,4757.0,2.0,38.31,44.06,48.81
+"non-fighter, chapter XP rebased, jobs off",20,400,10.0,898.5,5019.0,3.0,41.56,48.07,53.21
+"non-fighter, chapter XP rebased, jobs off",21,400,11.0,704.5,5347.0,3.0,45.32,51.17,55.78
+"non-fighter, chapter XP rebased, jobs off",22,400,11.0,511.5,5661.0,3.0,48.77,53.8,57.72
+"non-fighter, chapter XP rebased, jobs off",23,400,11.0,527.0,5935.5,3.0,51.09,55.8,59.57
+"non-fighter, chapter XP rebased, jobs off",24,400,11.0,746.5,6396.0,3.0,53.8,58.56,62.76
+"non-fighter, chapter XP rebased, jobs off",25,400,11.0,857.0,6943.0,4.0,56.94,61.71,67.74
+"non-fighter, chapter XP rebased, jobs off",26,400,12.0,1039.0,7696.5,5.0,60.78,66.97,73.54
+"non-fighter, chapter XP rebased, jobs off",27,400,12.0,1153.0,8387.0,6.0,64.91,72.92,76.99
+"non-fighter, chapter XP rebased, jobs off",28,400,12.0,1280.0,9030.0,7.0,70.7,76.38,79.21
+"non-fighter, chapter XP rebased, jobs off",29,400,12.0,1710.0,9689.5,7.0,74.4,77.61,79.69
+"non-fighter, chapter XP rebased, jobs off",30,400,13.0,2081.0,10417.0,7.0,76.1,78.72,82.96
+"non-fighter, chapter XP rebased, jobs off",31,400,13.0,2596.5,11224.5,7.0,77.47,82.47,85.67
+"non-fighter, chapter XP rebased, jobs off",32,400,13.0,3238.0,12006.0,7.0,80.47,84.07,87.2
+"non-fighter, chapter XP rebased, jobs off",33,400,13.0,3990.5,12945.0,7.0,82.56,85.67,87.67
+"non-fighter, chapter XP rebased, jobs off",34,400,14.0,4773.0,13876.5,7.0,83.62,85.67,87.67
+"non-fighter, chapter XP rebased, jobs off",35,400,14.0,5482.5,14683.0,7.0,85.2,87.67,87.67
+"non-fighter, chapter XP rebased, jobs off",36,400,14.0,6144.5,15431.5,7.0,85.67,87.67,87.67
+"non-fighter, chapter XP rebased, jobs off",37,400,14.0,6726.0,16118.0,7.0,85.67,87.67,87.67
+"non-fighter, chapter XP rebased, jobs off",38,400,14.0,7353.5,16870.5,7.0,87.67,87.67,87.67
+"non-fighter, chapter XP rebased, jobs off",39,400,14.0,7999.0,17549.0,7.0,87.67,87.67,87.67
+"non-fighter, chapter XP rebased, jobs off",40,400,14.0,8715.0,18292.0,7.0,87.67,87.67,87.67
+"fighter, chapter XP rebased, jobs off",1,400,1.0,550.0,57.0,0.0,0.49,0.49,1.6
+"fighter, chapter XP rebased, jobs off",2,400,1.0,610.5,130.0,0.0,0.49,0.49,1.6
+"fighter, chapter XP rebased, jobs off",3,400,2.0,639.0,200.5,0.0,0.49,0.49,2.08
+"fighter, chapter XP rebased, jobs off",4,400,2.0,693.0,320.5,0.0,0.49,1.81,2.92
+"fighter, chapter XP rebased, jobs off",5,400,2.0,775.0,440.5,0.0,2.15,3.75,5.75
+"fighter, chapter XP rebased, jobs off",6,400,3.0,491.0,479.5,1.0,7.61,9.89,13.21
+"fighter, chapter XP rebased, jobs off",7,400,5.0,583.5,684.5,1.0,10.36,12.09,15.68
+"fighter, chapter XP rebased, jobs off",8,400,6.0,865.0,1005.0,1.0,12.23,14.66,17.98
+"fighter, chapter XP rebased, jobs off",9,400,6.0,96.0,1050.0,2.0,14.21,17.85,21.52
+"fighter, chapter XP rebased, jobs off",10,400,6.0,287.0,1329.0,2.0,16.34,19.94,24.09
+"fighter, chapter XP rebased, jobs off",11,400,7.0,467.0,1651.5,2.0,18.56,22.62,27.3
+"fighter, chapter XP rebased, jobs off",12,400,7.0,418.0,1961.0,2.0,21.14,25.7,31.96
+"fighter, chapter XP rebased, jobs off",13,400,8.0,264.0,2185.5,2.0,24.08,28.75,34.96
+"fighter, chapter XP rebased, jobs off",14,400,8.0,294.0,2514.5,2.0,26.57,31.29,37.23
+"fighter, chapter XP rebased, jobs off",15,400,8.0,359.0,2867.0,2.0,28.21,34.89,40.93
+"fighter, chapter XP rebased, jobs off",16,400,9.0,696.5,3387.0,2.0,34.33,40.97,45.89
+"fighter, chapter XP rebased, jobs off",17,400,11.0,1106.0,4140.0,2.0,39.09,45.06,49.69
+"fighter, chapter XP rebased, jobs off",18,400,11.0,1023.0,4581.0,2.0,42.46,48.72,53.56
+"fighter, chapter XP rebased, jobs off",19,400,11.0,1133.5,4980.0,2.0,45.61,51.71,57.2
+"fighter, chapter XP rebased, jobs off",20,400,11.0,691.5,5365.5,3.0,49.8,55.83,59.98
+"fighter, chapter XP rebased, jobs off",21,400,11.0,937.5,5838.5,3.0,52.27,58.17,62.01
+"fighter, chapter XP rebased, jobs off",22,400,11.0,961.0,6165.0,3.0,54.92,60.42,64.18
+"fighter, chapter XP rebased, jobs off",23,400,12.0,1138.5,6585.0,3.0,57.68,62.99,67.19
+"fighter, chapter XP rebased, jobs off",24,400,12.0,1250.5,7190.5,4.0,62.12,67.77,72.46
+"fighter, chapter XP rebased, jobs off",25,400,12.0,1316.0,7813.5,5.0,65.97,72.12,78.94
+"fighter, chapter XP rebased, jobs off",26,400,13.0,1407.0,8712.0,6.0,71.97,79.38,82.56
+"fighter, chapter XP rebased, jobs off",27,400,13.0,1266.5,9315.0,7.0,77.88,82.47,84.69
+"fighter, chapter XP rebased, jobs off",28,400,13.0,1722.5,9985.5,7.0,80.47,83.18,85.18
+"fighter, chapter XP rebased, jobs off",29,400,14.0,2346.5,10723.0,7.0,81.99,84.59,89.07
+"fighter, chapter XP rebased, jobs off",30,400,14.0,3211.5,11651.5,7.0,86.44,89.07,90.67
+"fighter, chapter XP rebased, jobs off",31,400,14.0,3908.5,12539.5,7.0,87.56,90.18,92.67
+"fighter, chapter XP rebased, jobs off",32,400,14.0,4848.0,13612.0,7.0,88.18,90.67,92.67
+"fighter, chapter XP rebased, jobs off",33,400,15.0,5651.5,14489.0,7.0,88.67,92.67,92.67
+"fighter, chapter XP rebased, jobs off",34,400,15.0,6360.0,15329.5,7.0,90.67,92.67,92.67
+"fighter, chapter XP rebased, jobs off",35,400,15.0,7055.5,16135.5,7.0,90.67,92.67,92.67
+"fighter, chapter XP rebased, jobs off",36,400,15.0,7818.0,16940.0,7.0,90.67,92.67,92.67
+"fighter, chapter XP rebased, jobs off",37,400,16.0,8413.0,17683.0,7.0,92.67,92.67,92.67
+"fighter, chapter XP rebased, jobs off",38,400,16.0,9158.0,18472.0,7.0,92.67,92.67,92.67
+"fighter, chapter XP rebased, jobs off",39,400,16.0,9901.0,19260.0,7.0,92.67,92.67,92.67
+"fighter, chapter XP rebased, jobs off",40,400,16.0,10591.5,20026.0,7.0,92.67,92.67,92.67
+"non-fighter main-line-only, chapter XP rebased, jobs off",1,400,1.0,544.0,55.0,0.0,0.49,0.49,0.49
+"non-fighter main-line-only, chapter XP rebased, jobs off",2,400,1.0,591.0,111.5,0.0,0.49,0.49,0.97
+"non-fighter main-line-only, chapter XP rebased, jobs off",3,400,1.0,634.0,164.0,0.0,0.49,0.49,0.97
+"non-fighter main-line-only, chapter XP rebased, jobs off",4,400,2.0,667.5,232.0,0.0,0.49,1.32,1.81
+"non-fighter main-line-only, chapter XP rebased, jobs off",5,400,2.0,671.5,386.5,0.0,2.15,2.99,3.47
+"non-fighter main-line-only, chapter XP rebased, jobs off",6,400,2.0,374.5,441.0,1.0,7.13,7.13,10.45
+"non-fighter main-line-only, chapter XP rebased, jobs off",7,400,5.0,423.5,594.0,1.0,8.77,8.77,12.09
+"non-fighter main-line-only, chapter XP rebased, jobs off",8,400,5.0,632.5,835.0,1.0,10.23,10.71,14.03
+"non-fighter main-line-only, chapter XP rebased, jobs off",9,400,6.0,-118.0,898.5,2.0,11.38,14.21,17.17
+"non-fighter main-line-only, chapter XP rebased, jobs off",10,400,6.0,89.5,1155.0,2.0,13.85,17.17,21.09
+"non-fighter main-line-only, chapter XP rebased, jobs off",11,400,6.0,389.5,1518.0,2.0,15.53,19.02,23.7
+"non-fighter main-line-only, chapter XP rebased, jobs off",12,400,7.0,476.5,1890.0,2.0,18.98,22.78,28.82
+"non-fighter main-line-only, chapter XP rebased, jobs off",13,400,7.0,349.0,2122.5,2.0,21.3,26.37,31.54
+"non-fighter main-line-only, chapter XP rebased, jobs off",14,400,7.0,247.0,2397.5,2.0,23.47,28.78,33.85
+"non-fighter main-line-only, chapter XP rebased, jobs off",15,400,9.0,558.5,2917.5,2.0,24.62,30.14,34.82
+"non-fighter main-line-only, chapter XP rebased, jobs off",16,400,9.0,524.0,3383.0,2.0,26.78,33.31,37.02
+"non-fighter main-line-only, chapter XP rebased, jobs off",17,400,10.0,846.0,3968.0,2.0,29.61,35.82,39.99
+"non-fighter main-line-only, chapter XP rebased, jobs off",18,400,10.0,1033.5,4438.0,2.0,32.55,39.03,43.23
+"non-fighter main-line-only, chapter XP rebased, jobs off",19,400,10.0,1210.0,4836.0,2.0,35.82,42.33,46.54
+"non-fighter main-line-only, chapter XP rebased, jobs off",20,400,10.0,584.0,5074.0,3.0,39.16,46.05,49.83
+"non-fighter main-line-only, chapter XP rebased, jobs off",21,400,11.0,747.5,5395.0,3.0,42.91,48.88,51.77
+"non-fighter main-line-only, chapter XP rebased, jobs off",22,400,11.0,505.0,5687.0,3.0,46.02,50.91,53.91
+"non-fighter main-line-only, chapter XP rebased, jobs off",23,400,11.0,568.5,5986.5,3.0,48.22,52.89,56.11
+"non-fighter main-line-only, chapter XP rebased, jobs off",24,400,11.0,843.0,6520.5,3.0,51.25,54.96,60.07
+"non-fighter main-line-only, chapter XP rebased, jobs off",25,400,11.0,901.5,7043.0,4.0,54.75,58.94,65.73
+"non-fighter main-line-only, chapter XP rebased, jobs off",26,400,12.0,1074.0,7729.0,5.0,58.07,64.76,69.93
+"non-fighter main-line-only, chapter XP rebased, jobs off",27,400,12.0,1125.0,8372.0,6.0,62.61,69.93,72.76
+"non-fighter main-line-only, chapter XP rebased, jobs off",28,400,12.0,1385.5,8997.0,7.0,68.08,72.76,73.25
+"non-fighter main-line-only, chapter XP rebased, jobs off",29,400,12.0,1915.0,9694.5,7.0,70.91,72.76,73.25
+"non-fighter main-line-only, chapter XP rebased, jobs off",30,400,13.0,2389.0,10414.0,7.0,72.28,72.76,78.74
+"non-fighter main-line-only, chapter XP rebased, jobs off",31,400,13.0,2809.5,11182.5,7.0,72.76,78.25,78.74
+"non-fighter main-line-only, chapter XP rebased, jobs off",32,400,13.0,3417.0,11943.5,7.0,77.76,78.25,80.74
+"non-fighter main-line-only, chapter XP rebased, jobs off",33,400,13.0,4232.0,12918.5,7.0,78.25,80.25,85.2
+"non-fighter main-line-only, chapter XP rebased, jobs off",34,400,14.0,5003.0,13853.5,7.0,78.25,84.73,85.67
+"non-fighter main-line-only, chapter XP rebased, jobs off",35,400,14.0,5722.0,14705.5,7.0,80.25,85.2,85.67
+"non-fighter main-line-only, chapter XP rebased, jobs off",36,400,14.0,6461.5,15592.0,7.0,84.73,85.67,87.67
+"non-fighter main-line-only, chapter XP rebased, jobs off",37,400,14.0,7139.0,16330.5,7.0,85.2,85.67,87.67
+"non-fighter main-line-only, chapter XP rebased, jobs off",38,400,14.0,7709.5,17017.5,7.0,85.2,87.67,87.67
+"non-fighter main-line-only, chapter XP rebased, jobs off",39,400,14.0,8279.5,17687.5,7.0,85.67,87.67,87.67
+"non-fighter main-line-only, chapter XP rebased, jobs off",40,400,14.0,9056.0,18465.0,7.0,87.2,87.67,87.67
+"fighter main-line-only, chapter XP rebased, jobs off",1,400,1.0,548.5,55.0,0.0,0.49,0.49,0.49
+"fighter main-line-only, chapter XP rebased, jobs off",2,400,1.0,598.0,114.0,0.0,0.49,0.49,0.97
+"fighter main-line-only, chapter XP rebased, jobs off",3,400,2.0,646.0,170.0,0.0,0.49,0.49,0.97
+"fighter main-line-only, chapter XP rebased, jobs off",4,400,2.0,701.0,253.5,0.0,0.49,0.97,1.46
+"fighter main-line-only, chapter XP rebased, jobs off",5,400,2.0,723.0,383.5,0.0,1.32,2.29,3.12
+"fighter main-line-only, chapter XP rebased, jobs off",6,400,3.0,422.0,433.5,1.0,6.78,7.13,10.45
+"fighter main-line-only, chapter XP rebased, jobs off",7,400,5.0,498.5,622.5,1.0,8.77,9.25,12.57
+"fighter main-line-only, chapter XP rebased, jobs off",8,400,6.0,701.5,867.5,1.0,10.23,10.71,14.03
+"fighter main-line-only, chapter XP rebased, jobs off",9,400,6.0,126.0,962.0,2.0,11.38,14.21,18.57
+"fighter main-line-only, chapter XP rebased, jobs off",10,400,6.0,356.5,1254.0,2.0,13.85,17.66,22.24
+"fighter main-line-only, chapter XP rebased, jobs off",11,400,7.0,536.5,1595.0,2.0,16.19,20.48,26.04
+"fighter main-line-only, chapter XP rebased, jobs off",12,400,7.0,420.0,1936.5,2.0,18.66,23.64,29.69
+"fighter main-line-only, chapter XP rebased, jobs off",13,400,7.0,266.0,2147.5,2.0,21.8,26.44,32.48
+"fighter main-line-only, chapter XP rebased, jobs off",14,400,8.0,309.5,2460.0,2.0,24.04,28.78,34.33
+"fighter main-line-only, chapter XP rebased, jobs off",15,400,10.0,439.5,2932.5,2.0,26.86,34.26,40.3
+"fighter main-line-only, chapter XP rebased, jobs off",16,400,10.0,913.0,3626.0,2.0,33.43,39.82,44.16
+"fighter main-line-only, chapter XP rebased, jobs off",17,400,11.0,1108.5,4152.5,2.0,36.75,42.99,47.39
+"fighter main-line-only, chapter XP rebased, jobs off",18,400,11.0,1056.5,4604.5,2.0,40.41,46.37,50.18
+"fighter main-line-only, chapter XP rebased, jobs off",19,400,11.0,800.5,4959.0,3.0,43.62,49.34,53.99
+"fighter main-line-only, chapter XP rebased, jobs off",20,400,11.0,691.0,5362.5,3.0,46.93,52.97,56.07
+"fighter main-line-only, chapter XP rebased, jobs off",21,400,11.0,910.0,5786.0,3.0,49.86,55.25,58.14
+"fighter main-line-only, chapter XP rebased, jobs off",22,400,11.0,961.5,6163.0,3.0,52.59,57.55,60.44
+"fighter main-line-only, chapter XP rebased, jobs off",23,400,12.0,1119.0,6608.0,3.0,55.59,60.62,65.9
+"fighter main-line-only, chapter XP rebased, jobs off",24,400,12.0,1212.0,7191.0,4.0,59.89,64.43,70.73
+"fighter main-line-only, chapter XP rebased, jobs off",25,400,12.0,1282.5,7851.0,5.0,64.05,69.86,75.42
+"fighter main-line-only, chapter XP rebased, jobs off",26,400,13.0,1242.5,8587.5,6.0,69.56,75.42,78.25
+"fighter main-line-only, chapter XP rebased, jobs off",27,400,13.0,1165.0,9167.5,7.0,74.55,77.76,78.25
+"fighter main-line-only, chapter XP rebased, jobs off",28,400,13.0,1748.0,9870.0,7.0,76.4,78.25,78.74
+"fighter main-line-only, chapter XP rebased, jobs off",29,400,14.0,2445.5,10715.5,7.0,77.76,78.74,84.22
+"fighter main-line-only, chapter XP rebased, jobs off",30,400,14.0,3199.5,11541.0,7.0,83.25,83.74,85.74
+"fighter main-line-only, chapter XP rebased, jobs off",31,400,14.0,3912.0,12374.0,7.0,83.25,84.22,90.67
+"fighter main-line-only, chapter XP rebased, jobs off",32,400,14.0,4808.5,13432.5,7.0,83.74,85.74,90.67
+"fighter main-line-only, chapter XP rebased, jobs off",33,400,15.0,5630.0,14408.0,7.0,84.22,90.67,90.67
+"fighter main-line-only, chapter XP rebased, jobs off",34,400,15.0,6346.0,15228.0,7.0,85.74,90.67,92.67
+"fighter main-line-only, chapter XP rebased, jobs off",35,400,15.0,7048.0,15995.0,7.0,90.67,90.67,92.67
+"fighter main-line-only, chapter XP rebased, jobs off",36,400,15.0,7861.0,16897.5,7.0,90.67,90.67,92.67
+"fighter main-line-only, chapter XP rebased, jobs off",37,400,16.0,8561.5,17675.0,7.0,90.67,92.67,92.67
+"fighter main-line-only, chapter XP rebased, jobs off",38,400,16.0,9196.0,18359.0,7.0,92.67,92.67,92.67
+"fighter main-line-only, chapter XP rebased, jobs off",39,400,16.0,9917.0,19145.5,7.0,92.67,92.67,92.67
+"fighter main-line-only, chapter XP rebased, jobs off",40,400,16.0,10666.5,19994.0,7.0,92.67,92.67,92.67
+"non-fighter planner, chapter XP rebased, jobs off",1,400,1.0,544.0,55.0,0.0,0.49,0.49,0.49
+"non-fighter planner, chapter XP rebased, jobs off",2,400,1.0,586.0,103.5,0.0,0.49,0.49,0.49
+"non-fighter planner, chapter XP rebased, jobs off",3,400,1.0,630.0,154.5,0.0,0.49,0.49,0.49
+"non-fighter planner, chapter XP rebased, jobs off",4,400,2.0,695.0,226.0,0.0,0.49,1.32,2.43
+"non-fighter planner, chapter XP rebased, jobs off",5,400,2.0,775.0,316.0,0.0,1.32,1.32,2.43
+"non-fighter planner, chapter XP rebased, jobs off",6,400,2.0,467.0,316.0,1.0,5.46,5.46,8.78
+"non-fighter planner, chapter XP rebased, jobs off",7,400,5.0,515.5,466.0,1.0,7.93,7.93,11.25
+"non-fighter planner, chapter XP rebased, jobs off",8,400,5.0,364.5,656.0,1.0,9.39,10.5,13.82
+"non-fighter planner, chapter XP rebased, jobs off",9,400,6.0,504.5,900.0,1.0,9.88,12.71,15.92
+"non-fighter planner, chapter XP rebased, jobs off",10,400,6.0,403.5,1036.0,1.0,11.66,15.05,20.35
+"non-fighter planner, chapter XP rebased, jobs off",11,400,6.0,-54.0,1178.0,2.0,17.46,21.45,26.96
+"non-fighter planner, chapter XP rebased, jobs off",12,400,7.0,206.5,1476.0,2.0,21.05,25.11,30.66
+"non-fighter planner, chapter XP rebased, jobs off",13,400,7.0,398.5,1811.0,2.0,23.11,27.92,32.97
+"non-fighter planner, chapter XP rebased, jobs off",14,400,7.0,417.0,2096.5,2.0,25.32,31.09,36.15
+"non-fighter planner, chapter XP rebased, jobs off",15,400,9.0,365.5,2518.0,2.0,28.57,34.91,39.75
+"non-fighter planner, chapter XP rebased, jobs off",16,400,10.0,491.5,3027.0,2.0,31.19,37.78,42.36
+"non-fighter planner, chapter XP rebased, jobs off",17,400,10.0,517.0,3287.0,2.0,34.85,41.27,45.6
+"non-fighter planner, chapter XP rebased, jobs off",18,400,10.0,891.5,3762.5,2.0,38.64,44.57,49.16
+"non-fighter planner, chapter XP rebased, jobs off",19,400,11.0,406.5,4516.5,3.0,44.88,52.74,57.52
+"non-fighter planner, chapter XP rebased, jobs off",20,400,11.0,683.5,5016.5,3.0,49.51,56.05,60.3
+"non-fighter planner, chapter XP rebased, jobs off",21,400,11.0,402.5,5303.0,3.0,52.98,58.67,62.61
+"non-fighter planner, chapter XP rebased, jobs off",22,400,11.0,423.5,5674.5,3.0,55.31,60.27,64.24
+"non-fighter planner, chapter XP rebased, jobs off",23,400,12.0,691.5,6097.5,3.0,58.84,62.68,66.17
+"non-fighter planner, chapter XP rebased, jobs off",24,400,12.0,822.5,6644.5,4.0,62.09,66.03,69.34
+"non-fighter planner, chapter XP rebased, jobs off",25,400,12.0,757.0,7103.5,5.0,65.87,69.75,73.06
+"non-fighter planner, chapter XP rebased, jobs off",26,400,12.0,743.0,7561.5,6.0,69.06,73.05,76.38
+"non-fighter planner, chapter XP rebased, jobs off",27,400,12.0,811.5,8136.0,7.0,72.21,76.03,79.27
+"non-fighter planner, chapter XP rebased, jobs off",28,400,13.0,1139.5,9006.5,7.0,75.88,79.21,81.69
+"non-fighter planner, chapter XP rebased, jobs off",29,400,13.0,1370.5,9809.5,7.0,77.61,80.1,81.73
+"non-fighter planner, chapter XP rebased, jobs off",30,400,13.0,1892.5,10702.5,7.0,78.72,84.73,87.67
+"non-fighter planner, chapter XP rebased, jobs off",31,400,13.0,2415.0,11410.5,7.0,85.2,87.2,87.67
+"non-fighter planner, chapter XP rebased, jobs off",32,400,13.0,3075.0,12242.5,7.0,85.2,87.2,87.67
+"non-fighter planner, chapter XP rebased, jobs off",33,400,13.0,3573.5,12904.5,7.0,85.67,87.67,87.67
+"non-fighter planner, chapter XP rebased, jobs off",34,400,13.0,3989.5,13442.5,7.0,87.2,87.67,87.67
+"non-fighter planner, chapter XP rebased, jobs off",35,400,14.0,4504.0,14050.5,7.0,87.67,87.67,87.67
+"non-fighter planner, chapter XP rebased, jobs off",36,400,14.0,5104.5,14737.0,7.0,87.67,87.67,87.67
+"non-fighter planner, chapter XP rebased, jobs off",37,400,14.0,5643.0,15361.0,7.0,87.67,87.67,87.67
+"non-fighter planner, chapter XP rebased, jobs off",38,400,14.0,6342.5,16127.0,7.0,87.67,87.67,87.67
+"non-fighter planner, chapter XP rebased, jobs off",39,400,14.0,6969.0,16866.5,7.0,87.67,87.67,87.67
+"non-fighter planner, chapter XP rebased, jobs off",40,400,14.0,7634.5,17594.0,7.0,87.67,87.67,87.67
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",1,400,1.0,544.0,55.0,0.0,0.49,0.49,0.49
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",2,400,1.0,586.0,103.5,0.0,0.49,0.49,0.49
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",3,400,1.0,630.0,154.5,0.0,0.49,0.49,0.49
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",4,400,2.0,695.0,226.0,0.0,0.49,1.32,2.43
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",5,400,2.0,775.0,316.0,0.0,1.32,1.32,2.43
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",6,400,2.0,467.0,316.0,1.0,5.46,5.46,8.78
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",7,400,5.0,765.5,716.0,1.0,7.93,7.93,11.25
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",8,400,5.0,553.5,906.0,1.0,9.39,10.5,13.82
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",9,400,6.0,552.0,1095.0,1.0,10.06,12.77,16.54
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",10,400,6.0,-117.0,1203.0,2.0,12.28,16.13,20.56
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",11,400,6.0,37.0,1404.5,2.0,17.18,21.45,26.34
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",12,400,6.0,270.0,1693.0,2.0,20.77,25.45,30.76
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",13,400,7.0,469.0,2027.0,2.0,22.83,28.43,33.22
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",14,400,7.0,370.0,2307.0,2.0,25.94,31.61,36.3
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",15,400,9.0,566.0,2916.0,2.0,29.19,34.97,39.75
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",16,400,10.0,588.5,3446.0,2.0,31.54,37.72,42.85
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",17,400,10.0,594.0,3699.5,2.0,35.25,41.21,46.49
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",18,400,10.0,969.5,4181.0,2.0,38.67,45.06,51.11
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",19,400,11.0,483.5,4989.5,3.0,47.21,53.62,57.99
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",20,400,11.0,756.5,5460.0,3.0,50.93,56.67,60.48
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",21,400,11.0,332.5,5736.5,3.0,53.29,59.05,62.65
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",22,400,11.0,467.5,6038.0,3.0,54.82,60.7,64.23
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",23,400,12.0,751.0,6493.5,3.0,58.87,63.8,67.51
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",24,400,12.0,865.0,7119.5,4.0,62.3,67.06,70.71
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",25,400,12.0,785.0,7539.5,5.0,66.37,70.81,73.94
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",26,400,12.0,836.5,8079.0,6.0,70.07,74.11,76.87
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",27,400,12.0,848.0,8671.5,7.0,73.84,77.27,79.69
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",28,400,13.0,1587.5,9744.0,7.0,76.5,79.69,81.73
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",29,400,13.0,1708.5,10483.5,7.0,78.1,80.8,85.35
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",30,400,13.0,2476.0,11465.5,7.0,81.27,86.73,87.67
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",31,400,13.0,3120.5,12229.0,7.0,85.2,87.2,87.67
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",32,400,13.0,3751.0,13024.5,7.0,85.67,87.67,87.67
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",33,400,13.0,4217.0,13609.5,7.0,87.2,87.67,87.67
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",34,400,14.0,4729.5,14230.5,7.0,87.67,87.67,87.67
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",35,400,14.0,5267.5,14885.0,7.0,87.67,87.67,87.67
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",36,400,14.0,5956.5,15630.0,7.0,87.67,87.67,87.67
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",37,400,14.0,6520.5,16235.5,7.0,87.67,87.67,87.67
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",38,400,14.0,7231.5,17019.0,7.0,87.67,87.67,87.67
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",39,400,14.0,7919.5,17846.5,7.0,87.67,87.67,87.67
+"non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off",40,400,14.0,8552.5,18556.5,7.0,87.67,87.67,87.67
+"non-fighter, chapter XP rebased, jobs on",1,400,1.0,583.0,94.0,0.0,0.49,0.49,0.49
+"non-fighter, chapter XP rebased, jobs on",2,400,1.0,646.0,184.5,0.0,0.49,0.49,0.49
+"non-fighter, chapter XP rebased, jobs on",3,400,2.0,674.5,286.0,0.0,0.49,0.49,0.97
+"non-fighter, chapter XP rebased, jobs on",4,400,2.0,793.5,443.0,0.0,0.97,1.81,3.32
+"non-fighter, chapter XP rebased, jobs on",5,400,3.0,913.0,629.5,0.0,2.64,4.64,6.1
+"non-fighter, chapter XP rebased, jobs on",6,400,3.0,621.0,709.5,1.0,8.29,10.1,12.93
+"non-fighter, chapter XP rebased, jobs on",7,400,6.0,1048.0,1250.5,1.0,10.77,12.09,15.2
+"non-fighter, chapter XP rebased, jobs on",8,400,6.0,1094.0,1644.0,1.0,12.71,15.49,17.77
+"non-fighter, chapter XP rebased, jobs on",9,400,6.0,121.5,1725.0,2.0,15.32,18.64,21.52
+"non-fighter, chapter XP rebased, jobs on",10,400,6.0,516.0,2109.5,2.0,16.82,20.28,24.57
+"non-fighter, chapter XP rebased, jobs on",11,400,7.0,481.5,2532.5,2.0,19.42,23.23,28.3
+"non-fighter, chapter XP rebased, jobs on",12,400,7.0,338.0,2749.5,2.0,21.98,26.16,32.16
+"non-fighter, chapter XP rebased, jobs on",13,400,7.0,536.0,3200.0,2.0,24.56,29.48,35.23
+"non-fighter, chapter XP rebased, jobs on",14,400,8.0,888.0,3872.5,2.0,26.48,31.89,37.44
+"non-fighter, chapter XP rebased, jobs on",15,400,8.0,990.0,4335.5,2.0,28.57,33.97,39.04
+"non-fighter, chapter XP rebased, jobs on",16,400,10.0,1692.0,5213.5,2.0,31.89,38.19,42.64
+"non-fighter, chapter XP rebased, jobs on",17,400,10.0,1795.5,5654.5,2.0,35.8,41.65,46.62
+"non-fighter, chapter XP rebased, jobs on",18,400,11.0,2105.5,6228.0,2.0,39.3,45.02,50.19
+"non-fighter, chapter XP rebased, jobs on",19,400,11.0,1527.0,6568.0,3.0,43.31,49.41,53.64
+"non-fighter, chapter XP rebased, jobs on",20,400,11.0,1567.5,7003.0,3.0,46.39,52.28,55.99
+"non-fighter, chapter XP rebased, jobs on",21,400,11.0,1949.5,7608.0,3.0,48.89,54.39,58.07
+"non-fighter, chapter XP rebased, jobs on",22,400,11.0,2229.0,8123.0,3.0,50.73,56.34,60.29
+"non-fighter, chapter XP rebased, jobs on",23,400,11.0,2440.5,8748.0,4.0,54.81,60.44,64.76
+"non-fighter, chapter XP rebased, jobs on",24,400,11.0,2600.5,9490.0,5.0,59.93,64.63,71.41
+"non-fighter, chapter XP rebased, jobs on",25,400,12.0,2798.5,10309.0,6.0,64.52,71.04,76.1
+"non-fighter, chapter XP rebased, jobs on",26,400,12.0,3012.5,11027.5,7.0,70.43,75.47,79.07
+"non-fighter, chapter XP rebased, jobs on",27,400,13.0,3420.0,11833.5,7.0,74.5,77.27,79.69
+"non-fighter, chapter XP rebased, jobs on",28,400,13.0,4900.0,13624.0,7.0,75.47,78.2,81.58
+"non-fighter, chapter XP rebased, jobs on",29,400,13.0,5736.0,14632.5,7.0,77.47,82.73,85.18
+"non-fighter, chapter XP rebased, jobs on",30,400,13.0,6634.5,15523.0,7.0,81.58,84.07,85.67
+"non-fighter, chapter XP rebased, jobs on",31,400,13.0,7430.5,16385.5,7.0,82.07,84.69,87.2
+"non-fighter, chapter XP rebased, jobs on",32,400,14.0,8375.5,17385.0,7.0,82.73,85.18,87.67
+"non-fighter, chapter XP rebased, jobs on",33,400,14.0,9254.5,18347.0,7.0,83.2,85.67,87.67
+"non-fighter, chapter XP rebased, jobs on",34,400,14.0,10078.5,19235.5,7.0,84.73,87.67,87.67
+"non-fighter, chapter XP rebased, jobs on",35,400,14.0,11208.0,20457.0,7.0,85.67,87.67,87.67
+"non-fighter, chapter XP rebased, jobs on",36,400,14.0,11931.0,21256.0,7.0,85.67,87.67,87.67
+"non-fighter, chapter XP rebased, jobs on",37,400,15.0,12717.5,22103.0,7.0,85.67,87.67,87.67
+"non-fighter, chapter XP rebased, jobs on",38,400,15.0,13508.0,22957.0,7.0,87.67,87.67,87.67
+"non-fighter, chapter XP rebased, jobs on",39,400,15.0,14266.5,23797.5,7.0,87.67,87.67,87.67
+"non-fighter, chapter XP rebased, jobs on",40,400,15.0,15021.0,24628.0,7.0,87.67,87.67,87.67
+"non-fighter 16 beds, chapter XP rebased, jobs off",1,400,1.0,544.0,55.0,0.0,0.49,0.49,0.49
+"non-fighter 16 beds, chapter XP rebased, jobs off",2,400,1.0,576.0,110.0,0.0,0.49,0.49,0.49
+"non-fighter 16 beds, chapter XP rebased, jobs off",3,400,1.0,553.0,161.0,0.0,0.49,0.49,0.97
+"non-fighter 16 beds, chapter XP rebased, jobs off",4,400,2.0,597.0,233.0,0.0,0.49,1.32,3.32
+"non-fighter 16 beds, chapter XP rebased, jobs off",5,400,2.0,697.5,374.0,0.0,2.15,4.15,5.75
+"non-fighter 16 beds, chapter XP rebased, jobs off",6,400,3.0,411.0,407.5,1.0,7.61,9.13,10.93
+"non-fighter 16 beds, chapter XP rebased, jobs off",7,400,5.0,516.0,612.0,1.0,9.93,11.25,14.09
+"non-fighter 16 beds, chapter XP rebased, jobs off",8,400,6.0,775.5,888.5,1.0,11.74,13.68,17.0
+"non-fighter 16 beds, chapter XP rebased, jobs off",9,400,6.0,-160.5,931.0,2.0,14.0,16.48,20.42
+"non-fighter 16 beds, chapter XP rebased, jobs off",10,400,6.0,46.0,1222.5,2.0,15.85,19.17,23.98
+"non-fighter 16 beds, chapter XP rebased, jobs off",11,400,6.0,374.5,1599.5,2.0,17.94,22.0,26.81
+"non-fighter 16 beds, chapter XP rebased, jobs off",12,400,7.0,542.5,1934.0,2.0,20.41,25.06,29.86
+"non-fighter 16 beds, chapter XP rebased, jobs off",13,400,7.0,290.0,2179.0,2.0,23.63,28.75,34.02
+"non-fighter 16 beds, chapter XP rebased, jobs off",14,400,7.0,347.5,2480.0,2.0,26.16,31.19,36.82
+"non-fighter 16 beds, chapter XP rebased, jobs off",15,400,8.0,556.5,2846.0,2.0,27.87,33.0,37.93
+"non-fighter 16 beds, chapter XP rebased, jobs off",16,400,8.0,941.0,3322.5,2.0,30.07,35.34,39.57
+"non-fighter 16 beds, chapter XP rebased, jobs off",17,400,9.0,1372.5,3919.0,2.0,33.18,38.57,43.23
+"non-fighter 16 beds, chapter XP rebased, jobs off",18,400,10.0,1489.5,4311.5,2.0,36.55,41.72,46.75
+"non-fighter 16 beds, chapter XP rebased, jobs off",19,400,10.0,1707.5,4684.0,2.0,40.18,45.23,49.93
+"non-fighter 16 beds, chapter XP rebased, jobs off",20,400,10.0,1122.5,4893.5,3.0,43.94,48.95,53.69
+"non-fighter 16 beds, chapter XP rebased, jobs off",21,400,10.0,1174.0,5166.5,3.0,47.41,52.19,56.04
+"non-fighter 16 beds, chapter XP rebased, jobs off",22,400,11.0,1221.0,5417.0,3.0,49.86,54.54,58.09
+"non-fighter 16 beds, chapter XP rebased, jobs off",23,400,11.0,1344.0,5677.0,3.0,51.75,56.45,59.99
+"non-fighter 16 beds, chapter XP rebased, jobs off",24,400,11.0,1406.0,6062.0,4.0,55.24,60.64,64.49
+"non-fighter 16 beds, chapter XP rebased, jobs off",25,400,11.0,1357.5,6524.0,5.0,59.11,64.76,69.81
+"non-fighter 16 beds, chapter XP rebased, jobs off",26,400,11.0,1361.5,7098.5,6.0,63.31,69.2,74.92
+"non-fighter 16 beds, chapter XP rebased, jobs off",27,400,12.0,1393.5,7684.5,7.0,67.68,74.43,78.58
+"non-fighter 16 beds, chapter XP rebased, jobs off",28,400,12.0,1703.5,8298.0,7.0,72.24,76.99,79.69
+"non-fighter 16 beds, chapter XP rebased, jobs off",29,400,12.0,2132.0,8814.0,7.0,74.1,78.1,80.18
+"non-fighter 16 beds, chapter XP rebased, jobs off",30,400,12.0,2744.5,9512.5,7.0,75.27,82.07,85.18
+"non-fighter 16 beds, chapter XP rebased, jobs off",31,400,12.0,3258.0,10101.5,7.0,79.21,83.58,85.67
+"non-fighter 16 beds, chapter XP rebased, jobs off",32,400,13.0,3705.0,10610.5,7.0,81.44,83.67,85.67
+"non-fighter 16 beds, chapter XP rebased, jobs off",33,400,13.0,4132.0,11083.0,7.0,82.07,84.07,85.67
+"non-fighter 16 beds, chapter XP rebased, jobs off",34,400,13.0,4588.5,11625.0,7.0,82.27,84.21,85.67
+"non-fighter 16 beds, chapter XP rebased, jobs off",35,400,13.0,5058.0,12101.5,7.0,82.73,84.69,85.67
+"non-fighter 16 beds, chapter XP rebased, jobs off",36,400,13.0,5538.0,12636.5,7.0,82.73,84.73,85.67
+"non-fighter 16 beds, chapter XP rebased, jobs off",37,400,13.0,6015.5,13141.5,7.0,83.18,85.18,87.67
+"non-fighter 16 beds, chapter XP rebased, jobs off",38,400,13.0,6555.0,13649.0,7.0,83.2,85.67,87.67
+"non-fighter 16 beds, chapter XP rebased, jobs off",39,400,13.0,7073.0,14168.0,7.0,83.2,85.67,87.67
+"non-fighter 16 beds, chapter XP rebased, jobs off",40,400,13.0,7677.0,14849.0,7.0,83.44,85.67,87.67
+"non-fighter all-best-crop, chapter XP rebased, jobs off",1,400,1.0,544.0,55.0,0.0,0.49,0.49,0.49
+"non-fighter all-best-crop, chapter XP rebased, jobs off",2,400,1.0,578.0,111.0,0.0,0.49,0.49,0.97
+"non-fighter all-best-crop, chapter XP rebased, jobs off",3,400,1.0,533.5,162.0,0.0,0.49,0.49,0.97
+"non-fighter all-best-crop, chapter XP rebased, jobs off",4,400,2.0,535.5,238.0,0.0,0.49,1.32,3.32
+"non-fighter all-best-crop, chapter XP rebased, jobs off",5,400,2.0,591.5,389.0,0.0,2.15,4.15,5.75
+"non-fighter all-best-crop, chapter XP rebased, jobs off",6,400,2.0,239.5,398.0,1.0,7.4,9.13,11.61
+"non-fighter all-best-crop, chapter XP rebased, jobs off",7,400,5.0,307.5,574.5,1.0,9.25,11.04,14.09
+"non-fighter all-best-crop, chapter XP rebased, jobs off",8,400,6.0,538.5,822.5,1.0,11.06,13.82,17.14
+"non-fighter all-best-crop, chapter XP rebased, jobs off",9,400,6.0,-80.0,982.5,2.0,12.98,16.38,20.54
+"non-fighter all-best-crop, chapter XP rebased, jobs off",10,400,6.0,-141.0,1143.0,2.0,15.18,19.1,24.2
+"non-fighter all-best-crop, chapter XP rebased, jobs off",11,400,6.0,177.0,1505.0,2.0,17.59,21.88,26.81
+"non-fighter all-best-crop, chapter XP rebased, jobs off",12,400,7.0,337.0,1857.0,2.0,19.45,24.51,29.64
+"non-fighter all-best-crop, chapter XP rebased, jobs off",13,400,7.0,400.0,2166.0,2.0,22.0,27.3,32.95
+"non-fighter all-best-crop, chapter XP rebased, jobs off",14,400,7.0,379.0,2508.0,2.0,24.69,30.22,35.9
+"non-fighter all-best-crop, chapter XP rebased, jobs off",15,400,8.0,251.5,2780.5,2.0,27.46,33.0,38.1
+"non-fighter all-best-crop, chapter XP rebased, jobs off",16,400,8.0,372.5,3131.0,2.0,28.85,34.89,39.69
+"non-fighter all-best-crop, chapter XP rebased, jobs off",17,400,8.0,322.5,3488.0,2.0,30.91,37.43,41.03
+"non-fighter all-best-crop, chapter XP rebased, jobs off",18,400,10.0,723.5,4174.0,2.0,33.88,39.92,44.35
+"non-fighter all-best-crop, chapter XP rebased, jobs off",19,400,10.0,840.0,4623.0,2.0,37.25,43.5,48.61
+"non-fighter all-best-crop, chapter XP rebased, jobs off",20,400,10.0,1090.5,5172.0,2.0,40.59,46.13,51.24
+"non-fighter all-best-crop, chapter XP rebased, jobs off",21,400,11.0,516.5,5434.0,3.0,43.99,49.93,54.98
+"non-fighter all-best-crop, chapter XP rebased, jobs off",22,400,11.0,445.0,5729.0,3.0,47.02,52.58,57.04
+"non-fighter all-best-crop, chapter XP rebased, jobs off",23,400,11.0,385.5,5975.0,3.0,50.37,55.04,58.93
+"non-fighter all-best-crop, chapter XP rebased, jobs off",24,400,11.0,469.5,6317.0,3.0,52.34,56.97,60.82
+"non-fighter all-best-crop, chapter XP rebased, jobs off",25,400,11.0,634.0,6767.5,3.0,54.89,59.59,66.22
+"non-fighter all-best-crop, chapter XP rebased, jobs off",26,400,11.0,775.5,7261.5,4.0,57.5,62.76,71.06
+"non-fighter all-best-crop, chapter XP rebased, jobs off",27,400,12.0,1051.0,8042.0,5.0,60.26,67.6,74.38
+"non-fighter all-best-crop, chapter XP rebased, jobs off",28,400,12.0,1184.0,8832.0,6.0,63.72,72.71,77.27
+"non-fighter all-best-crop, chapter XP rebased, jobs off",29,400,12.0,1300.5,9520.0,7.0,69.19,75.97,79.21
+"non-fighter all-best-crop, chapter XP rebased, jobs off",30,400,13.0,1618.5,10202.0,7.0,73.32,77.37,79.69
+"non-fighter all-best-crop, chapter XP rebased, jobs off",31,400,13.0,2080.5,11150.5,7.0,75.26,78.24,83.2
+"non-fighter all-best-crop, chapter XP rebased, jobs off",32,400,13.0,2496.0,11935.5,7.0,76.24,81.9,85.67
+"non-fighter all-best-crop, chapter XP rebased, jobs off",33,400,13.0,3062.0,12788.5,7.0,78.1,84.0,86.83
+"non-fighter all-best-crop, chapter XP rebased, jobs off",34,400,13.0,3776.5,13572.5,7.0,81.72,84.83,87.67
+"non-fighter all-best-crop, chapter XP rebased, jobs off",35,400,14.0,4599.5,14539.5,7.0,82.37,85.67,87.67
+"non-fighter all-best-crop, chapter XP rebased, jobs off",36,400,14.0,5282.0,15417.0,7.0,82.83,86.37,87.67
+"non-fighter all-best-crop, chapter XP rebased, jobs off",37,400,14.0,5833.5,15963.5,7.0,83.67,86.83,87.67
+"non-fighter all-best-crop, chapter XP rebased, jobs off",38,400,14.0,6546.0,16738.5,7.0,83.67,86.83,87.67
+"non-fighter all-best-crop, chapter XP rebased, jobs off",39,400,14.0,7363.5,17625.5,7.0,84.0,87.67,87.67
+"non-fighter all-best-crop, chapter XP rebased, jobs off",40,400,14.0,8114.5,18426.0,7.0,84.0,87.67,87.67
+"non-fighter, chapter XP doc, jobs off",1,400,1.0,544.0,55.0,0.0,0.49,0.49,0.49
+"non-fighter, chapter XP doc, jobs off",2,400,1.0,576.0,110.0,0.0,0.49,0.49,0.49
+"non-fighter, chapter XP doc, jobs off",3,400,1.0,553.0,161.0,0.0,0.49,0.49,0.97
+"non-fighter, chapter XP doc, jobs off",4,400,2.0,597.0,233.0,0.0,0.49,1.32,3.32
+"non-fighter, chapter XP doc, jobs off",5,400,2.0,697.5,374.0,0.0,2.15,4.15,5.75
+"non-fighter, chapter XP doc, jobs off",6,400,3.0,411.0,407.5,1.0,7.61,9.13,10.93
+"non-fighter, chapter XP doc, jobs off",7,400,10.0,516.0,612.0,1.0,9.93,11.25,14.09
+"non-fighter, chapter XP doc, jobs off",8,400,10.0,751.0,954.0,1.0,12.23,14.17,17.49
+"non-fighter, chapter XP doc, jobs off",9,400,10.0,-160.0,972.0,2.0,14.35,17.18,20.91
+"non-fighter, chapter XP doc, jobs off",10,400,10.0,129.0,1275.0,2.0,16.42,19.75,24.09
+"non-fighter, chapter XP doc, jobs off",11,400,10.0,577.5,1861.5,2.0,18.42,22.45,27.05
+"non-fighter, chapter XP doc, jobs off",12,400,10.0,326.0,2128.5,2.0,21.09,25.9,31.5
+"non-fighter, chapter XP doc, jobs off",13,400,10.0,265.0,2346.0,2.0,23.59,28.95,34.9
+"non-fighter, chapter XP doc, jobs off",14,400,10.0,450.0,2819.5,2.0,25.88,31.44,37.1
+"non-fighter, chapter XP doc, jobs off",15,400,11.0,360.5,3165.0,2.0,27.39,33.15,38.55
+"non-fighter, chapter XP doc, jobs off",16,400,11.0,501.0,3599.5,2.0,29.33,35.24,40.06
+"non-fighter, chapter XP doc, jobs off",17,400,13.0,852.5,4351.5,2.0,32.11,38.69,43.03
+"non-fighter, chapter XP doc, jobs off",18,400,14.0,923.0,4824.0,2.0,35.34,42.14,47.45
+"non-fighter, chapter XP doc, jobs off",19,400,14.0,1199.5,5351.0,2.0,37.82,44.9,49.93
+"non-fighter, chapter XP doc, jobs off",20,400,14.0,541.0,5698.0,3.0,41.99,49.05,53.91
+"non-fighter, chapter XP doc, jobs off",21,400,14.0,719.5,6121.5,3.0,45.31,51.91,56.18
+"non-fighter, chapter XP doc, jobs off",22,400,14.0,741.5,6496.5,3.0,48.55,54.49,58.44
+"non-fighter, chapter XP doc, jobs off",23,400,14.0,854.5,6892.0,3.0,51.15,56.45,60.22
+"non-fighter, chapter XP doc, jobs off",24,400,14.0,969.0,7502.0,4.0,55.64,60.48,64.76
+"non-fighter, chapter XP doc, jobs off",25,400,15.0,1136.5,8096.5,5.0,58.13,65.11,69.95
+"non-fighter, chapter XP doc, jobs off",26,400,16.0,1384.5,8913.0,6.0,61.88,71.55,75.26
+"non-fighter, chapter XP doc, jobs off",27,400,16.0,1527.5,9686.0,7.0,66.08,75.98,79.07
+"non-fighter, chapter XP doc, jobs off",28,400,17.0,1937.5,10415.5,7.0,72.72,77.27,79.35
+"non-fighter, chapter XP doc, jobs off",29,400,17.0,2376.0,11080.0,7.0,75.47,78.1,79.69
+"non-fighter, chapter XP doc, jobs off",30,400,17.0,3263.0,12118.0,7.0,77.21,82.21,85.2
+"non-fighter, chapter XP doc, jobs off",31,400,17.0,3935.5,12854.0,7.0,78.18,83.67,85.67
+"non-fighter, chapter XP doc, jobs off",32,400,17.0,4700.5,13730.5,7.0,82.07,84.73,87.67
+"non-fighter, chapter XP doc, jobs off",33,400,18.0,5670.0,14829.5,7.0,83.2,85.67,87.67
+"non-fighter, chapter XP doc, jobs off",34,400,18.0,6374.0,15629.0,7.0,84.27,87.18,87.67
+"non-fighter, chapter XP doc, jobs off",35,400,18.0,7090.5,16431.5,7.0,85.2,87.67,87.67
+"non-fighter, chapter XP doc, jobs off",36,400,18.0,7795.0,17226.5,7.0,85.67,87.67,87.67
+"non-fighter, chapter XP doc, jobs off",37,400,18.0,8448.5,17919.5,7.0,85.67,87.67,87.67
+"non-fighter, chapter XP doc, jobs off",38,400,19.0,9149.0,18713.5,7.0,87.2,87.67,87.67
+"non-fighter, chapter XP doc, jobs off",39,400,19.0,9897.0,19467.0,7.0,87.67,87.67,87.67
+"non-fighter, chapter XP doc, jobs off",40,400,19.0,10514.5,20204.0,7.0,87.67,87.67,87.67
+"fighter, chapter XP doc, jobs off",1,400,1.0,550.0,57.0,0.0,0.49,0.49,1.6
+"fighter, chapter XP doc, jobs off",2,400,1.0,610.5,130.0,0.0,0.49,0.49,1.6
+"fighter, chapter XP doc, jobs off",3,400,2.0,639.0,200.5,0.0,0.49,0.49,2.08
+"fighter, chapter XP doc, jobs off",4,400,2.0,693.0,320.5,0.0,0.49,1.81,2.92
+"fighter, chapter XP doc, jobs off",5,400,2.0,775.0,440.5,0.0,2.15,3.75,5.75
+"fighter, chapter XP doc, jobs off",6,400,3.0,491.0,479.5,1.0,7.61,9.89,13.21
+"fighter, chapter XP doc, jobs off",7,400,10.0,583.5,684.5,1.0,10.36,12.09,15.68
+"fighter, chapter XP doc, jobs off",8,400,10.0,833.0,1067.0,1.0,17.23,20.14,23.25
+"fighter, chapter XP doc, jobs off",9,400,10.0,115.0,1116.0,2.0,19.75,23.07,27.28
+"fighter, chapter XP doc, jobs off",10,400,10.0,379.0,1399.5,2.0,21.53,26.05,30.2
+"fighter, chapter XP doc, jobs off",11,400,10.0,742.0,1928.5,2.0,24.53,28.74,33.89
+"fighter, chapter XP doc, jobs off",12,400,11.0,367.0,2252.5,2.0,27.25,32.06,37.94
+"fighter, chapter XP doc, jobs off",13,400,11.0,259.0,2461.0,2.0,30.11,35.08,40.24
+"fighter, chapter XP doc, jobs off",14,400,11.0,502.0,3017.0,2.0,31.62,37.18,42.33
+"fighter, chapter XP doc, jobs off",15,400,11.0,443.5,3400.5,2.0,33.5,39.26,44.04
+"fighter, chapter XP doc, jobs off",16,400,11.0,756.0,3940.0,2.0,35.07,41.74,45.89
+"fighter, chapter XP doc, jobs off",17,400,13.0,1090.0,4739.0,2.0,38.74,45.27,49.49
+"fighter, chapter XP doc, jobs off",18,400,14.0,1154.5,5303.5,2.0,42.25,49.14,53.88
+"fighter, chapter XP doc, jobs off",19,400,15.0,1320.5,5793.0,2.0,45.6,52.17,56.7
+"fighter, chapter XP doc, jobs off",20,400,15.0,801.0,6227.0,3.0,50.13,56.57,60.16
+"fighter, chapter XP doc, jobs off",21,400,15.0,1198.5,6763.5,3.0,52.67,58.74,62.42
+"fighter, chapter XP doc, jobs off",22,400,15.0,1259.5,7197.5,3.0,55.31,61.0,64.73
+"fighter, chapter XP doc, jobs off",23,400,15.0,1453.0,7595.0,3.0,57.54,63.08,67.42
+"fighter, chapter XP doc, jobs off",24,400,15.0,1589.5,8240.5,4.0,62.86,67.62,72.83
+"fighter, chapter XP doc, jobs off",25,400,15.0,1758.0,8953.0,5.0,66.58,71.97,78.9
+"fighter, chapter XP doc, jobs off",26,400,17.0,1962.0,9883.5,6.0,72.6,79.43,82.56
+"fighter, chapter XP doc, jobs off",27,400,17.0,2400.0,10798.5,7.0,78.39,83.44,88.2
+"fighter, chapter XP doc, jobs off",28,400,18.0,3225.5,11781.0,7.0,83.58,88.67,90.67
+"fighter, chapter XP doc, jobs off",29,400,18.0,3882.0,12534.0,7.0,85.33,88.67,90.67
+"fighter, chapter XP doc, jobs off",30,400,18.0,4665.0,13437.0,7.0,87.07,89.56,90.67
+"fighter, chapter XP doc, jobs off",31,400,18.0,5478.0,14282.5,7.0,87.56,90.18,92.67
+"fighter, chapter XP doc, jobs off",32,400,18.0,6285.5,15125.0,7.0,88.44,90.67,92.67
+"fighter, chapter XP doc, jobs off",33,400,19.0,7179.5,16158.5,7.0,88.67,90.67,92.67
+"fighter, chapter XP doc, jobs off",34,400,19.0,8024.5,17058.5,7.0,90.18,92.67,92.67
+"fighter, chapter XP doc, jobs off",35,400,19.0,8811.0,17885.5,7.0,90.67,92.67,92.67
+"fighter, chapter XP doc, jobs off",36,400,20.0,9609.5,18784.5,7.0,90.67,92.67,92.67
+"fighter, chapter XP doc, jobs off",37,400,20.0,10328.5,19607.0,7.0,90.67,92.67,92.67
+"fighter, chapter XP doc, jobs off",38,400,20.0,11052.0,20339.5,7.0,92.67,92.67,92.67
+"fighter, chapter XP doc, jobs off",39,400,20.0,11852.0,21226.0,7.0,92.67,92.67,92.67
+"fighter, chapter XP doc, jobs off",40,400,20.0,12565.5,22014.5,7.0,92.67,92.67,92.67
