@@ -113,7 +113,7 @@ ok('with the tool it works', $t1ok && $energy() === $eT - 1);
 $put(['rewards' => 'gather=rod', 'tool' => 'rod:1']); $fresh(); $tc[$u['id'] . ':rod'] = 1;
 [$g1] = trail_sight_do($u, $exp, $base['slug']); save_exp($exp);
 $lg = (string)q_val('SELECT log FROM expeditions WHERE id = ?', [$exp['id']]);
-ok('gather=rod runs the gather table (it logs a catch or a hint)', $g1 && (str_contains($lg, 'fishing') || str_contains($lg, 'catch') || str_contains($lg, 'nothing') || str_contains($lg, 'rod') || str_contains($lg, 'Fish') || str_contains($lg, 'wade')), substr($lg, -200));
+ok('gather=rod runs the gather table (it logs a catch or a hint)', $g1 && (str_contains($lg, 'fishing') || str_contains($lg, 'catch') || str_contains($lg, 'nothing') || str_contains($lg, 'rod') || str_contains($lg, 'Fish') || str_contains($lg, 'wade') || str_contains($lg, 'You gather')), substr($lg, -200));   // 'You gather' (🎣 rows of the gather table): failed on main before 2.8.77 too
 $put(['when' => 'dp=night/se=winter', 'check' => '-', 'rewards' => 'xp=1', 'tool' => '-']); $fresh(); unset($tc[$u['id'] . ':rod']);
 echo "== P2: reward grammar (conditions, first-time, take)\n";
 $tk = trail_sight_tokens('first:xp=10,item=a:1@25?se=summer;dp=dusk,c=3,take=b:2');
