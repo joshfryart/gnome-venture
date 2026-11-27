@@ -1152,11 +1152,13 @@ html.cx-open, html.cx-open body { overflow: hidden; }
   html body #pfight.pf-v1.pfv-fit .pf-tray .pf-hand { flex-direction: column; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 6px; padding: 0; overflow: visible; }
   html body #pfight.pf-v1.pfv-fit .pf-tray .pf-hand .pf-tile { margin: 0; flex: none; }
   html body #pfight.pf-v1.pfv-fit .pf-tray > :not(.pf-hand) { display: none; }
+  html body #pfight.pf-v1.pfv-fit.pf-v1.pf-v1 > .pf-preview { display: none; }   /* the tapped piece's card says it */
 }
 @media (min-width: 1000px) and (min-height: 600px) {
-  html body.game #pfight.pf-v1.pf-v1 { --pc1: 2; grid-template-columns: minmax(0, 1fr) clamp(170px, 15.5vw, 260px) clamp(170px, 15.5vw, 260px); grid-template-rows: auto auto minmax(0, 1fr) auto auto auto auto; }
-  html body.game #pfight.pf-v1.pf-v1 > :is(.pfv-bwrap, .pfb-board) { grid-row: 1 / 7; }
-  html body.game #pfight.pf-v1.pf-v1 > .pf-tray { grid-column: 1; grid-row: 7; }
+  html body.game #pfight.pf-v1.pf-v1 { --pc1: 2; --rdock: 6; --rbtn: 7 / 9; grid-template-columns: minmax(0, 1fr) clamp(170px, 15.5vw, 260px) clamp(170px, 15.5vw, 260px); grid-template-rows: auto auto minmax(0, 1fr) auto auto auto auto auto; }
+  html body.game #pfight.pf-v1.pf-v1 > :is(.pfv-bwrap, .pfb-board) { grid-row: 1 / 8; }
+  html body.game #pfight.pf-v1.pf-v1.pf-v1 > .pf-preview { grid-row: 5; display: block; }   /* on a desktop the hint line has room */
+  html body.game #pfight.pf-v1.pf-v1 > .pf-tray { grid-column: 1; grid-row: 8; }
 }
 @media (orientation: landscape) and (max-height: 599px) and (min-width: 560px), (min-width: 1000px) and (min-height: 600px) {
   html body #pfight.pf-v1.pf-v1.pf-v1 > :where(:not(.pfv-bwrap, .pfb-board, .pf-tray)) { grid-column: var(--pc1) / span 2; margin: 0 0 3px; min-width: 0; }
@@ -1181,17 +1183,17 @@ html.cx-open, html.cx-open body { overflow: hidden; }
   html body #pfight.pf-v1.pf-v1.pf-v1 .pfc-histrow > #pf-skip { grid-column: calc(var(--pc1) + 1); grid-row: 4; min-height: 36px; margin: 0 0 3px; }
   html body #pfight.pf-v1.pf-v1.pf-v1.pf-playing .pfc-piles { display: none; }
   /* the tapped piece's card (the dock) and the rewind panel share a row; the rewind replaces the card */
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfv-pair { grid-row: 5; display: block; }
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-rewind { grid-row: 5; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfv-pair { grid-row: var(--rdock, 5); display: block; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-rewind { grid-row: var(--rdock, 5); }
   html body #pfight.pf-v1.pf-v1.pf-v1.pf-rewound > .pfv-pair { display: none; }
   html body #pfight.pf-v1.pf-v1.pf-v1 > .pfv-pair:not(:has(#pf-inspect:not([hidden]))) { display: none; }   /* idle, the card only repeated the history: the room goes to the lists */
   html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.envlab { order: 1; } html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.qm { order: 2; } html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.spd { order: 3; } html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.envp { order: 4; }
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-preview, html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-preview-x { display: none; }
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-plan { grid-row: 5; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-preview-x { display: none; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-plan { grid-row: var(--rdock, 5); }
   html body #pfight.pf-v1.pf-v1.pf-v1 > :is(.pf-form, .pf-extra, .pf-data) { display: none; }
   /* the buttons look like the playing pieces and fit together, each its own colour: Undo, End turn and Flip in the first row, Box, Hint and Run under them.
      Like a playing piece: a body with a darker rim, a light top edge and a shaded foot, rounded outer corners, a round knob on a short neck in another colour (the next piece's left edge has the round hole it fits into). */
-  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons { grid-row: 6 / 8; align-self: end; margin: 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px 0; padding-right: 14px; --pfk-bg: #1d120a; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons { grid-row: var(--rbtn, 6 / 8); align-self: end; margin: 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px 0; padding-right: 14px; --pfk-bg: #1d120a; }
   html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons > * { min-height: 44px; margin: 0; }
   html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-undo { grid-column: 1 / span 3; grid-row: 1; z-index: 3; --pc: #e0a321; --pd: #8a5f0b; --pi: #2a1a10; --kc: #d9483b; }
   html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-go { grid-column: 4 / span 6; grid-row: 1; z-index: 2; --pc: #2fa05a; --pd: #165a30; --pi: #fbf3dc; --kc: #8a6ad0; }
