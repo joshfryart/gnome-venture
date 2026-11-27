@@ -226,7 +226,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
       await Promise.all([q.waitForNavigation(), q.press('input[name=password]', 'Enter')]);
       const V = (s) => `${theme} ${vp[0]}x${vp[1]}: ${s}`;
       const SIDE = vp[0] > vp[1] && vp[1] < 600;   // 2.8.78: a phone held sideways: the thumb-rails layout (hand left, board middle, bars right; the tip line is hidden, the piece card says it)
-      await q.evaluate((x) => { window.__side = x; }, SIDE);
+      await q.addInitScript((x) => { window.__side = x; }, SIDE);   // (each size's goto reloads the page)
       for (const size of ['small', 'medium', 'large', 'boss']) {
         const sd = process.env.PFRULES === 'new' ? seedNew : seed;   // PFRULES=new: the rules a new fight has (no set-aside row, no Teamwork)
         sd('fight', size); sd('midfight', '8', '2', 'soft');
@@ -274,6 +274,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
         ck(V(`pre-fight, auto ${auto === 'auto' ? 'on' : 'off'}: Let's fight is on screen without scrolling`), await q.evaluate(() => { const r = document.getElementById('pfv-go').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight && document.documentElement.scrollHeight <= innerHeight; }), true);
         await q.screenshot({ path: `${out}/7-prefight-${auto}-${vp[0]}x${vp[1]}-${theme}.png` });
       }
+      if (process.env.PFSKIPBOX) { await c2.close(); continue; }   // PFSKIPBOX=1: only the fight and pre-fight checks at these windows
       sql('UPDATE expeditions SET encounter=NULL');
       // 2.6.76: the piece detail sheet: tap the LAST piece of a long collection and the detail is in view at once (bottom sheet, or a side panel on a wide screen)
       seed('box'); await q.goto(base + '/puzzlebox.php', { waitUntil: 'networkidle' }); await q.waitForTimeout(500);
