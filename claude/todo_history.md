@@ -2,6 +2,11 @@
 
 Live list: `claude/todo.md`. Newest first for release blocks; archives below.
 
+## 2.8.77 SHIPPED 2026-11-27 (PR 93; Josh confirmed live works)
+- SHIPPED in 2.8.77: `sights_shared_on`, `gnav_on`, `gnav_tree`, `gnav_tiles`, `home_slim` and `gnav_craft` (the Crafting workshop picture) default ON (Josh, 2026-11-27): schema defaults + one-time boot step `flags_on_2877` (db_version < 2.8.77 sets all six to 1; an admin can set any back to 0 and it is kept). First request after upload flips live. Real bug found by it and fixed: slim Today "Your pals" bar had an inline `style=""` (CSP), now a `<progress class="hs-bar">`. 54 related suites pass; 15 older suites pinned to the old pages or adapted (see `tests/`, comments "2.8.77"). Open: slim Today has no Wren's Journey card (reachable at `book.php?ch=Journey`; deliberate slimming?); `gourmand` once failed by 25 coins in a wide parallel sweep and could not be reproduced (probably overlapping ports); pre-existing failures on main: `puzzles`, `puzzles_daily`, `security190`.
+- 2.8.76 hotfix (PR 89): live-only `first_week.php` called `craft_link_fix()`; `first_week.php` shipped again plus a harmless stand-in in `here_schema.php`.
+- Visitor smell reads the last-cooked dish (PR 91). Route cards stay without the gnome, lair card keeps its eyes, 69 weaker pals and old `mini-<slug>.png` left (Josh, 2026-11-27).
+
 ## 2.8.75 SHIPPED 2026-11-26 (PR merged to main; slim zip `releases/GnomeVenture-2.8.75-web-update.zip`, 93 files, built against 2.8.73 so it goes on 2.8.73 or newer, includes 2.8.74): villager, stop, trail and wearables art pass (see CHANGELOG). Zip not test-installed over a real 2.8.73; nothing seen on a real phone. The "DONE unreleased" art lines below are now in 2.8.75.
 ## 2.8.74 SHIPPED 2026-11-26 (PR 86 merged to main; slim zip `releases/GnomeVenture-2.8.74-web-update.zip`, 8 files, goes on 2.8.73)
 - Live world checked by Josh: routes `245 | 473 | 0` = already right, so `tools/renumber_routes_239.php` is not needed (kept for any other world). Zip not test-installed over a real 2.8.73; nothing seen on a real phone or MySQL.
