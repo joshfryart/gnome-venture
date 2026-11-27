@@ -923,6 +923,13 @@ function post_update_news(string $from): void
         "The holes in puzzle pieces no longer show stray pink, purple or yellow pixels on their rim. Clean dark outline now."],
     '2.8.66' => ['🗺️ Update 2.8.66: world map and pop-ups',
         "The world map fills the screen again on a phone held upright. The \"-1 energy · +10 min\" pop-up is gone on the bar layout: the bar already shows your energy and the time."],
+    '2.8.78' => ['🧩 Update 2.8.78: puzzle fights, before and after',
+        "[list][*][b]Before a fight[/b]: you and the creature face off side by side, with tabs for your deck, its pieces and the rules. Let's fight stays at the bottom.\n"
+        . "[*][b]After a fight[/b]: a clear result card with how it went and your tool wear.\n"
+        . "[*][b]Phone held sideways[/b]: your hand on the left, the board in the middle, the buttons on the right. The history scrolls with the newest on top, next to the environment.\n"
+        . "[*][b]Buttons[/b] are puzzle pieces that fit together.\n"
+        . "[*][b]Slower replays[/b]: a turn now plays at half the old speed. Pick 2x for the old pace.\n"
+        . "[*][b]History[/b]: tap a past move to see the whole story of that turn.[/list]"],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;

@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.8.78
+- **Puzzle fight, before and after:** the pre-fight screen is a "Face-off": you and the creature side by side with your bars, then tabs (Your deck / Its pieces / Rules), Let's fight pinned at the foot. A phone held sideways puts you and the creature on the left and the tabs on the right; a desktop shows all three at once. The result card is a coloured outcome hero with three number tiles, the tool wear and pinned buttons (two columns when wide). Tests follow the new markup (`tests/pbox_v1.sh`, `tests/pbox_v1_shots.js`).
+- **Sideways phone combat (thumb rails):** hand down the left edge, board in the middle, bars and buttons down the right edge, all grouped in the middle of a wider window. The right edge is two lists under one status line: the history (scrolls, newest at the top) beside the environment (its chip, what it has coming, help, speed, the piles). Desktop windows get the same two-list right edge. The tapped piece's card shows only when a piece is tapped. New `tests/pbox_v1_shots.js` switches: `PFVP='[[780,360]]'` (windows), `PFRULES=new` (fights with the rules a new fight has), `PFSKIPBOX=1`.
+- **Buttons are jigsaw pieces:** Undo, End turn and Flip, and a smaller row of Box, Hint and Run, each its own colour; a round knob on each piece sits in the round pocket of the next (sideways phone and desktop).
+- **Half-speed replay:** the old 1x is now 2x, the new 1x is half the old speed (replay cap 16.9 s at 1x). `SLOW` in the fight script.
+- **Piece jigsaw veil:** the pieces that cover the fight in and out now cover the whole window at any size, fade, refit on resize or rotation.
+- **History chips say more:** a chip tapped for a rewind shows the full line the replay gave, the move, the numbers at that step and what the piece does (new `ln` / `nm` on a history chip).
+- **Build sources:** `game/assets/pfboardv1.js` is generated; the changes above live in `tools/pfboardv1_part.js` and `tools/build_pfboardv1.py`.
+
 ## 2.8.77
 - **On by default:** Shared Sights (`sights_shared_on`), picture navigation (`gnav_on`: Here page, `gnav_tree`: Treehouse, `gnav_tiles`: tile walks), the slim Home (`home_slim`) and the Crafting workshop picture (`gnav_craft`). One boot step turns all six on once for an existing site; an admin can set any back to 0 and it is kept.
 - **Slim Today:** Wren's Journey card is back (current chapter, progress, next hint). The "Your pals" bar no longer uses an inline style (CSP): it is a `<progress>`.
