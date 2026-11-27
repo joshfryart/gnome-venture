@@ -1,5 +1,36 @@
 # Changelog
 
+## 2.8.84
+- **Pink dots, hardening (the code, not the art):** the piece builder cut a hole where the socket art is exactly magenta (255,0,255) and copied every other colour onto the piece. If a browser, GPU or screen profile moves that key pixel by even 1 (e.g. 254,1,255) the exact test fails and the pixel lands on the piece as a pink dot at the notch. The key is now matched with a tolerance of 24 per channel (`isKey()` in `pfparts47.js`, both build paths); no art uses a colour that near it. Not reproducible in headless Chromium (built pieces for all 1300 creature icons, all environment kinds and every edge type scanned clean; an overlay-effects on/off comparison after a full replay is pixel-identical), so this is a guard for devices that differ.
+
+## 2.8.83
+- **End screen on a sideways phone (Josh):** the result card covers the whole fight panel, centred, in two columns (outcome on the left; turns, health, tool wear and the Collect / Fix buttons on the right). It was squeezed into the right-hand column with its buttons cut off. The card is a plain block again (the fight's own `.res` rules had made it a grid that squeezed the Face-off layout, on portrait and desktop too). (`pfv1.css`)
+- **Pink dots:** not reproduced beyond the any-hole rim fixed in 2.8.80. A scan of all 1300 creature piece icons, all environment pieces and every edge type at both sizes found no stray pink in the built pieces; ask for a zoomed screenshot of the piece if it persists.
+
+## 2.8.82
+- **Hotfix: handing in a part-family job on the Job Board died** (`Call to undefined function craft_take()` at `includes/jobs.php:397`): `deliver_job()` now loads `includes/crafting.php` itself (`/jobs.php` never did). Regression test `tests/jobs_craft_take.php` (fails on the old code, passes now).
+
+## 2.8.81
+- **Replay times set for 1x (Josh):** first wait 0.13 s, piece step 1.35 s, creature banner wait 1.15 s, use-up step 1.35 s, expired pieces leave 1.35 s, "Your turn" banner 2.35 s, replay cap 16.9 s. 2x keeps its old times; 1.25x is the 1x time / 1.25 (`T1()` in `tools/pfboardv1_part.js`). A medium-board turn replays in about 6.7 s at 1x, 5.4 s at 1.25x, 4.7 s at 2x.
+- **Taps work during the "Your turn" banner (Josh):** the hand and board no longer ignore taps while the banner shows (2.7.06 held input for 1.45 s; at 1x that was 2.35 s), and the banner lets taps through (`pfight.css`).
+
+## 2.8.80
+- **Stray pink dots on big boards fixed:** the Knot of Twine pieces' "any" holes had a 1 px rim in the three strand colours (red, violet, gold); on a desktop-size board it read as pink specks around the notches. The rim is plain ink now (`pfparts47.js`). The twine knob keeps its strands.
+- **Puzzle combat timings:** every animation time and wait, in seconds, at 1x / 1.25x / 2x: `claude/puzzle-combat-timings.md`.
+
+## 2.8.79
+- **Puzzle fight speed: new 1.25x.** The speed button now goes 1x, 1.25x, 2x, Skip (and the help sheet lists all four). 1.25x is a quarter faster than 1x (measured: a medium-board turn replays in about 9.2 s at 1x, 7.4 s at 1.25x, 4.7 s at 2x). Saved per device like before (`pfvspd`). Source: `tools/pfboardv1_part.js`.
+
+## 2.8.78
+- **Puzzle fight, before and after:** the pre-fight screen is a "Face-off": you and the creature side by side with your bars, then tabs (Your deck / Its pieces / Rules), Let's fight pinned at the foot. A phone held sideways puts you and the creature on the left and the tabs on the right; a desktop shows all three at once. The result card is a coloured outcome hero with three number tiles, the tool wear and pinned buttons (two columns when wide). Tests follow the new markup (`tests/pbox_v1.sh`, `tests/pbox_v1_shots.js`).
+- **Sideways phone combat (thumb rails):** hand down the left edge, board in the middle, bars and buttons down the right edge, all grouped in the middle of a wider window. The right edge is two lists under one status line: the history (scrolls, newest at the top) beside the environment (its chip, what it has coming, help, speed, the piles). Desktop windows get the same two-list right edge. The tapped piece's card shows only when a piece is tapped. New `tests/pbox_v1_shots.js` switches: `PFVP='[[780,360]]'` (windows), `PFRULES=new` (fights with the rules a new fight has), `PFSKIPBOX=1`.
+- **Buttons are jigsaw pieces:** Undo, End turn and Flip, and a smaller row of Box, Hint and Run, each its own colour; a round knob on each piece sits in the round pocket of the next (sideways phone and desktop).
+- **Half-speed replay:** the old 1x is now 2x, the new 1x is half the old speed (replay cap 16.9 s at 1x). `SLOW` in the fight script.
+- **Piece jigsaw veil:** the pieces that cover the fight in and out now cover the whole window at any size, fade, refit on resize or rotation.
+- **History chips say more:** a chip tapped for a rewind shows the full line the replay gave, the move, the numbers at that step and what the piece does (new `ln` / `nm` on a history chip).
+- **Private test site:** `bash tools/build_test_site.sh <outdir>` builds the packages for a separate test copy (e.g. test.gnomeventure.ca): the site zip (with `install.php`, a `robots.txt` that blocks search engines, a noindex header and `TEST-SITE-README.txt`) and the trail ground art in parts. Later updates go on through the test site's Admin > Update.
+- **Build sources:** `game/assets/pfboardv1.js` is generated; the changes above live in `tools/pfboardv1_part.js` and `tools/build_pfboardv1.py`.
+
 ## 2.8.77
 - **On by default:** Shared Sights (`sights_shared_on`), picture navigation (`gnav_on`: Here page, `gnav_tree`: Treehouse, `gnav_tiles`: tile walks), the slim Home (`home_slim`) and the Crafting workshop picture (`gnav_craft`). One boot step turns all six on once for an existing site; an admin can set any back to 0 and it is kept.
 - **Slim Today:** Wren's Journey card is back (current chapter, progress, next hint). The "Your pals" bar no longer uses an inline style (CSP): it is a `<progress>`.

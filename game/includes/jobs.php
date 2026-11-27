@@ -383,6 +383,7 @@ function job_event(int $uid, string $kind, string $target, int $n, array $ctx = 
 /** Hand in items for a delivery job. */
 function deliver_job(int $uid, string $period): array
 {
+    require_once __DIR__ . '/crafting.php';   // craft_take (2.8.82: /jobs.php did not load it, handing in a part family died with "Call to undefined function craft_take()")
     $job = current_job($uid, $period);
     if ($job && $job['status'] === 'active' && $job['kind'] === 'p_deliver') {
         return pjob_deliver(q_one('SELECT * FROM users WHERE id = ?', [$uid]), $job);

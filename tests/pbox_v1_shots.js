@@ -59,12 +59,11 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
 
     // ---- 3. the pre-fight screen: auto off (free swaps), auto on (read-only)
     seed('fight', 'medium'); await open('/adventure.php');
-    await p.locator('#pfv-pre .pc.L-uni').first().click(); await p.locator('#pfv-pre .pc[data-a=tog]').nth(2).click();
+    await p.click('#pfb2-t1'); await p.locator('#pfv-pre .pc.L-uni').first().click(); await p.click('#pfb2-t0'); await p.locator('#pfv-pre .pc[data-a=tog]').nth(2).click();   // 2.8.78: its pieces are in their own tab
     ck(T('pre-fight, auto off: creature piece detail, a deck piece offers Take out, a bench is there'), [/plays ×2/.test(await p.locator('#pfv-cinfo').innerText()), await n('.pfv-dsheet [data-pfv-act]'), await p.locator('#pfv-pre').innerText().then(t => /BENCH/i.test(t))], [true, 1, true]);
     await shot('3-prefight-auto-off');
     seed('fight', 'boss', 'auto'); await open('/adventure.php');
-    ck(T('pre-fight, auto on: one strip (N pieces), Turn off and edit, no swaps, the deck in a closed fold, Let\'s fight on screen'), [/Auto deck is active: \d+ pieces/.test(await p.locator('#pfv-info').innerText()), await n('#pfv-pre .pc[data-a=tog]'), await p.evaluate(() => document.getElementById('pfv-deckfold').open), await p.evaluate(() => { const r = document.getElementById('pfv-go').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }), await p.locator('#pfv-deckfold .pc').first().isVisible()], [true, 0, false, true, false]);
-    await p.click('#pfv-deckfold summary'); ck(T('pre-fight, auto on: Show deck opens the read-only deck'), await p.locator('#pfv-deckfold .pc').first().isVisible(), true); await p.click('#pfv-deckfold summary');
+    ck(T('pre-fight, auto on: one strip (N pieces), Turn off and edit, no swaps, the read-only deck in the Your deck tab, Let\'s fight on screen'), [/Auto deck is active: \d+ pieces/.test(await p.locator('#pfv-info').innerText()), await n('#pfv-pre .pc[data-a=tog]'), await p.evaluate(() => { const r = document.getElementById('pfv-go').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }), await p.locator('#pfv-pre .pfb2-p0 .pc').first().isVisible()], [true, 0, true, true]);
     await shot('3-prefight-auto-on');
     await Promise.all([p.waitForResponse(r => r.request().method() === 'POST'), p.click('#pfv-go')]); await p.waitForTimeout(1500);
     await p.waitForSelector('#pfb-board .gc', { timeout: 8000 }).catch(() => {});
@@ -219,15 +218,18 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
     await c.close();
 
     // ---- 2.6.75: the fight never scrolls: every board size at phone, small phone and desktop sizes; the pre-fight screen keeps Let's fight on screen; the menu has the link under Hobbies
-    for (const vp of [[390, 844], [360, 640], [412, 915], [1280, 720]]) {
+    for (const vp of (process.env.PFVP ? JSON.parse(process.env.PFVP) : [[390, 844], [360, 640], [412, 915], [1280, 720]])) {   // PFVP='[[780,360]]': only these windows (2.8.78: phones held sideways)
       const c2 = await b.newContext({ viewport: { width: vp[0], height: vp[1] }, deviceScaleFactor: vp[0] > 1000 ? 1 : 2 }); const q = await c2.newPage(); const e2 = [];
       q.on('pageerror', e => e2.push(String(e))); q.on('console', m => { if (m.type() === 'error') e2.push(m.text()); });
       await q.addInitScript(() => { try { localStorage.setItem('pfvspd', '0'); } catch (e) {} });
       await q.goto(base + '/login.php'); await q.fill('input[name=username]', 'sprout'); await q.fill('input[name=password]', 'TestPass123!');
       await Promise.all([q.waitForNavigation(), q.press('input[name=password]', 'Enter')]);
       const V = (s) => `${theme} ${vp[0]}x${vp[1]}: ${s}`;
+      const SIDE = vp[0] > vp[1] && vp[1] < 600;   // 2.8.78: a phone held sideways: the thumb-rails layout (hand left, board middle, bars right; the tip line is hidden, the piece card says it)
+      await q.addInitScript((x) => { window.__side = x; }, SIDE);   // (each size's goto reloads the page)
       for (const size of ['small', 'medium', 'large', 'boss']) {
-        seed('fight', size); seed('midfight', '8', '2', 'soft');
+        const sd = process.env.PFRULES === 'new' ? seedNew : seed;   // PFRULES=new: the rules a new fight has (no set-aside row, no Teamwork)
+        sd('fight', size); sd('midfight', '8', '2', 'soft');
         await q.goto(base + '/adventure.php', { waitUntil: 'networkidle' }); await q.waitForTimeout(700);
         const pct0 = await q.evaluate(() => Math.round(document.getElementById('pfb-board').getBoundingClientRect().height * 100 / innerHeight));   // before a piece is picked (picking adds the set-aside row)
         const pk = q.locator('#pf-hand .pf-tile:not(.pfv-off)'); if (await pk.count()) { await pk.first().click({ timeout: 3000 }); await q.waitForTimeout(500); }
@@ -235,7 +237,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
           const inV = (sel) => { const e = document.querySelector(sel); if (!e) return false; const r = e.getBoundingClientRect(); return r.height > 0 && r.top >= -1 && r.bottom <= ih + 1 && r.left >= -1 && r.right <= iw + 1; };
           const bd = document.getElementById('pfb-board').getBoundingClientRect(), d = JSON.parse(document.getElementById('pf-data').textContent), fb = document.getElementById('pf-flip').getBoundingClientRect();
           return { doc: de.scrollHeight <= ih, sy: window.scrollY, fight: f.scrollHeight <= f.clientHeight + 1 && f.scrollWidth <= f.clientWidth + 1, wide: de.scrollWidth <= iw, cell: Math.round(bd.height / d.h),
-            all: ['.pfc-top', '.pf-hist', '#pfv-row', '#pfb-board', '#pfv-legend', '#pf-preview', '.pf-buttons', '#pf-go', '#pf-flip', '#pf-undo', '#pf-hand'].filter(s => !inV(s)), hand: [...document.querySelectorAll('#pf-hand .pf-tile')].every(t => { const r = t.getBoundingClientRect(); return r.top >= 0 && r.bottom <= ih + 1; }), flipH: Math.round(fb.height) }; });
+            all: ['.pfc-top', '.pf-hist', '#pfv-row', '#pfb-board', '#pfv-legend', '#pf-preview', '.pf-buttons', '#pf-go', '#pf-flip', '#pf-undo', '#pf-hand'].filter(s => !(window.__side && s === '#pf-preview')).filter(s => !inV(s)), hand: [...document.querySelectorAll('#pf-hand .pf-tile')].every(t => { const r = t.getBoundingClientRect(); return r.top >= 0 && r.bottom <= ih + 1; }), flipH: Math.round(fb.height) }; });
         ck(V(`${size} board: the page does not scroll (document height <= window, scrollTo stays at 0), nothing overflows the fight`), [m.doc, m.sy, m.fight, m.wide], [true, 0, true, true]);
         ck(V(`${size} board: header, history, chips, board, legend, hint, buttons and hand are all on screen; cells at least 24px (20 on a 640px-high phone with the set-aside row open); Flip is 44 to 52px high`), [m.all, m.hand, m.cell >= (vp[1] < 700 ? 20 : 24), m.flipH >= 44 && m.flipH <= 52], [[], true, true, true]);
         await q.screenshot({ path: `${out}/7-fit-${size}-${vp[0]}x${vp[1]}-${theme}.png` });
@@ -249,15 +251,15 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
           const dk = document.getElementById('pfv-dock'), dr = dk && dk.getBoundingClientRect(), hr = document.getElementById('pf-hand').getBoundingClientRect(), ft = document.getElementById('pfight').getBoundingClientRect(), tp = document.querySelector('.pfc-top').getBoundingClientRect();
           return { gaps: rs.slice(1).map((r, i) => [r[0], Math.round(r[1] - rs[i][2])]).filter(g => g[1] > 24 || g[1] < -1), nCells: cells.length, badCell, nCv: cvs.length, badArt, handW: hand.length ? Math.round(hand[0].width) : 0, handAll: hand.every(r => r.left >= 0 && r.right <= innerWidth + 1 && r.bottom <= ih + 1), btn, dock: !!dr && dr.height > 0, dockH: dr ? Math.round(dr.height) : 0, topBand: Math.round(tp.top - ft.top), botBand: Math.round(ft.bottom - hr.bottom), boardAr: +(bd.getBoundingClientRect().width / bd.getBoundingClientRect().height).toFixed(3), wantBoardAr: +(d.w * body[0] / (d.h * body[1])).toFixed(3) }; });
         // 2.8.43/2.8.44: a desktop-size window (min-width 1000, min-height 600) lays the fight out in two columns (board left, bars right), so the top-to-bottom gap check does not apply there
-        ck(V(`${size} board: no gap over 24px between header, chips, board, Next strip, dock, hint, buttons and hand`), vp[0] >= 1000 && vp[1] >= 600 ? [] : lay.gaps, []);
+        ck(V(`${size} board: no gap over 24px between header, chips, board, Next strip, dock, hint, buttons and hand`), (vp[0] >= 1000 && vp[1] >= 600) || SIDE ? [] : lay.gaps, []);
         ck(V(`${size} board: every grid cell has the art's proportion (within 2%), every piece picture is drawn at its own aspect ratio (within 2%): nothing is stretched`), [lay.nCells > 0, lay.badCell, lay.nCv > 0, lay.badArt], [true, 0, true, 0]);
         ck(V(`${size} board: the board's own ratio is the grid's (cells never non-uniformly scaled; ${lay.boardAr})`), Math.abs(lay.boardAr / lay.wantBoardAr - 1) < 0.1, true);
-        ck(V(`${size} board: the buttons are 44px or more to tap (${lay.btn.join(',')}), the hand is all on screen`), [lay.btn.every(h => h >= 44), lay.handAll], [true, true]);
+        ck(V(`${size} board: the buttons are 44px or more to tap (${lay.btn.join(',')}; on a sideways phone or a desktop the Box, Hint and Run row is 36 px with a 44 px tap area), the hand is all on screen`), [lay.btn.every(h => h >= (SIDE || (vp[0] >= 1000 && vp[1] >= 600) ? 36 : 44)), lay.handAll], [true, true]);
         if (vp[1] >= 800) ck(V(`${size} board: on a tall phone the hand pieces are not smaller (${lay.handW}px, 74 at least: the jigsaw hand piece is 82 x 73, taller than before, so a tall phone has less spare height for it), a docked card is in the flow (${lay.dockH}px), no big band at the top (${lay.topBand}) or bottom (${lay.botBand}) of the fight`), [lay.handW >= 74, lay.dock, lay.topBand <= 60 && lay.botBand <= 60], [true, true, true]);
         const wasInsp = await q.evaluate(() => { const t = document.querySelector('#pfb-board .pfb-tap'); if (t) t.click(); const i = document.getElementById('pf-inspect'), h = document.getElementById('pf-hand').getBoundingClientRect(), ib = i.getBoundingClientRect(), bd = document.getElementById('pfb-board').getBoundingClientRect(), dk = document.getElementById('pfv-dock').getBoundingClientRect(), docked = document.getElementById('pfv-dock').contains(i); const bb = document.getElementById('pfb-board').getBoundingClientRect(); return { hitBoard: !(ib.right <= bb.left || ib.left >= bb.right || ib.bottom <= bb.top || ib.top >= bb.bottom) && !i.hidden, open: !i.hidden, over: ib.bottom <= h.top + 1, docked, inDock: ib.top >= dk.top - 1 && ib.bottom <= dk.bottom + 1, inBoardRoom: ib.top >= bd.top - 60 && ib.bottom <= bd.bottom + 60, doc: document.documentElement.scrollHeight <= innerHeight }; });
         await q.waitForTimeout(150); if (wasInsp.open) await q.screenshot({ path: `${out}/7-insp-${size}-${vp[0]}x${vp[1]}-${theme}.png` });
         ck(V(`${size} board: the piece card is docked under the board at every size, never over it (its box does not meet the board's box); the page does not grow`), [wasInsp.open, wasInsp.docked, wasInsp.inDock, !wasInsp.hitBoard, wasInsp.doc], [true, true, true, true, true]);
-        if (wasInsp.open) { const pv = await q.locator('#pf-preview').boundingBox(); await q.mouse.click(pv.x + pv.width / 2, pv.y + pv.height / 2); await q.waitForTimeout(150); ck(V(`${size} board: a tap outside closes the piece card`), await q.evaluate(() => document.getElementById('pf-inspect').hidden), true); }
+        if (wasInsp.open) { const pv = SIDE ? { x: 2, y: 2, width: 2, height: 2 } : await q.locator('#pf-preview').boundingBox(); await q.mouse.click(pv.x + pv.width / 2, pv.y + pv.height / 2); await q.waitForTimeout(150); ck(V(`${size} board: a tap outside closes the piece card`), await q.evaluate(() => document.getElementById('pf-inspect').hidden), true); }
         if (size === 'medium') { await q.click('#pfv-legend [data-en="0"]').catch(() => {}); await q.waitForTimeout(250);
           ck(V('medium board: the Next-strip popover opens over the fight and the page still does not scroll, the strip does not overflow'), [await q.locator('.pfv-pop').count(), await q.evaluate(() => document.documentElement.scrollHeight <= innerHeight), await q.evaluate(() => { const l = document.getElementById('pfv-legend'); return l.scrollWidth <= l.clientWidth + 1; })], [1, true, true]);
           await q.screenshot({ path: `${out}/7-envpop-${vp[0]}x${vp[1]}-${theme}.png` }); await q.click('.pfv-popx').catch(() => {}); }
@@ -272,6 +274,7 @@ const ck = (what, got, want) => { const g = JSON.stringify(got), w = JSON.string
         ck(V(`pre-fight, auto ${auto === 'auto' ? 'on' : 'off'}: Let's fight is on screen without scrolling`), await q.evaluate(() => { const r = document.getElementById('pfv-go').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight && document.documentElement.scrollHeight <= innerHeight; }), true);
         await q.screenshot({ path: `${out}/7-prefight-${auto}-${vp[0]}x${vp[1]}-${theme}.png` });
       }
+      if (process.env.PFSKIPBOX) { await c2.close(); continue; }   // PFSKIPBOX=1: only the fight and pre-fight checks at these windows
       sql('UPDATE expeditions SET encounter=NULL');
       // 2.6.76: the piece detail sheet: tap the LAST piece of a long collection and the detail is in view at once (bottom sheet, or a side panel on a wide screen)
       seed('box'); await q.goto(base + '/puzzlebox.php', { waitUntil: 'networkidle' }); await q.waitForTimeout(500);

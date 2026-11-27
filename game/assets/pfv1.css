@@ -1018,3 +1018,207 @@ html.cx-open, html.cx-open body { overflow: hidden; }
 :root:not([data-theme="dark"]) #pfv-pre.pfv .foecard h3 small { color: var(--muted); }
 :root:not([data-theme="dark"]) #pfv-pre.pfv .foerule { color: var(--purple-ink); }
 :root:not([data-theme="dark"]) #pfv-pre.pfv .foerule b { color: var(--ink); }
+
+/* 2.8.78 rewind detail: the panel under the history bar says what the replay said (line, piece, numbers, what the piece does) */
+.pf-rewind { flex-wrap: wrap; }
+.pf-rewind .pf-rw-d { flex: 1 0 100%; display: grid; gap: 4px; font-weight: 500; line-height: 1.35; }
+.pf-rewind .pf-rw-d:empty { display: none; }
+.pf-rw-d .rw-ln { font-weight: 700; font-size: .82rem; }
+.pf-rw-d .rw-st { display: flex; flex-wrap: wrap; gap: 4px; }
+.pf-rw-d .rw-st span { background: rgba(42, 26, 16, .14); padding: 1px 6px; font-size: .74rem; white-space: nowrap; }
+.pf-rw-d .rw-pc { font-size: .76rem; }
+
+/* ============ 2.8.78 pre-fight and result, "Face-off" layout (includes/pfdeck_view.php pfv_prefight_html / pfv_result_html; tabs: assets/pfv1box.js) ============
+   Phone upright: you and the creature side by side, then one tab at a time, Let's fight pinned at the bottom.
+   Phone sideways (short window, a wide card): you and the creature in a left column, the tabs on the right, only the panes scroll.
+   Desktop (tall and wide): the three tabs are all shown (deck, its pieces, rules); no tab bar. The card's own width decides (container query), the window's height picks tabs or all. */
+#pfv-pre.pfb2 { padding: 0; }
+#pfv-pre.pfb2 { container: pfb2 / inline-size; }   /* the card itself is the container (a container cannot query itself, so the grid is on .pfb2-in inside it) */
+.pfb2-in { display: block; }
+.pfb2-vs { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 6px; align-items: stretch; padding: 10px; grid-area: vs; }
+.pfb2-side { display: grid; gap: 6px; align-content: start; min-width: 0; padding: 8px; background: var(--surface-2, #f2e4c0); border: 2px solid var(--line, #c9a96e); }
+.pfb2-pic { display: flex; align-items: center; justify-content: center; height: 64px; background: var(--surface, #fff3c8); border: 2px solid var(--line, #c9a96e); overflow: hidden; }
+.pfb2-pic img, .pfb2-pic svg { max-height: 58px; max-width: 100%; width: auto; height: auto; image-rendering: pixelated; }
+.pfb2-me .pfb2-pic { height: 64px; }
+.pfb2-nm { display: grid; line-height: 1.15; min-width: 0; }
+.pfb2-nm small { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2, #4a2c1a); opacity: 1; }
+.pfb2-nchips { display: none; margin: 0 0 6px; gap: 2px; }
+.pfb2-nchips .chip { font-size: 11px; padding: 0 5px; margin: 1px; }
+@container pfb2 (max-width: 619px) { .pfb2-vs .pfb2-chips, .pfb2-vs .pfb2-sub { display: none; } .pfb2-nchips { display: flex; flex-wrap: wrap; } .pfb2-pic { height: 54px; } .pfb2-pic img, .pfb2-pic svg { max-height: 48px; } }
+.pfb2-nm b { font-size: 15px; overflow-wrap: anywhere; }
+.pfb2-meter { display: grid; gap: 2px; font-size: 12px; }
+.pfb2-meter > span:first-child { display: flex; justify-content: space-between; gap: 4px; color: var(--ink-2, #4a2c1a); }
+.pfb2-meter b { font-variant-numeric: tabular-nums; }
+.pfb2-bar { display: block; position: relative; height: 12px; background: var(--line, #c9a96e); border: 2px solid var(--ol, #2a1a10); }
+.pfb2-bar i { position: absolute; inset: 0 auto 0 0; width: 0; }
+.pfb2-bar.hp i { background: #4f9a45; } .pfb2-bar.yd i { background: #c46a9b; }
+.pfb2-sub { margin: 0; font-size: 12px; color: var(--muted); }
+.pfb2-chips { margin: 0; gap: 2px; }
+.pfb2-chips .chip { font-size: 11px; padding: 0 5px; margin: 1px; }
+.pfb2-vsmark { align-self: center; font-weight: 900; font-size: 13px; letter-spacing: .12em; color: var(--accent, #e8a317); writing-mode: vertical-rl; }
+.pfb2-tabs { display: flex; position: sticky; top: 0; z-index: 4; background: var(--surface-2, #f2e4c0); border-top: 2px solid var(--line, #c9a96e); border-bottom: 2px solid var(--line-2, #9a6b3f); grid-area: tabs; }
+.pfb2-tabs button { flex: 1; min-height: 44px; padding: 0 6px; background: transparent; border: 0; border-bottom: 4px solid transparent; margin-bottom: -2px; font: 800 13px/1 var(--pfv-font, inherit); color: var(--muted); cursor: pointer; }
+.pfb2-tabs button small { font-weight: 700; opacity: .75; }
+.pfb2-tabs button[aria-selected="true"] { color: var(--ink, #2a1a10); background: var(--surface, #fff3c8); border-bottom-color: var(--accent, #e8a317); }
+.pfb2-tabs button:focus-visible { outline: 3px solid var(--focus, #25637d); outline-offset: -3px; }
+.pfb2-pane { display: none; padding: 10px; min-width: 0; }
+.pfb2-pane.on { display: block; }
+.pfb2-p0 { grid-area: deck; } .pfb2-p1 { grid-area: its; } .pfb2-p2 { grid-area: rules; }
+.pfb2-pane .sl:first-child { margin-top: 0; }
+.pfb2-rules { margin: 0 0 8px; padding-left: 18px; display: grid; gap: 6px; font-size: 13px; line-height: 1.35; }
+.pfb2-more { margin: 8px 0 0; }
+.pfb2-in > .pfv-act { grid-area: act; margin: 0; padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px)); border-top: 2px dashed var(--accent, #e8a317); }
+.pfb2-in > .pfv-act .btn { min-height: 48px; }
+.pfb2-in > .pfv-act .pfv-gof .btn { width: 100%; }
+/* a card wide enough for two columns */
+@container pfb2 (min-width: 620px) {
+  .pfb2-in { display: grid; grid-template-columns: minmax(280px, 380px) minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; grid-template-areas: "vs tabs" "vs deck" "vs deck" "act act"; min-height: 100%; }
+  .pfb2-vs { grid-template-columns: 1fr; align-content: start; padding: 10px; }
+  .pfb2-vsmark { writing-mode: horizontal-tb; letter-spacing: .4em; text-align: center; }
+  .pfb2-side { grid-template-columns: 64px minmax(0, 1fr); align-items: center; column-gap: 8px; }
+  .pfb2-side .pfb2-meter, .pfb2-side .pfb2-sub, .pfb2-side .pfb2-chips { grid-column: 1 / -1; }
+  .pfb2-pane { overflow: auto; }
+  .pfb2-p1, .pfb2-p2 { grid-area: deck; }
+  .pfb2-in > .pfv-act { display: flex; justify-content: flex-end; gap: 10px; }
+  .pfb2-in > .pfv-act .pfv-gof { flex: 0 1 320px; }
+}
+/* tall and wide (desktop): all three panes at once, no tab bar */
+@media (min-height: 601px) {
+  @container pfb2 (min-width: 900px) {
+    .pfb2-in { grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); grid-template-areas: "vs deck" "rules deck" "rules its" "act act"; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+    .pfb2-tabs { display: none; }
+    .pfb2-in .pfb2-p1 { grid-area: its; } .pfb2-in .pfb2-p2 { grid-area: rules; }
+    .pfb2-in .pfb2-pane { display: block; overflow: visible; }
+    .pfb2-p1 { border-top: 2px dashed var(--line, #c9a96e); }
+    .pfb2-p2 { background: var(--surface-2, #f2e4c0); margin: 0 10px 10px; border: 2px solid var(--line, #c9a96e); align-self: start; }
+    .pfb2-in .pcg.c5 { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  }
+}
+/* a phone held sideways (short): the card fills the window, only the right-hand panes scroll */
+@media (max-height: 600px) {
+  @container pfb2 (min-width: 620px) {
+    .pfb2-in { height: 100%; min-height: 0; grid-template-columns: minmax(220px, 36%) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "vs tabs" "vs deck" "act act"; }
+    .pfb2-vs { overflow: auto; padding: 6px; gap: 4px; }
+    .pfb2-side { padding: 6px; row-gap: 4px; }
+    .pfb2-pic { height: 44px; } .pfb2-pic img, .pfb2-pic svg { max-height: 40px; }
+    .pfb2-tabs button { min-height: 36px; }
+    .pfb2-pane { padding: 6px 8px; }
+    .pfb2-in > .pfv-act { padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px)); }
+    .pfb2-in > .pfv-act .btn { min-height: 40px; }
+    .pfb2-sub, .pfb2-chips { display: none; }
+  }
+  #pfv-pre.pfb2.pfv-fit { overflow: hidden; }
+}
+@media (max-height: 600px) and (min-width: 640px) { html body #pfv-pre.pfb2.pfv-fit:not(dialog.pfst *) { width: 100vw; } }
+
+/* ---- the result card ---- */
+.pfv.pfb2r, #pfight.pf-v1.pfv-fit > .pfv.pfb2r { padding: 0; display: block; text-align: left; }   /* (the fight's own .res rules make it a grid: the card is one block with the .pfb2r-in grid inside) */
+.pfv.pfb2r { overflow: hidden; }
+.pfv.pfb2r { container: pfb2r / inline-size; }
+.pfb2r-in { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; box-sizing: border-box; }
+.pfb2r-hero { display: grid; justify-items: center; gap: 6px; padding: 16px 14px 14px; text-align: center; border-bottom: 2px dashed var(--accent, #e8a317); background: var(--surface-2, #f2e4c0); }
+.pfb2r.k-win .pfb2r-hero { background: #2f5a2a; color: #f2e4c0; } .pfb2r.k-charm .pfb2r-hero { background: #7a3f6a; color: #fbe6f1; } .pfb2r.k-lose .pfb2r-hero { background: #7d2620; color: #fde5de; }
+.pfb2r-hero .resbadge { background: rgba(0, 0, 0, .25); color: inherit; border-color: rgba(242, 228, 192, .5); }
+.pfb2r-hero .pic { width: 112px; height: 84px; background: rgba(0, 0, 0, .22); border-color: rgba(242, 228, 192, .45); }
+.pfb2r-hero .pic img { max-width: 100px; max-height: 74px; }
+.pfb2r.k-lose .pfb2r-hero .pic img { filter: grayscale(.55); }
+.pfb2r-hero h2 { margin: 0; font-size: 24px; line-height: 1.1; color: inherit; }
+.pfv.pfb2r .pfb2r-hero .big { margin: 0; max-width: 36ch; font-size: 14px; color: inherit; opacity: .92; }
+.pfb2r-body { display: grid; gap: 8px; padding: 12px 14px 14px; align-content: start; min-width: 0; }
+.pfb2r-stats { display: grid; gap: 8px; }
+.pfb2r-stats .rows { margin: 0; }
+.pfb2r-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.pfb2r-tiles .st { border: 2px solid var(--line-2, #9a6b3f); background: var(--surface, #fff3c8); padding: 6px 4px; text-align: center; }
+.pfb2r-tiles .st b { display: block; font-size: 18px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.pfb2r-tiles .st span { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; color: var(--muted); }
+.pfb2r-tiles .st.warn { border-color: var(--danger, #a8241f); }
+.pfb2r .actrow { position: sticky; bottom: 0; background: var(--surface, #fff3c8); padding-top: 6px; }
+.pfb2r .actrow .btn { min-height: 46px; }
+@container pfb2r (min-width: 560px) {
+  .pfb2r-in { grid-template-columns: minmax(200px, 38%) minmax(0, 1fr); }
+  .pfb2r-hero { border-bottom: 0; border-right: 2px dashed var(--accent, #e8a317); align-content: center; padding: 18px 14px; }
+}
+@media (max-height: 520px) { .pfb2r-hero .pic { width: 72px; height: 54px; } .pfb2r-hero .pic img { max-width: 64px; max-height: 46px; } .pfb2r-hero h2 { font-size: 19px; } .pfb2r-hero { padding: 10px; gap: 3px; } }
+
+/* ============ 2.8.78 thumb rails (sideways phone) and the calmer right edge (sideways phone and desktop) ============
+   Sideways phone (landscape, under 600 px high, at least 560 wide): left edge your hand, middle the board, right edge the bars. Sizes: assets/pfboardv1.js fitRails().
+   The three columns are one block at most 1080 px wide, centred, so a bigger window keeps hand and board together in the middle.
+   The right edge, top to bottom, on the sideways phone AND on a desktop window (from 1000 x 600): the creature and your bars, one status line (turn, chain dots, aim, status),
+   then TWO columns: the history (a list that scrolls, newest at the top) and the environment (its chip, the pieces it has coming, help, speed, the piles),
+   then the tapped piece's card, then the buttons: Undo, End turn and Flip in one row, Box, Hint and Run under them. */
+@media (orientation: landscape) and (max-height: 599px) and (min-width: 560px) {
+  html body #pfight.pf-v1.pfv-fit { --pc1: 3; width: min(100vw, 1080px); display: grid; grid-template-columns: var(--pfr-hand, 84px) var(--pfr-board, minmax(0, 1fr)) clamp(125px, 17vw, 165px) clamp(125px, 17vw, 165px); grid-template-rows: auto auto minmax(0, 1fr) auto auto auto; grid-auto-flow: row; column-gap: 10px; row-gap: 0; align-content: stretch; justify-content: center; padding: 4px 8px calc(4px + env(safe-area-inset-bottom, 0px)); }
+  html body #pfight.pf-v1.pfv-fit > :is(.pfv-bwrap, .pfb-board) { grid-column: 2; grid-row: 1 / -1; align-self: stretch; justify-self: stretch; margin: 0; min-height: 0; display: grid; place-items: center; }
+  html body #pfight.pf-v1.pfv-fit > .pf-tray { grid-column: 1; grid-row: 1 / -1; margin: 0; padding: 0; display: flex; flex-direction: column; justify-content: center; min-height: 0; }
+  html body #pfight.pf-v1.pfv-fit .pf-tray .pf-hand { flex-direction: column; flex-wrap: nowrap; justify-content: center; align-items: center; gap: 6px; padding: 0; overflow: visible; }
+  html body #pfight.pf-v1.pfv-fit .pf-tray .pf-hand .pf-tile { margin: 0; flex: none; }
+  /* 2.8.80 (Josh: "end screen on horizontal mobile needs fixing"): the result card covers the whole fight panel, centred, two columns (outcome left, numbers and buttons right), the card scrolls and its buttons stay in view */
+  html body #pfight.pf-v1.pf-v1.pf-v1.pfv-fit > .pfv.res { grid-column: 1 / -1; grid-row: 1 / -1; position: absolute; inset: 6px; left: 6px; right: 6px; top: 6px; bottom: 6px; margin: auto; width: min(780px, calc(100% - 12px)); max-width: none; height: fit-content; max-height: calc(100% - 12px); overflow-y: auto; z-index: 20; }
+  html body #pfight.pf-v1.pfv-fit .pfb2r-body { padding: 8px 12px 10px; gap: 6px; } html body #pfight.pf-v1.pfv-fit .pfb2r-tiles .st { padding: 4px 3px; } html body #pfight.pf-v1.pfv-fit .pfb2r-tiles .st b { font-size: 16px; } html body #pfight.pf-v1.pfv-fit .pfb2r .toolrow { min-height: 0; padding: 3px 6px; } html body #pfight.pf-v1.pfv-fit .pfb2r .actrow { padding-bottom: 8px; }
+  html body #pfight.pf-v1.pfv-fit .pf-tray > :not(.pf-hand) { display: none; }
+  html body #pfight.pf-v1.pfv-fit.pf-v1.pf-v1 > .pf-preview { display: none; }   /* the tapped piece's card says it */
+}
+@media (min-width: 1000px) and (min-height: 600px) {
+  html body.game #pfight.pf-v1.pf-v1 { --pc1: 2; --rdock: 6; --rbtn: 7 / 9; grid-template-columns: minmax(0, 1fr) clamp(170px, 15.5vw, 260px) clamp(170px, 15.5vw, 260px); grid-template-rows: auto auto minmax(0, 1fr) auto auto auto auto auto; }
+  html body.game #pfight.pf-v1.pf-v1 > :is(.pfv-bwrap, .pfb-board) { grid-row: 1 / 8; }
+  html body.game #pfight.pf-v1.pf-v1.pf-v1 > .pf-preview { grid-row: 5; display: block; }   /* on a desktop the hint line has room */
+  html body.game #pfight.pf-v1.pf-v1 > .pf-tray { grid-column: 1; grid-row: 8; }
+}
+@media (orientation: landscape) and (max-height: 599px) and (min-width: 560px), (min-width: 1000px) and (min-height: 600px) {
+  html body #pfight.pf-v1.pf-v1.pf-v1 > :where(:not(.pfv-bwrap, .pfb-board, .pf-tray)) { grid-column: var(--pc1) / span 2; margin: 0 0 3px; min-width: 0; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfc-top { grid-row: 1; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfv-guide { display: none; }   /* the tip line: the tapped piece's card says it */
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfv-row { grid-row: 2; display: flex; flex-wrap: nowrap; overflow: hidden; min-height: 26px; max-height: 28px; gap: 3px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-row .tg.kind, html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-row .tg.wear { display: none; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-row .tg.aim { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-row .tg { min-height: 26px; height: 26px; padding: 0 6px; font-size: 11px; }
+  /* the history: its own column, a list that scrolls, the newest chip at the top (the server writes it newest first) */
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfc-histrow { display: contents; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfc-histrow > .pf-hist { grid-column: var(--pc1); grid-row: 3 / 5; display: flex; flex-direction: column; flex-wrap: nowrap; gap: 3px; margin: 0 0 3px; padding: 0 2px 0 0; overflow-x: hidden; overflow-y: auto; min-height: 0; list-style: none; scrollbar-width: thin; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfc-histrow > .pf-hist .pf-chip { flex: none; min-height: 30px; height: auto; max-width: none; width: 100%; white-space: normal; overflow: hidden; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfc-histrow > .pf-hist .pfh-txt { display: inline; overflow-wrap: anywhere; }
+  /* the environment: its own column */
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfv-legend { grid-column: calc(var(--pc1) + 1); grid-row: 3; display: flex; flex-direction: row; flex-wrap: wrap; align-content: flex-start; gap: 4px; overflow-x: hidden; overflow-y: auto; min-height: 0; margin: 0 0 3px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg { flex: 1 1 100%; min-height: 32px; height: auto; justify-content: flex-start; padding: 2px 8px; font-size: 12px; min-width: 0; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.qm, html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.spd { flex: 1 1 40%; justify-content: center; min-height: 36px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .el { display: inline; } html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .es { display: none; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg svg { width: 18px; height: 18px; flex: none; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfc-histrow > .pfc-piles { grid-column: calc(var(--pc1) + 1); grid-row: 4; display: flex; justify-content: space-around; align-items: center; gap: 6px; margin: 0 0 3px; padding: 2px 4px; background: rgba(0, 0, 0, .22); border: 1px solid rgba(232, 163, 23, .35); }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfc-histrow > #pf-skip { grid-column: calc(var(--pc1) + 1); grid-row: 4; min-height: 36px; margin: 0 0 3px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1.pf-playing .pfc-piles { display: none; }
+  /* the tapped piece's card (the dock) and the rewind panel share a row; the rewind replaces the card */
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfv-pair { grid-row: var(--rdock, 5); display: block; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-rewind { grid-row: var(--rdock, 5); }
+  html body #pfight.pf-v1.pf-v1.pf-v1.pf-rewound > .pfv-pair { display: none; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pfv-pair:not(:has(#pf-inspect:not([hidden]))) { display: none; }   /* idle, the card only repeated the history: the room goes to the lists */
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.envlab { order: 1; } html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.qm { order: 2; } html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.spd { order: 3; } html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-legend .tg.envp { order: 4; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-preview-x { display: none; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-plan { grid-row: var(--rdock, 5); }
+  html body #pfight.pf-v1.pf-v1.pf-v1 > :is(.pf-form, .pf-extra, .pf-data) { display: none; }
+  /* the buttons are playing pieces that fit together, each its own colour: Undo, End turn and Flip in the first row, Box, Hint and Run under them.
+     Each is one scalable picture (a border-image: a body with a darker rim, a light top edge and a shaded foot, rounded outer corners) whose end caps carry a jigsaw hole on the left (a round pocket with a slot to the edge)
+     and a round knob on a short neck on the right, so the knob of one piece sits in the pocket of the next (the next piece overlaps the rim by 3 px). The pieces are exactly 44 px high, so the picture is never stretched up or down.
+     Labels sit on small dark plates like a piece's number plate. */
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons { grid-row: var(--rbtn, 6 / 8); align-self: end; margin: 0; display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 6px 0; padding-right: 0; }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons > * { margin: 0; }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(#pf-undo, #pf-go, #pf-flip, .pf-box, #pf-hint, .pf-runf .btn) { position: relative; display: flex; align-items: center; justify-content: center; width: auto; max-width: none; min-width: 0; border-style: solid; border-width: 0; border-radius: 0; background: none; box-shadow: none; font-weight: 800; letter-spacing: .01em; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .35)); border-image-repeat: stretch; overflow: visible; }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons > #pf-undo { grid-column: 1 / span 6; grid-row: 1; z-index: 3; height: 44px; min-height: 44px; gap: 4px; padding: 0 14px 0 14px; border-image-slice: 0 28.0 0 28.0 fill; border-image-width: 0 28.0px 0 28.0px; border-image-outset: 0 16.0px 0 0; color: #2a1a10; border-image-source: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280.0%22 height=%2244%22 viewBox=%220 0 80 44%22%3E%3Cdefs%3E%3CclipPath id=%22b%22%3E%3Cpath d=%22M10.5 1.5 H62.5 A0 0 0 0 1 62.5 1.5 V42.5 A0 0 0 0 1 62.5 42.5 H10.5 A9 9 0 0 1 1.5 33.5 V10.5 A9 9 0 0 1 10.5 1.5Z%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d=%22M10.5 1.5 H62.5 A0 0 0 0 1 62.5 1.5 V42.5 A0 0 0 0 1 62.5 42.5 H10.5 A9 9 0 0 1 1.5 33.5 V10.5 A9 9 0 0 1 10.5 1.5Z%22 fill=%22%23e0a321%22/%3E%3Cg clip-path=%22url%28%23b%29%22%3E%3Crect x=%220%22 y=%223%22 width=%2264%22 height=%223%22 fill=%22%23fff%22 opacity=%22.32%22/%3E%3Crect x=%220%22 y=%2235%22 width=%2264%22 height=%229%22 fill=%22%23000%22 opacity=%22.2%22/%3E%3C/g%3E%3Cpath d=%22M10.5 1.5 H62.5 A0 0 0 0 1 62.5 1.5 V42.5 A0 0 0 0 1 62.5 42.5 H10.5 A9 9 0 0 1 1.5 33.5 V10.5 A9 9 0 0 1 10.5 1.5Z%22 fill=%22none%22 stroke=%22%238a5f0b%22 stroke-width=%223%22/%3E%3Cg fill=%22%23d9483b%22 stroke=%22%238a5f0b%22 stroke-width=%223%22 stroke-linejoin=%22round%22%3E%3Crect x=%2261%22 y=%2218%22 width=%229%22 height=%228%22/%3E%3Ccircle cx=%2271.5%22 cy=%2222%22 r=%226.8%22/%3E%3C/g%3E%3Cg fill=%22%23d9483b%22%3E%3Crect x=%2261%22 y=%2219.5%22 width=%229%22 height=%225%22/%3E%3Ccircle cx=%2271.5%22 cy=%2222%22 r=%225.3%22/%3E%3C/g%3E%3Ccircle cx=%2269.7%22 cy=%2220.2%22 r=%221.8%22 fill=%22%23fff%22 opacity=%22.4%22/%3E%3C/svg%3E"); }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons > #pf-go { grid-column: 7 / span 12; grid-row: 1; z-index: 2; margin-left: -3.0px; height: 44px; min-height: 44px; gap: 4px; padding: 0 14px 0 40px; border-image-slice: 0 28.0 0 28.0 fill; border-image-width: 0 28.0px 0 28.0px; border-image-outset: 0 16.0px 0 0; color: #fbf3dc; border-image-source: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280.0%22 height=%2244%22 viewBox=%220 0 80 44%22%3E%3Cdefs%3E%3CclipPath id=%22b%22%3E%3Cpath d=%22M1.5 1.5 H62.5 A0 0 0 0 1 62.5 1.5 V42.5 A0 0 0 0 1 62.5 42.5 H1.5 A0 0 0 0 1 1.5 42.5 V1.5 A0 0 0 0 1 1.5 1.5Z%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d=%22M1.5 1.5 H62.5 A0 0 0 0 1 62.5 1.5 V42.5 A0 0 0 0 1 62.5 42.5 H1.5 A0 0 0 0 1 1.5 42.5 V1.5 A0 0 0 0 1 1.5 1.5Z%22 fill=%22%232fa05a%22/%3E%3Cg clip-path=%22url%28%23b%29%22%3E%3Crect x=%220%22 y=%223%22 width=%2264%22 height=%223%22 fill=%22%23fff%22 opacity=%22.32%22/%3E%3Crect x=%220%22 y=%2235%22 width=%2264%22 height=%229%22 fill=%22%23000%22 opacity=%22.2%22/%3E%3C/g%3E%3Cpath d=%22M1.5 1.5 H62.5 A0 0 0 0 1 62.5 1.5 V42.5 A0 0 0 0 1 62.5 42.5 H1.5 A0 0 0 0 1 1.5 42.5 V1.5 A0 0 0 0 1 1.5 1.5Z%22 fill=%22none%22 stroke=%22%23165a30%22 stroke-width=%223%22/%3E%3Cg fill=%22%23165a30%22 stroke=%22%23165a30%22 stroke-width=%225%22 stroke-linejoin=%22round%22%3E%3Crect x=%220%22 y=%2217%22 width=%229%22 height=%2210%22/%3E%3Ccircle cx=%2210.5%22 cy=%2222%22 r=%229.5%22/%3E%3C/g%3E%3Cg fill=%22%231d120a%22%3E%3Crect x=%220%22 y=%2218.5%22 width=%229%22 height=%227%22/%3E%3Ccircle cx=%2210.5%22 cy=%2222%22 r=%229.5%22/%3E%3C/g%3E%3Ccircle cx=%2210.5%22 cy=%2222%22 r=%229.5%22 fill=%22%23000%22 opacity=%22.25%22/%3E%3Cg fill=%22%238a6ad0%22 stroke=%22%23165a30%22 stroke-width=%223%22 stroke-linejoin=%22round%22%3E%3Crect x=%2261%22 y=%2218%22 width=%229%22 height=%228%22/%3E%3Ccircle cx=%2271.5%22 cy=%2222%22 r=%226.8%22/%3E%3C/g%3E%3Cg fill=%22%238a6ad0%22%3E%3Crect x=%2261%22 y=%2219.5%22 width=%229%22 height=%225%22/%3E%3Ccircle cx=%2271.5%22 cy=%2222%22 r=%225.3%22/%3E%3C/g%3E%3Ccircle cx=%2269.7%22 cy=%2220.2%22 r=%221.8%22 fill=%22%23fff%22 opacity=%22.4%22/%3E%3C/svg%3E"); }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons > #pf-flip { grid-column: 19 / span 6; grid-row: 1; z-index: 1; margin-left: -3.0px; height: 44px; min-height: 44px; gap: 4px; padding: 0 14px 0 40px; border-image-slice: 0 28.0 0 28.0 fill; border-image-width: 0 28.0px 0 28.0px; border-image-outset: 0; color: #fbf3dc; border-image-source: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2264.0%22 height=%2244%22 viewBox=%220 0 64 44%22%3E%3Cdefs%3E%3CclipPath id=%22b%22%3E%3Cpath d=%22M1.5 1.5 H53.5 A9 9 0 0 1 62.5 10.5 V33.5 A9 9 0 0 1 53.5 42.5 H1.5 A0 0 0 0 1 1.5 42.5 V1.5 A0 0 0 0 1 1.5 1.5Z%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d=%22M1.5 1.5 H53.5 A9 9 0 0 1 62.5 10.5 V33.5 A9 9 0 0 1 53.5 42.5 H1.5 A0 0 0 0 1 1.5 42.5 V1.5 A0 0 0 0 1 1.5 1.5Z%22 fill=%22%233a86c8%22/%3E%3Cg clip-path=%22url%28%23b%29%22%3E%3Crect x=%220%22 y=%223%22 width=%2264%22 height=%223%22 fill=%22%23fff%22 opacity=%22.32%22/%3E%3Crect x=%220%22 y=%2235%22 width=%2264%22 height=%229%22 fill=%22%23000%22 opacity=%22.2%22/%3E%3C/g%3E%3Cpath d=%22M1.5 1.5 H53.5 A9 9 0 0 1 62.5 10.5 V33.5 A9 9 0 0 1 53.5 42.5 H1.5 A0 0 0 0 1 1.5 42.5 V1.5 A0 0 0 0 1 1.5 1.5Z%22 fill=%22none%22 stroke=%22%231a4c7c%22 stroke-width=%223%22/%3E%3Cg fill=%22%231a4c7c%22 stroke=%22%231a4c7c%22 stroke-width=%225%22 stroke-linejoin=%22round%22%3E%3Crect x=%220%22 y=%2217%22 width=%229%22 height=%2210%22/%3E%3Ccircle cx=%2210.5%22 cy=%2222%22 r=%229.5%22/%3E%3C/g%3E%3Cg fill=%22%231d120a%22%3E%3Crect x=%220%22 y=%2218.5%22 width=%229%22 height=%227%22/%3E%3Ccircle cx=%2210.5%22 cy=%2222%22 r=%229.5%22/%3E%3C/g%3E%3Ccircle cx=%2210.5%22 cy=%2222%22 r=%229.5%22 fill=%22%23000%22 opacity=%22.25%22/%3E%3C/svg%3E"); }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons > .pf-box { grid-column: 1 / span 6; grid-row: 2; z-index: 3; height: 36px; min-height: 36px; gap: 3px; padding: 0 11px 0 11px; border-image-slice: 0 22.9 0 22.9 fill; border-image-width: 0 22.9px 0 22.9px; border-image-outset: 0 13.1px 0 0; color: #fbf3dc; border-image-source: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2265.45%22 height=%2236%22 viewBox=%220 0 80 44%22%3E%3Cdefs%3E%3CclipPath id=%22b%22%3E%3Cpath d=%22M10.5 1.5 H62.5 A0 0 0 0 1 62.5 1.5 V42.5 A0 0 0 0 1 62.5 42.5 H10.5 A9 9 0 0 1 1.5 33.5 V10.5 A9 9 0 0 1 10.5 1.5Z%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d=%22M10.5 1.5 H62.5 A0 0 0 0 1 62.5 1.5 V42.5 A0 0 0 0 1 62.5 42.5 H10.5 A9 9 0 0 1 1.5 33.5 V10.5 A9 9 0 0 1 10.5 1.5Z%22 fill=%22%238d68c8%22/%3E%3Cg clip-path=%22url%28%23b%29%22%3E%3Crect x=%220%22 y=%223%22 width=%2264%22 height=%223%22 fill=%22%23fff%22 opacity=%22.32%22/%3E%3Crect x=%220%22 y=%2235%22 width=%2264%22 height=%229%22 fill=%22%23000%22 opacity=%22.2%22/%3E%3C/g%3E%3Cpath d=%22M10.5 1.5 H62.5 A0 0 0 0 1 62.5 1.5 V42.5 A0 0 0 0 1 62.5 42.5 H10.5 A9 9 0 0 1 1.5 33.5 V10.5 A9 9 0 0 1 10.5 1.5Z%22 fill=%22none%22 stroke=%22%234a2f7a%22 stroke-width=%223%22/%3E%3Cg fill=%22%23e8a317%22 stroke=%22%234a2f7a%22 stroke-width=%223%22 stroke-linejoin=%22round%22%3E%3Crect x=%2261%22 y=%2218%22 width=%229%22 height=%228%22/%3E%3Ccircle cx=%2271.5%22 cy=%2222%22 r=%226.8%22/%3E%3C/g%3E%3Cg fill=%22%23e8a317%22%3E%3Crect x=%2261%22 y=%2219.5%22 width=%229%22 height=%225%22/%3E%3Ccircle cx=%2271.5%22 cy=%2222%22 r=%225.3%22/%3E%3C/g%3E%3Ccircle cx=%2269.7%22 cy=%2220.2%22 r=%221.8%22 fill=%22%23fff%22 opacity=%22.4%22/%3E%3C/svg%3E"); }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons > #pf-hint { grid-column: 7 / span 10; grid-row: 2; z-index: 2; margin-left: -2.5px; height: 36px; min-height: 36px; gap: 3px; padding: 0 11px 0 33px; border-image-slice: 0 22.9 0 22.9 fill; border-image-width: 0 22.9px 0 22.9px; border-image-outset: 0 13.1px 0 0; color: #2a1a10; border-image-source: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2265.45%22 height=%2236%22 viewBox=%220 0 80 44%22%3E%3Cdefs%3E%3CclipPath id=%22b%22%3E%3Cpath d=%22M1.5 1.5 H62.5 A0 0 0 0 1 62.5 1.5 V42.5 A0 0 0 0 1 62.5 42.5 H1.5 A0 0 0 0 1 1.5 42.5 V1.5 A0 0 0 0 1 1.5 1.5Z%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d=%22M1.5 1.5 H62.5 A0 0 0 0 1 62.5 1.5 V42.5 A0 0 0 0 1 62.5 42.5 H1.5 A0 0 0 0 1 1.5 42.5 V1.5 A0 0 0 0 1 1.5 1.5Z%22 fill=%22%23d77aa8%22/%3E%3Cg clip-path=%22url%28%23b%29%22%3E%3Crect x=%220%22 y=%223%22 width=%2264%22 height=%223%22 fill=%22%23fff%22 opacity=%22.32%22/%3E%3Crect x=%220%22 y=%2235%22 width=%2264%22 height=%229%22 fill=%22%23000%22 opacity=%22.2%22/%3E%3C/g%3E%3Cpath d=%22M1.5 1.5 H62.5 A0 0 0 0 1 62.5 1.5 V42.5 A0 0 0 0 1 62.5 42.5 H1.5 A0 0 0 0 1 1.5 42.5 V1.5 A0 0 0 0 1 1.5 1.5Z%22 fill=%22none%22 stroke=%22%2386335f%22 stroke-width=%223%22/%3E%3Cg fill=%22%2386335f%22 stroke=%22%2386335f%22 stroke-width=%225%22 stroke-linejoin=%22round%22%3E%3Crect x=%220%22 y=%2217%22 width=%229%22 height=%2210%22/%3E%3Ccircle cx=%2210.5%22 cy=%2222%22 r=%229.5%22/%3E%3C/g%3E%3Cg fill=%22%231d120a%22%3E%3Crect x=%220%22 y=%2218.5%22 width=%229%22 height=%227%22/%3E%3Ccircle cx=%2210.5%22 cy=%2222%22 r=%229.5%22/%3E%3C/g%3E%3Ccircle cx=%2210.5%22 cy=%2222%22 r=%229.5%22 fill=%22%23000%22 opacity=%22.25%22/%3E%3Cg fill=%22%23d9483b%22 stroke=%22%2386335f%22 stroke-width=%223%22 stroke-linejoin=%22round%22%3E%3Crect x=%2261%22 y=%2218%22 width=%229%22 height=%228%22/%3E%3Ccircle cx=%2271.5%22 cy=%2222%22 r=%226.8%22/%3E%3C/g%3E%3Cg fill=%22%23d9483b%22%3E%3Crect x=%2261%22 y=%2219.5%22 width=%229%22 height=%225%22/%3E%3Ccircle cx=%2271.5%22 cy=%2222%22 r=%225.3%22/%3E%3C/g%3E%3Ccircle cx=%2269.7%22 cy=%2220.2%22 r=%221.8%22 fill=%22%23fff%22 opacity=%22.4%22/%3E%3C/svg%3E"); }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons > .pf-runf { grid-column: 17 / span 8; grid-row: 2; z-index: 1; margin-left: -2.5px; display: flex; min-width: 0; }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons > .pf-runf .btn { flex: 1; height: 36px; min-height: 36px; gap: 3px; padding: 0 11px 0 33px; border-image-slice: 0 22.9 0 22.9 fill; border-image-width: 0 22.9px 0 22.9px; border-image-outset: 0; color: #fbf3dc; border-image-source: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2252.36%22 height=%2236%22 viewBox=%220 0 64 44%22%3E%3Cdefs%3E%3CclipPath id=%22b%22%3E%3Cpath d=%22M1.5 1.5 H53.5 A9 9 0 0 1 62.5 10.5 V33.5 A9 9 0 0 1 53.5 42.5 H1.5 A0 0 0 0 1 1.5 42.5 V1.5 A0 0 0 0 1 1.5 1.5Z%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d=%22M1.5 1.5 H53.5 A9 9 0 0 1 62.5 10.5 V33.5 A9 9 0 0 1 53.5 42.5 H1.5 A0 0 0 0 1 1.5 42.5 V1.5 A0 0 0 0 1 1.5 1.5Z%22 fill=%22%23d9642a%22/%3E%3Cg clip-path=%22url%28%23b%29%22%3E%3Crect x=%220%22 y=%223%22 width=%2264%22 height=%223%22 fill=%22%23fff%22 opacity=%22.32%22/%3E%3Crect x=%220%22 y=%2235%22 width=%2264%22 height=%229%22 fill=%22%23000%22 opacity=%22.2%22/%3E%3C/g%3E%3Cpath d=%22M1.5 1.5 H53.5 A9 9 0 0 1 62.5 10.5 V33.5 A9 9 0 0 1 53.5 42.5 H1.5 A0 0 0 0 1 1.5 42.5 V1.5 A0 0 0 0 1 1.5 1.5Z%22 fill=%22none%22 stroke=%22%238a3510%22 stroke-width=%223%22/%3E%3Cg fill=%22%238a3510%22 stroke=%22%238a3510%22 stroke-width=%225%22 stroke-linejoin=%22round%22%3E%3Crect x=%220%22 y=%2217%22 width=%229%22 height=%2210%22/%3E%3Ccircle cx=%2210.5%22 cy=%2222%22 r=%229.5%22/%3E%3C/g%3E%3Cg fill=%22%231d120a%22%3E%3Crect x=%220%22 y=%2218.5%22 width=%229%22 height=%227%22/%3E%3Ccircle cx=%2210.5%22 cy=%2222%22 r=%229.5%22/%3E%3C/g%3E%3Ccircle cx=%2210.5%22 cy=%2222%22 r=%229.5%22 fill=%22%23000%22 opacity=%22.25%22/%3E%3C/svg%3E"); }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(#pf-undo, #pf-go, #pf-flip, .pf-box, #pf-hint, .pf-runf .btn)[disabled] { opacity: .55; filter: saturate(.6) drop-shadow(0 2px 0 rgba(0, 0, 0, .35)); }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(.pf-box, #pf-hint, .pf-runf .btn)::before { order: 3; padding: 1px 4px; background: #1d120a; color: #fbf3dc; border-radius: 3px; font-size: 11px; line-height: 1.3; }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-box::before { content: 'Box'; }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-hint::before { content: 'Hint'; }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons .pf-runf .btn::before { content: 'Run'; }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(#pf-undo, #pf-hint) { text-shadow: 0 1px 0 rgba(255, 255, 255, .35); }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(#pf-go, #pf-flip, .pf-box, .pf-runf .btn) { text-shadow: 0 1px 0 rgba(0, 0, 0, .4); }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-hint .xp, html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons #pf-hint > span { color: inherit; }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(.pf-box, #pf-hint, .pf-runf .btn) .ico { flex: none; margin: 0; width: 14px; height: 14px; }
+html body #pfight.pf-v1.pf-v1.pf-v1 > .pf-buttons :is(.pf-box, #pf-hint, .pf-runf .btn)::after { content: ''; position: absolute; left: 0; right: 0; top: -4px; bottom: -4px; }   /* the smaller pieces keep a 44 px tap area */
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfc-top { padding: 2px 4px; }
+  html body #pfight.pf-v1.pf-v1.pf-v1 .pfv-pair .pfv-dock { height: var(--pfv-dock, 52px); }
+}

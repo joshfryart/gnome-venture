@@ -9,7 +9,9 @@
   var flipBusy = false, wrapObs = null, wrapEl = null, fitTW = 0, fitTH = 0;
   var costOk = false, planFree = false, COSTW = !!data.costwarn;   // 2.7.01 costly cell: End turn asked once (costOk); a lit spot that costs nothing was open for the placed piece (planFree); the ask is on (first fights)
   var planQ = null, offMsg = '', popEl = null, sheetEl = null, rowEl = document.getElementById('pfv-row'), legendEl = document.getElementById('pfv-legend'), flipBtn = document.getElementById('pf-flip');
-  var SPD = 1, banMs = 1450, RF = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '0' ? 0 : 1; if (sp0 === null && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) SPD = 0; } catch (e) {}   // 2.6.96: reduced motion with no speed chosen = skip (the player's own choice wins)
+  /* 2.8.80 (Josh): the times of the replay are set for 1x; 2x keeps the old (2.8.77 1x) times; 1.25x is the 1x time / 1.25. T1(ms at 1x, ms at 2x). */
+  function T1(ms1x, ms2x) { return SPD >= 2 ? ms2x : ms1x / SPD; }
+  var SPD = 1, banMs = 1450, ban1 = 2350, RF = 1; try { var sp0 = window.localStorage.getItem('pfvspd'); SPD = sp0 === '2' ? 2 : sp0 === '1.25' ? 1.25 : sp0 === '0' ? 0 : 1; if (sp0 === null && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) SPD = 0; } catch (e) {}   // 2.6.96: reduced motion with no speed chosen = skip (the player's own choice wins)
   var FOETAG = { quick: 'Quick: it plays one more piece this turn', evade: 'Evade: your next hit on it misses', bash: 'Bash: adds its guard to its next hit', poison: 'Poison: 2 ticks on your health',
     trip: 'Trip: you draw 1 fewer next round', heal: 'Heal: empties some of its Yield bar', thorns: 'Thorns: hitting its guard pricks you', hold: 'Hold: this guard lasts a turn longer', pierce: 'Pierce: ignores your guard' };
   var EVN = { sunbeam: 'Sunbeam', creep: 'Bramble creep', puddle: 'Puddle', gust: 'Gust', thorn: 'Thorn burst' }, EVW = { sunbeam: 'sunny', creep: 'bramble', puddle: 'mud', gust: 'push', thorn: 'burst' };
@@ -91,7 +93,7 @@
   function spawnStep(tt) {
     var sp = hideSpawn ? spawnPiece() : null; if (!sp || data.won) return tt;
     playTimers.push(setTimeout(function () { hideSpawn = false; animateSpawn = true; flashIds = {}; fxPop = null; stepNow = 1; stepNote = 'The board puts out ' + sp.n + ' for the ' + (data.foe || 'creature') + ' (it had under 2 pieces out). Its chain can use it next turn.'; render(); animateSpawn = false; }, tt));
-    return tt + 950 * RF / SPD;
+    return tt + T1(1350 * RF, 950 * RF);
   }
   function foeSub() { var q = (data.replay || []).filter(function (e) { return e.note === 'quick' || e.note === 'slow'; })[0]; return q ? (q.note === 'slow' ? 'loses its turn' : (q.n ? q.n + ': ' : '') + 'Quick, plays a second piece') : ''; }
   function meSub() { return data.tripped ? 'Tripped: you drew 1 fewer piece' : (data.opened && root.dataset.turn === '1' ? 'the ' + (data.foe || 'creature') + ' opened with ' + data.opened + ' piece' + (data.opened === 1 ? '' : 's') : ''); }
@@ -362,7 +364,7 @@
     rowEl.innerHTML = h;
     Array.prototype.forEach.call(rowEl.querySelectorAll('.tg.ev'), function (bt) { var e = dispEnvs()[+bt.dataset.ev]; if (e && e.kind === 'gust') { var sv = bt.querySelector('svg'); if (sv) sv.style.transform = 'rotate(' + ROT[e.dir] + 'deg)'; } });
   }
-  function spdLabel() { return '▶ ' + (SPD === 2 ? '2×' : SPD === 0 ? 'skip' : '1×'); }
+  function spdLabel() { return '▶ ' + (SPD === 2 ? '2×' : SPD === 1.25 ? '1.25×' : SPD === 0 ? 'skip' : '1×'); }
   function stripItems() {
     if (phase === 'pre' && PREV && PREV.env) return (PREV.env.next || []).map(function (it, i) { return { it: it, i: i }; }).filter(function (o) { return stripRem.indexOf(o.i) < 0; }).map(function (o) { return o.it; });
     return ENVD.next || [];
@@ -376,7 +378,7 @@
     });
     if (!items.length) h += '<span class="tg envnone">all on the board</span>';
     h += '<button type="button" class="tg qm" data-a="help" aria-label="Help: how the board and the environment work">?</button>'
-      + '<button type="button" class="tg spd" data-a="spd" aria-label="Animation speed: ' + (SPD === 2 ? 'double' : SPD === 0 ? 'skip' : 'normal') + '. Press to change">' + spdLabel() + '</button>';
+      + '<button type="button" class="tg spd" data-a="spd" aria-label="Animation speed: ' + (SPD === 2 ? 'double' : SPD === 1.25 ? 'a quarter faster' : SPD === 0 ? 'skip' : 'normal') + '. Press to change">' + spdLabel() + '</button>';
     if (h !== lastLegend) { lastLegend = h; legendEl.innerHTML = h; }
   }
   function drawLegend() {
@@ -384,7 +386,7 @@
     if (ENV) { drawStrip(); return; }
     legendEl.innerHTML = [['sun', '\u00d7' + V1.sun, 'Sunny: counts ' + times(V1.sun)], ['br', '\u2212' + pc100(V1.bramble || 0), 'Bramble: \u2212' + pc100(V1.bramble || 0) + ' a round'], ['mud', 'no links', 'Mud: no links']].map(function (q) { return '<button type="button" class="tg lg-' + q[0] + '" data-ter="' + q[0] + '" aria-label="' + q[2] + '. Press for more" title="' + q[2] + '">' + svg(q[0]) + q[1] + '</button>'; }).join('')
       + '<button type="button" class="tg" data-a="turn" aria-label="Terrain turn: what happens in a round">Turn</button><button type="button" class="tg qm" data-a="help" aria-label="Help: how the board works">?</button>'
-      + '<button type="button" class="tg spd" data-a="spd" aria-label="Animation speed: ' + (SPD === 2 ? 'double' : SPD === 0 ? 'skip' : 'normal') + '. Press to change">' + spdLabel() + '</button>';
+      + '<button type="button" class="tg spd" data-a="spd" aria-label="Animation speed: ' + (SPD === 2 ? 'double' : SPD === 1.25 ? 'a quarter faster' : SPD === 0 ? 'skip' : 'normal') + '. Press to change">' + spdLabel() + '</button>';
   }
 
   // ---- popover over the board (a ground cell, a forecast mark, a legend chip) and the help sheet
@@ -434,7 +436,7 @@
       + (ENV ? '</ul><div class="sl">Environment pieces <span>tap one in the Next strip</span></div><ul class="helpl">' + ['sun', 'bramble', 'rain', 'wind', 'mud', 'thorn'].filter(function (k) { return !(NOWM && (k === 'wind' || k === 'mud')); }).map(function (k) { return row(envText(k, null)); }).join('') + '</ul>' : '')
       + (ENV ? '' : '</ul><div class="sl">Terrain <span>tap a ground cell</span></div><ul class="helpl">' + ['sun', 'br', 'mud'].map(function (k) { return row(terrText(k)); }).join('') + '</ul>'
       + '<div class="sl">Events <span>marked a round ahead</span></div><p class="hint">' + WHEN + '</p><ul class="helpl">' + ['sunbeam', 'creep', 'puddle', 'gust', 'thorn'].map(function (k) { return row(evText2(k)); }).join('') + '</ul>')
-      + '<div class="sl">Animation speed</div><div class="spdrow">' + [['1', '1×'], ['2', '2×'], ['0', 'Skip']].map(function (o) { return '<button type="button" class="btn small' + (String(SPD) === o[0] ? ' primary' : ' ghost') + '" data-spd="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>'
+      + '<div class="sl">Animation speed</div><div class="spdrow">' + [['1', '1×'], ['1.25', '1.25×'], ['2', '2×'], ['0', 'Skip']].map(function (o) { return '<button type="button" class="btn small' + (String(SPD) === o[0] ? ' primary' : ' ghost') + '" data-spd="' + o[0] + '">' + o[1] + '</button>'; }).join('') + '</div>'
       + '<div class="sl">Piece effects</div><div class="spdrow pfa-row">' + [['full', 'Full'], ['light', 'Light'], ['off', 'Off']].map(function (o) { return '<button type="button" class="btn small' + (pfaMode() === o[0] ? ' primary' : ' ghost') + '" data-pfx="' + o[0] + '" aria-pressed="' + (pfaMode() === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>'
       + '<p class="hint">How the pieces land and fire in the replay. Light: they land with a wiggle, no edge effects. Off: none.' + (pfaRm() && !pfaChosen() ? ' Your device asks for less motion, so they are off until you pick one.' : '') + '</p>'
       + '</div></div>';
@@ -478,7 +480,7 @@
       if (p) PFAnim.fire(ev, p, pfaChain(ev.id), pfaCtx(step));
     } catch (e) {}
   }
-  function setSpd(v) { SPD = v === 2 ? 2 : v === 0 ? 0 : 1; try { window.localStorage.setItem('pfvspd', String(SPD)); } catch (e) {} drawLegend(); if (!SPD && playing) stopPlay(true); }
+  function setSpd(v) { SPD = v === 2 ? 2 : v === 1.25 ? 1.25 : v === 0 ? 0 : 1; try { window.localStorage.setItem('pfvspd', String(SPD)); } catch (e) {} drawLegend(); if (!SPD && playing) stopPlay(true); }
   function onKey(ev) { if (ev.key === 'Escape') { if (sheetEl) closeSheet(); else closePop(); } }
 
   // ---- the replay: it starts from the ground, forecast and aim as they stood before the turn; each terrain event flashes its mark and what it hit; used-up pieces leave after their side's chain
@@ -502,7 +504,7 @@
     Object.keys(pushes).forEach(function (id) { movedBack[id] = pushes[id][0]; envPush[id] = pushes[id].slice(1); });
     (data.replay || []).forEach(function (ev) { if (ev.note === 'current' && ev.moved && ev.moved.id !== undefined && typeof ev.moved.fx === 'number') movedBack[ev.moved.id] = { x: ev.moved.fx, y: ev.moved.fy }; });   // 2.6.985: a Water current pushes your piece at its own step, not before
   }
-  function replayDone() { qAim = null; root.classList.remove('pf-turnhold'); banMs = 1450; if (ENV && PREV && phase === 'pre') { stripNew = true; stripBad = false; stripRem = []; setTimeout(function () { stripNew = false; drawLegend(); }, 900); }
+  function replayDone() { qAim = null; root.classList.remove('pf-turnhold'); banMs = 1450; ban1 = 2350; if (ENV && PREV && phase === 'pre') { stripNew = true; stripBad = false; stripRem = []; setTimeout(function () { stripNew = false; drawLegend(); }, 900); }
     fxPop = null; fadeIds = {}; slideIds = {}; phase = 'now'; terOver = {}; movedBack = {}; usedGone = {}; leavingUsed = {}; envDone = {}; flashEnv = null; flashIds = {}; aimHide = false; stepNow = 0; stepNote = ''; aoeFlash = false; aoeLanded = false; }
   function envStepE(ev) {   // one step of the environment's own events: a piece fires in a chain, the environment places, finds no place, pieces fade
     var K = envKind(ev.kind);
@@ -544,21 +546,22 @@
     render();
     if (flashEnv !== null) { var done = flashEnv; playTimers.push(setTimeout(function () { envDone[done] = 1; }, 10)); }   // its mark stays for this step, then it is gone
   }
-  /** the replay takes at most REPLAY_MS (8.46 s at 1x; half of it at 2x) however many events there are: the creature's banner is short, the pieces' steps shrink by RF to fit. */
-  var REPLAY_MS = 8460;   // Josh: the replay is too fast to follow at 4.6 s, 8.46 s at 1x (half at 2x)
+  /** the replay takes at most REPLAY_MS (16.9 s at 1x, 8.46 s at 2x since 2.8.78: 1x is half the old speed) however many events there are: the creature's banner is short, the pieces' steps shrink by RF to fit. */
+  var REPLAY_MS = 8460, REPLAY_MS1 = 16920;   // Josh: the replay is too fast to follow at 4.6 s, 8.46 s at 1x (half at 2x)
   function replayScale() {
     var n = (data.replay || []).length, ups = 0, g = data.gone || [];
     if (g.some(function (x) { return x.used === 'me'; })) ups++;
     if (g.some(function (x) { return x.used === 'foe' || (x.fell && !x.used && x.by === 'foe'); })) ups++;
-    var fixed = 200 + 700, vary = (n + (hideSpawn && spawnPiece() ? 1 : 0)) * 950 + ups * 850;   // after 2.6.96: the board's piece for the creature is a step too
-    return Math.max(0.1, Math.min(1, (REPLAY_MS - fixed) / Math.max(1, vary)));
+    var steps = n + (hideSpawn && spawnPiece() ? 1 : 0);   // after 2.6.96: the board's piece for the creature is a step too
+    if (SPD >= 2) return Math.max(0.1, Math.min(1, (REPLAY_MS - (200 + 700)) / Math.max(1, steps * 950 + ups * 850)));   // 2x: the old numbers
+    return Math.max(0.1, Math.min(1, (REPLAY_MS1 - (130 + 1150)) / Math.max(1, (steps + ups) * 1350)));   // 1x (and 1.25x, same shape, all / SPD): the cap is 16.9 s at 1x
   }
   function useUpStep(side, tt) {
     var ids = (data.gone || []).filter(function (g) { return g.used === side || (side === 'foe' && g.fell && !g.used && g.by === 'foe'); }).map(function (g) { return g.id; });
     if (!ids.length) return tt;
     playTimers.push(setTimeout(function () { ids.forEach(function (id) { leavingUsed[id] = 1; }); flashEnv = null; flashIds = {}; stepNote = side === 'me' ? 'A chain of ' + (V1.limit || 3) + ' or more: the pieces that fired are used up.' : 'Pieces that fired their last time, or in a chain of ' + (V1.limit || 3) + ', fall away.'; render(); }, tt));
-    playTimers.push(setTimeout(function () { ids.forEach(function (id) { usedGone[id] = 1; delete leavingUsed[id]; }); render(); }, tt + 800 * RF / SPD));
-    return tt + 850 * RF / SPD;
+    playTimers.push(setTimeout(function () { ids.forEach(function (id) { usedGone[id] = 1; delete leavingUsed[id]; }); render(); }, tt + T1(1270 * RF, 800 * RF)));
+    return tt + T1(1350 * RF, 850 * RF);
   }
 
   /** 2.6.78: the result card of a fight that is over waits (the server marks the fight pfv-endwait) until the last turn has been replayed in full, then it fades in. A skipped or absent replay shows it at once. */
@@ -733,7 +736,7 @@
       else if (b.dataset.ter) showPop({ t: 'ter', k: b.dataset.ter, y: null });
       else if (b.dataset.a === 'turn') showPop({ t: 'turn', k: 'turn', y: null });
       else if (b.dataset.a === 'help') helpSheet();
-      else if (b.dataset.a === 'spd') setSpd(SPD === 1 ? 2 : SPD === 2 ? 0 : 1);
+      else if (b.dataset.a === 'spd') setSpd(SPD === 1 ? 1.25 : SPD === 1.25 ? 2 : SPD === 2 ? 0 : 1);
     });
     if (flipBtn) flipBtn.addEventListener('click', doFlip);
     wrapEl = document.createElement('div'); wrapEl.className = 'pfv-bwrap'; boardEl.parentNode.insertBefore(wrapEl, boardEl); wrapEl.appendChild(boardEl);   // the board takes the room that is left: the fight fits the window
@@ -767,10 +770,28 @@
   var fitBusy = false, dockEl = null, dockOn = false, dockMo = null, pairEl = null;
   function handAR() { var P = window.PFParts, S = P && P.ok && P.atlas && P.atlas.sizes && P.atlas.sizes.strip; return S && P.atlas.version === 47 ? S.piece[1] / S.piece[0] : 52 / 74; }   // 2.6.89: the hand shows the strip-size piece; the jigsaw piece is 82 x 73, the old one 74 x 52
   var HAND_W = function () { return window.innerWidth <= 560 ? 74 : 112; };
-  function fitVars(v) { var st = root.style; ['--pfv-gap', '--pfv-btn', '--pfv-hw', '--pfv-hh', '--pfv-dock', '--pfv-leg'].forEach(function (k) { if (v && v[k] !== undefined) st.setProperty(k, v[k]); else st.removeProperty(k); }); }
+  function fitVars(v) { var st = root.style; ['--pfv-gap', '--pfv-btn', '--pfv-hw', '--pfv-hh', '--pfv-dock', '--pfv-leg', '--pfr-hand', '--pfr-board'].forEach(function (k) { if (v && v[k] !== undefined) st.setProperty(k, v[k]); else st.removeProperty(k); }); }
   function setDock(on) {
     if (on === dockOn || !dockEl) return; dockOn = on; root.classList.toggle('pfv-dockon', on);
     if (insp) { if (on) dockEl.insertBefore(insp, dockEl.firstChild); else if (wrapEl) wrapEl.appendChild(insp); }   // the card docks under the board (in the flow) or, with no room to spare, lies over the board room
+  }
+  /* 2.8.78 (Josh: "go with thumb rails"): a phone held sideways (landscape, under 600 px high) lays the fight out in three columns: your hand down the left edge, the board in the middle,
+     the bars, tips and buttons down the right edge (assets/pfv1.css, the .pfv-fit grid under the same media test). The hand pieces are sized to the column's height (one piece per fifth of it), the board to its column.
+     A bigger window keeps the three columns together in the middle (the panel is at most 1080 px wide and centred). */
+  var railsMq = window.matchMedia ? window.matchMedia('(orientation: landscape) and (max-height: 599px) and (min-width: 560px)') : null;
+  function railsFit() { return !!(railsMq && railsMq.matches && document.body.classList.contains('game')); }
+  function fitRails() {
+    var ar = fitTW / fitTH, n = Math.max(1, tiles.filter(function (t) { return !t.hidden; }).length || tiles.length || 5), cs = getComputedStyle(root);
+    var H = root.clientHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0), gap = 6, k = handAR();
+    var hh = Math.floor((H - 20 - gap * (n - 1)) / n), hw = Math.round(hh / k), cap = Math.round(Math.min(120, root.clientWidth * 0.14));
+    if (hw > cap) { hw = cap; hh = Math.round(hw * k); }
+    fitVars({ '--pfv-btn': '44px', '--pfv-gap': '4px', '--pfv-leg': '30px', '--pfv-dock': '46px', '--pfv-hw': hw + 'px', '--pfv-hh': hh + 'px', '--pfr-hand': (hw + 4) + 'px' });
+    setDock(true); wrapEl.style.flex = ''; wrapEl.style.height = '';
+    var r = wrapEl.getBoundingClientRect(); if (r.height < 30 || r.width < 30) return;
+    var w = Math.floor(Math.min(r.width - 4, (r.height - 4) * ar, fitTW * 4.5)), h = Math.round(w / ar);
+    boardEl.style.maxWidth = 'none'; boardEl.style.aspectRatio = fitTW + ' / ' + fitTH; boardEl.style.width = w + 'px'; boardEl.style.height = h + 'px';
+    root.style.setProperty('--pfr-board', (w + 4) + 'px');   // the board's column shrinks to the board, so hand, board and rail sit together in the middle of a wide window
+    if (dockOn) { root.classList.toggle('pfv-docks', true); if (insp && !insp.hidden && selected === null && picked === null) insp.hidden = true; dockEl.style.setProperty('--pfv-dockh', dockEl.clientHeight + 'px'); dockFill(); }
   }
   function fitBoard() {
     if (fitBusy || !wrapEl || !fitTW || !root.classList.contains('pfv-fit')) return;

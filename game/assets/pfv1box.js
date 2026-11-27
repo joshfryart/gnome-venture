@@ -388,5 +388,20 @@
   window.pfvSizes = sizes; window.pfvFrame = frame;
   window.addEventListener('resize', frame);
   var off0 = window.__pfvOff; window.__pfvOff = function () { off0(); window.removeEventListener('resize', frame); document.removeEventListener('pointerdown', outTap, true); closeSheet(); };
+  /* 2.8.78 Face-off pre-fight: the tabs (Your deck / Its pieces / Rules). One delegated listener for the page, whatever swaps in. */
+  if (!window.__pfb2Tabs) {
+    window.__pfb2Tabs = 1;
+    document.addEventListener('click', function (ev) {
+      var t = ev.target.closest && ev.target.closest('[data-pfb2-tab]'); if (!t) return;
+      var root = t.closest('.pfb2'); if (!root) return;
+      all('[data-pfb2-tab]', root).forEach(function (b) { b.setAttribute('aria-selected', String(b === t)); });
+      all('.pfb2-pane', root).forEach(function (p) { p.classList.toggle('on', p.getAttribute('data-pane') === t.getAttribute('data-pfb2-tab')); });
+    });
+    document.addEventListener('keydown', function (ev) {
+      var t = ev.target.closest && ev.target.closest('[data-pfb2-tab]'); if (!t || (ev.key !== 'ArrowRight' && ev.key !== 'ArrowLeft')) return;
+      var tabs = all('[data-pfb2-tab]', t.closest('.pfb2')), i = tabs.indexOf(t) + (ev.key === 'ArrowRight' ? 1 : -1), n = tabs[(i + tabs.length) % tabs.length];
+      ev.preventDefault(); n.focus(); n.click();
+    });
+  }
   init(); frame();
 })();

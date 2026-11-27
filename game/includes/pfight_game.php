@@ -475,7 +475,7 @@ function pfight_do(array $u, array &$exp, string $do): bool
             $snaps = (array)($enc['snaps'] ?? []); $sn = (int)($enc['snapn'] ?? 0); $cur = isset($enc['snaplast']) ? (int)$enc['snaplast'] : null;
             foreach ($r['ev'] as $e) {
                 if (isset($e['snap'])) { $snaps[++$sn] = $e['snap']; $cur = $sn; }   // each placement keeps the board as it was, so a history chip can rewind to it
-                $enc['hist'][] = pfight_chip_event($e, $cur, $one);
+                $enc['hist'][] = pfight_chip_event($e, $cur, $one) + ['ln' => mb_substr(pfight_line($e, (string)$c['name']), 0, 220), 'nm' => mb_substr((string)($e['n'] ?? ''), 0, 40)];   // 2.8.78: the full line and the piece name ride on the chip, so the rewind can say what the replay said
             }
             ksort($snaps); $enc['snaps'] = array_slice($snaps, -14, null, true); $enc['snapn'] = $sn; $enc['snaplast'] = $cur; $enc['histnew'] = count($r['ev']);
         }   // one chip per scored piece; the board page plays them in one at a time
@@ -886,7 +886,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         $nm = 'the ' . (string)$c['name']; $tgw = ($chip['tg'] ?? null) === 'me' ? 'you' : $nm;
         $label = (($chip['by'] ?? 'me') === 'me' ? 'You' : (($chip['by'] ?? '') === 'env' ? (!empty($v['v1']['env']) ? 'Environment' : 'Terrain') : ucfirst($nm))) . ': ' . implode(', ', array_map(fn($x) => (string)$x, (array)$chip['types'])) . ', ' . (string)$chip['txt'] . (($chip['tg'] ?? null) !== null ? ', on ' . $tgw : '') . ($sn !== null ? '. Press to see the board then.' : '');
         $h .= '<li class="pf-chip ' . ($chip['by'] === 'me' ? 'you' : ($chip['by'] === 'env' ? 'env' : 'foe')) . ($isNew ? ' pf-chip-new' : '') . ($sn !== null ? ' pf-chip-rw' : '') . '"' . ($isNew ? ' data-ev="' . $evIdx . '"' . ($pending ? ' hidden' : '') : '')
-            . ($sn !== null ? ' data-sn="' . $sn . '" data-id="' . (int)($chip['id'] ?? 0) . '" data-bar="' . e((string)($chip['bar'] ?? '')) . '" data-fh="' . e((string)($chip['fh'] ?? '')) . '" data-g="' . e((string)($chip['g'] ?? '')) . '" data-fg="' . e((string)($chip['fg'] ?? '')) . '" data-hp="' . e((string)($chip['hp'] ?? '')) . '" role="button" tabindex="0"' : '') . ' aria-label="' . e($label) . '">'
+            . ($sn !== null ? ' data-sn="' . $sn . '" data-id="' . (int)($chip['id'] ?? 0) . '" data-bar="' . e((string)($chip['bar'] ?? '')) . '" data-fh="' . e((string)($chip['fh'] ?? '')) . '" data-g="' . e((string)($chip['g'] ?? '')) . '" data-fg="' . e((string)($chip['fg'] ?? '')) . '" data-hp="' . e((string)($chip['hp'] ?? '')) . '" data-ln="' . e((string)($chip['ln'] ?? '')) . '" data-nm="' . e((string)($chip['nm'] ?? '')) . '" data-tx="' . e((string)($chip['txt'] ?? '')) . '" role="button" tabindex="0"' : '') . ' aria-label="' . e($label) . '">'
             . $who((string)$chip['by']);
         foreach ((array)$chip['types'] as $ci => $t) {
             if (($chip['by'] ?? '') === 'env' || $t === 'note') continue;   // v1: a terrain chip has no piece type; nor has a notice (2.6.76)
@@ -905,7 +905,7 @@ function pfight_board_html(array $u, array &$enc, array $c, array $s): string
         . pfight_bar_html($vb)
         . '<div class="pfc-foe"><span class="pfc-fname"><b>' . e((string)$c['name']) . '</b><small>lv ' . (int)$c['level'] . ' · ' . ($s['temper'] === 'gentle' ? 'gentle' : 'wary') . ' · 🃏 ' . (int)$v['foe']['hand'] . ($v['foe']['calm'] ? ' · 😌 ' . (int)$v['foe']['calm'] : '') . '</small></span><span class="pfc-av">' . $foeImg . '<span class="pf-intent-bubble" title="Likely next move" aria-label="Likely next move: ' . e((string)$v['foe']['intent']) . '">' . $sm((string)$v['foe']['intent']) . '</span></span></div></div>';
     $h = str_replace('@@TOP@@', $top, $h);
-    $h .= '<div class="pf-rewind" id="pf-rewind" role="status" hidden><span id="pf-rw-t"></span><button type="button" class="btn" id="pf-rw-back">Back to now</button></div>';
+    $h .= '<div class="pf-rewind" id="pf-rewind" role="status" hidden><span id="pf-rw-t"></span><button type="button" class="btn" id="pf-rw-back">Back to now</button><div class="pf-rw-d" id="pf-rw-d"></div></div>';
     if (isset($v['v1'])) $h .= pf_new_today_html($s);   // 2.7.01: "New today" on the first turn of the first full-rules fight
     if (isset($v['v1'])) $h .= '<div class="pfv-row" id="pfv-row"></div>';   // v1 (stage C): turn order, chain dots, Teamwork, the aim, the forecast and what waits on each side (assets/pfboardv1.js fills it)
     $h .= '<div class="pfb-board" id="pfb-board" role="group" aria-label="The play area: pick a piece from your hand, then a lit spot. Scroll, pinch or use the zoom buttons to zoom"></div>';   // JS draws the pieces from #pf-data
