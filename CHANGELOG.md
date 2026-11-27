@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.84
+- **Pink dots, hardening (the code, not the art):** the piece builder cut a hole where the socket art is exactly magenta (255,0,255) and copied every other colour onto the piece. If a browser, GPU or screen profile moves that key pixel by even 1 (e.g. 254,1,255) the exact test fails and the pixel lands on the piece as a pink dot at the notch. The key is now matched with a tolerance of 24 per channel (`isKey()` in `pfparts47.js`, both build paths); no art uses a colour that near it. Not reproducible in headless Chromium (built pieces for all 1300 creature icons, all environment kinds and every edge type scanned clean; an overlay-effects on/off comparison after a full replay is pixel-identical), so this is a guard for devices that differ.
+
 ## 2.8.83
 - **End screen on a sideways phone (Josh):** the result card covers the whole fight panel, centred, in two columns (outcome on the left; turns, health, tool wear and the Collect / Fix buttons on the right). It was squeezed into the right-hand column with its buttons cut off. The card is a plain block again (the fight's own `.res` rules had made it a grid that squeezed the Face-off layout, on portrait and desktop too). (`pfv1.css`)
 - **Pink dots:** not reproduced beyond the any-hole rim fixed in 2.8.80. A scan of all 1300 creature piece icons, all environment pieces and every edge type at both sizes found no stray pink in the built pieces; ask for a zoomed screenshot of the piece if it persists.

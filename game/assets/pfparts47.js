@@ -189,7 +189,7 @@
       var sk = cell(o.size + '-socks', k, W, H), r = sz.socks[SIDEN[s]];
       for (y = r[1]; y < r[3]; y++) for (x = r[0]; x < r[2]; x++) {
         var p = (y * W + x) * 4; if (!sk[p + 3]) continue;
-        if (sk[p] === E[0] && sk[p + 1] === E[1] && sk[p + 2] === E[2]) d[p + 3] = 0;   // the hole: a real cut-out
+        if (isKey(sk, p, E)) d[p + 3] = 0;   // the hole: a real cut-out
         else { d[p] = sk[p]; d[p + 1] = sk[p + 1]; d[p + 2] = sk[p + 2]; d[p + 3] = 255; }
       }
     });
@@ -223,7 +223,7 @@
       var sk = any ? cell('kit-socks-any|' + o.size, k, W, H) : cell(o.size + '-socks', k, W, H), r = sz.socks[SIDEN[s]];
       for (y = r[1]; y < r[3]; y++) for (x = r[0]; x < r[2]; x++) {
         var p = (y * W + x) * 4; if (!sk[p + 3]) continue;
-        if (sk[p] === E[0] && sk[p + 1] === E[1] && sk[p + 2] === E[2]) d[p + 3] = 0;   // the hole: a real cut-out
+        if (isKey(sk, p, E)) d[p + 3] = 0;   // the hole: a real cut-out
         else if (any && k === 1) { d[p] = 42; d[p + 1] = 26; d[p + 2] = 16; d[p + 3] = 255; }   // 2.8.79: the any-hole's 1 px rim in the three strand colours showed as stray pink dots at the notch on a big (desktop) board: the rim is plain ink now
         else { d[p] = sk[p]; d[p + 1] = sk[p + 1]; d[p + 2] = sk[p + 2]; d[p + 3] = 255; }
       }
@@ -243,6 +243,8 @@
     if (o.m && !kind && !foe) { mk('mod-' + o.m, sz.extra); if (o.rar !== undefined && o.rar !== null && si < 0) mk('rarity-' + o.rar, sz.owner); }
     return cv;
   }
+  /* 2.8.84: the cut-out key (magenta) is matched with a tolerance, not exactly: if a browser or screen profile nudges the key pixel (254,1,255) an exact test would copy it onto the piece as a pink dot. The art never uses a colour that near the key. */
+  function isKey(a, p, E) { return Math.abs(a[p] - E[0]) <= 24 && Math.abs(a[p + 1] - E[1]) <= 24 && Math.abs(a[p + 2] - E[2]) <= 24; }
   function number48(cx, size, sz, text) {   // the drawn digits on the drawn plate; a number too long for the plate falls back to the small figures
     var plate = sz.plate, gw = sz.digit[0], gh = sz.digit[1], k = plate.k, w = text.length * gw + (text.length - 1) * k;
     cx.drawImage(P.imgs[size + '-plate'], plate.at[0], plate.at[1]);
