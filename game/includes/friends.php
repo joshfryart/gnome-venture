@@ -149,6 +149,8 @@ function npc_talk(array $u, int $npcId): array
     }
     $f = friendship($uid, $npcId);
     $before = friend_level((int)$f['points']);
+    require_once __DIR__ . '/stop_mark_hooks.php';
+    $gain += mark_friend_extra($uid, mark_ctx_here($uid));   // F14 lasting marks
     $new = friend_add($uid, $npcId, $gain, ['talks' => (int)$f['talks'] + 1]);
     db()->commit();
     // v0.9.1: the chat counted (it is once a day, checked above), so it pays XP
@@ -222,6 +224,8 @@ function npc_gift(array $u, int $npcId, int $itemId, bool $door = false): array
     $known = json_decode((string)$f['known'], true) ?: [];
     if ($key && !in_array($key, $known, true)) $known[] = $key;
     $before = friend_level((int)$f['points']);
+    require_once __DIR__ . '/stop_mark_hooks.php';
+    if ($pts > 0) $pts += mark_friend_extra($uid, mark_ctx_here($uid) + mark_ctx_item($itemId));   // F14 lasting marks
     $new = friend_add($uid, $npcId, $pts, ['gifts' => (int)$f['gifts'] + 1, 'known' => json_encode($known)]);
     q('UPDATE npcs SET mood = ? WHERE id = ?', [min(100, (int)$npc['mood'] + ($pts > 0 ? 2 : -1)), $npcId]);
     db()->commit();
