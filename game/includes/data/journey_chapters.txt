@@ -93,3 +93,342 @@ T|maplewold-m7-the-lighting|friend|-|2|any|0|-|Make a Friend among the Maplewold
 T|maplewold-m7-the-lighting|defeat|lair:great-white-owl|1|15|0|act:r_na_owl_hoot:3|The Great White Owl: beat it or charm it at its den
 T|maplewold-m7-the-lighting|deliver|meal:2,to:hearth|1|15|0|-|Bring a wild-rice dish and an apple dish to your Hearth stop for the supper (2 home-cooked meals)
 T|maplewold-m7-the-lighting|seal|standing:78|1|15|0|-|The Maplewold Seal: Expedition Standing 78%. Hobb fires the Cairnback beacon and Wren binds the section
+
+# ================================================================ Bands 2-5 and the last page (2026-11-28; quests doc 2.2-2.6, flavor doc 2.2-2.3)
+# 21 more chapters: 28 in all. Lint: claude/tools_lint_quest_data.py (slugs, places, items, creatures, counts, XP sums). Test: tests/quest_data.php.
+#
+# XP: the chapters of a band pay 40% of the band's real XP between them (band XP = xp_for_level(top) - xp_for_level(floor)), split by level span;
+# a chapter at the band top (The Crossing, The Last Page) takes the last level's span, as M7 does.
+#   Band 2 (Lv 15-25, 79,125 XP, 40% = 31,650): C1/N1 2,497, C2/N2 3,636, C3/N3 4,987, C4/N4 3,137, The Crossing 3,136.
+#   Band 3 (Lv 25-35, 185,125 XP, 40% = 74,050): 18,513 + 18,513 + 18,512 + 18,512.
+#   Band 4 (Lv 35-45, 336,125 XP, 40% = 134,450): 33,613 + 33,613 + 33,612 + 33,612.
+#   Band 5 (Lv 45-55, 532,125 XP, 40% = 212,850): 68,243 x 3 + The Last Page 8,121.
+# Petals (quests doc 1.4): band 2 600 to 1,300, band 3 2,600, band 4 5,000, band 5 7,500, the last page 10,000.
+# An area's first chapter (band 2) or only chapter (bands 3-5) replaces the old chapter of that area, with the same Repair stages, so a gnome
+# who built the old Repair keeps it. The area benefit, the reward item and the title of the old chapter are paid at the area's Seal chapter.
+# Titles by Seal count (quests doc 1.4) need the engine; until then each Seal chapter keeps the title the old chapter of its area gave.
+# Carried story items that are no items (cistern jar, marked crate, lit lantern) are steps with things every gnome can get: Rope, Beeswax, a walk.
+# Seed Bed steps (plant bed:K) wait for Seed Beds; the Clovercove Gatehouse and the Ferry Landing count as anywhere in the area until they exist.
+
+# ---------------------------------------------------------------- Maizehollow, band 2 (amaranth, marigold)
+C|maizehollow-c1-the-granary|CA|1|2|The Granary|hazel-dewberry|15-17|-|600|2497|-|1|-|-|-|Granary|🌽|[i]Dear friend,[/i]\n\nMaizehollow next. The corn is high on Cornrow Flats and the Granary walls have cracked, so the mice are eating better than the millers. Hazel Dewberry is counting sacks and frowning.\n\nLight a lamp on the Flats first. Folk mend things faster when they can see them. The Market of a Thousand Chilies still sells amaranth seed, if you ask for the red stuff.\n\n[i]Wren[/i]|[i]Dear friend,[/i]\n\nHazel sent me the first tally from the mended Granary. It is short by one sack, which she says is the mill cat's wages.\n\nThe old book says the Granary "feeds the Flats". It fed the mice. I have written what it holds today, by the sack.\n\n[i]Wren[/i]|maizehollow-granary
+T|maizehollow-c1-the-granary|visit|-|1|15|0|-|Reach Maizehollow and read Wren's cover note
+T|maizehollow-c1-the-granary|grow|staple|2|15|0|-|Harvest 2 of Maizehollow's staple crops (corn, black bean)
+T|maizehollow-c1-the-granary|adopt|zone:1|1|15-16|0|-|Do three things at a dark village on Cornrow Flats, then adopt it
+T|maizehollow-c1-the-granary|raise|tier:1,zone:1|1|15-16|0|-|Light it: a Flats village at tier 1 where you are a Regular
+T|maizehollow-c1-the-granary|defeat|creature:barn-rat|3|16|0|deliver:meal:2,to:stop:1|Mice in the grain: beat or charm 3 Barn Rats
+T|maizehollow-c1-the-granary|plant|crop:amaranth:3|1|16-17|0|-|Grow amaranth and harvest 3
+T|maizehollow-c1-the-granary|stage|item:building-stone:4,coins:200|1|16-17|0|-|Rebuild the walls (4 Dressed Stone, 200 Petals)
+T|maizehollow-c1-the-granary|stage|item:timber-plank:3,item:rope:2|1|16-17|0|-|Raise the roof (3 Timber Planks, 2 Rope)
+T|maizehollow-c1-the-granary|stage|meal:2|1|16-17|0|-|Feed the builders (2 home-cooked meals)
+T|maizehollow-c1-the-granary|seal|leaf|1|17|0|-|The Flats leaf: Wren binds it into the Almanac
+
+C|maizehollow-c2-the-lost-trader|CA|2|2|The Lost Trader|-|18-20|-|800|3636|-|1|-|-|-|Trader's Stall|🧺|Pell Quickthistle reads the address aloud, in full: "Marlo Pepperpack, Trader, The Quetzal Tangle, By The Third Bend." He has carried it for two sacks' worth of boot leather.\n\nNobody has seen Marlo at the third bend, or at any bend. A lamp on the road toward the Tangle would give her somewhere to walk to, and a stall would give her a reason.|[i]Dear friend,[/i]\n\nMarlo sold me a ball of string and then bought it back, to keep her hand in. Pell delivered her letter and read out the next address before she had opened it.\n\nThe old book has "a stall at every bend of the Tangle". There is one. It is a good one.\n\n[i]Wren[/i]|-
+T|maizehollow-c2-the-lost-trader|find|The Stepped Seed Temple|1|18|0|-|Find the Stepped Seed Temple
+T|maizehollow-c2-the-lost-trader|adopt|-|2|18|0|-|Release the Flats stop (it stays lit) and adopt a second Maizehollow village, toward the Tangle
+T|maizehollow-c2-the-lost-trader|raise|tier:1|2|18|0|-|Light it: two lamps lit in Maizehollow
+T|maizehollow-c2-the-lost-trader|escort|who:Marlo Pepperpack,from:The Stepped Seed Temple,to:stop|1|18-19|0|-|Find trader Marlo Pepperpack near the Temple and walk her to a Tangle village
+T|maizehollow-c2-the-lost-trader|defeat|creature:mischief-monkey|1|19|0|deliver:item:papaya:3,to:stop:1|A Mischief Monkey has her ledger: beat it or charm it
+T|maizehollow-c2-the-lost-trader|raise|tier:2|1|19-20|0|-|Open a stall so she can trade: a Maizehollow village at tier 2 where you are a Regular
+T|maizehollow-c2-the-lost-trader|plant|bed:1|1|19-20|0|-|First Seed Bed hand-in (5 amaranth) at the granary-side mill
+T|maizehollow-c2-the-lost-trader|seal|leaf|1|20|0|-|The Tangle leaf
+
+C|maizehollow-c3-cisterns|CA|3|2|Cisterns|-|21-23|-|1050|4987|-|1|-|-|-|Cistern|🏺|Professor Puff Morelby is lying on the Barrens with one ear to the ground. He says the Waythread follows the water here. He says it to the ground first, and then to you.\n\nThe steps down to the Cenote of Echoes have fallen in and the cistern is dry. The Barrens villages share one cup.|[i]Dear friend,[/i]\n\nI drank from the new cistern. The cup is not on a chain. I checked, and then felt I had been rude.\n\nThe old book says water "is found here". It is carried here. I have named who carries it.\n\n[i]Wren[/i]|-
+T|maizehollow-c3-cisterns|find|Cenote of Echoes|1|21|0|-|Find the Cenote of Echoes
+T|maizehollow-c3-cisterns|stage|item:building-stone:6,coins:400|1|21-22|0|-|Rebuild the cenote steps (6 Dressed Stone, 400 Petals)
+T|maizehollow-c3-cisterns|stage|item:rope:4,item:timber-plank:4|1|21-22|0|-|Line and lid the cistern (4 Rope, 4 Timber Planks)
+T|maizehollow-c3-cisterns|regular|zone:3|1|21-22|0|-|Become a Regular at a thirsty Barrens village
+T|maizehollow-c3-cisterns|deliver|item:rope:2,to:stop|1|22|0|-|Rig the well at a Barrens village so the cistern jars can go round (2 Rope)
+T|maizehollow-c3-cisterns|defeat|creature:desert-gila-dragon|1|22-23|0|deliver:item:nopal:2,to:stop:1|A Gila Dragon basks on the cistern lid: beat it or charm it
+T|maizehollow-c3-cisterns|plant|flower:marigold|1|22-23|0|-|Grow marigold to bloom for the cistern wall
+T|maizehollow-c3-cisterns|plant|bed:2|1|22-23|0|-|Second Seed Bed hand-in (8 amaranth)
+T|maizehollow-c3-cisterns|seal|leaf|1|23|0|-|The Barrens leaf
+
+C|maizehollow-c4-the-beacon|CA|4|2|The Beacon|-|24-25|-|1300|3137|worm-castings|5|-|sell_bonus:10|Shops in Maizehollow pay 10% more for what you sell.|Beacon Brazier|🔥|Warden Hobb Stiles has walked up the Ash Road to look at a pile of stones. It was a beacon once. He gives it as 0% of a beacon.\n\n"Not yet," he says, "and here is why." He needs stalls open along the road, amaranth on them, and somebody to carry flint uphill. He has counted the somebodies. One.|[i]Dear Field Hand,[/i]\n\n{friend} sold me [b]amaranth[/b] cakes from a stall at {hearth} and would not take a Petal.\n\nThe old book said Maizehollow "wants for nothing". I have written what it wanted, and that it has it.\n\nPell showed me letters marked "The Walker, wherever met". Nobody has collected one in his lifetime.\n\nHobb's brazier is built and nothing answers it yet. If Mistmoor is still in fog, start at Hedgerow Downs. After that, the Ferry Landing on the Tide Track.\n\n[i]Wren[/i]|-
+T|maizehollow-c4-the-beacon|find|Smokecap Caldera|1|24|0|-|Walk the Ash Road as far as the rim of the Smokecap Caldera (finding it is enough)
+T|maizehollow-c4-the-beacon|regular|zone:4|1|24|0|-|Become a Regular at a Smokecap village
+T|maizehollow-c4-the-beacon|escort|who:the muleteer,from:off,to:stop|1|24|0|-|A muleteer stuck in the ashfall: find him off the road and walk him down to a Smokecap village
+T|maizehollow-c4-the-beacon|plant|bed:3|1|24-25|0|-|Third Seed Bed hand-in (12 amaranth): the bed is full and the stalls sell it
+T|maizehollow-c4-the-beacon|raise|tier:2|2|24-25|0|-|Stalls open along the road: 2 Maizehollow villages at tier 2 where you are a Regular
+T|maizehollow-c4-the-beacon|raise|tier:2,hearth|1|24-25|0|-|One of them your Hearth: a stop you adopted or founded, at tier 2
+T|maizehollow-c4-the-beacon|stage|item:flint:6,item:building-stone:4,coins:500|1|25|0|-|Build the beacon brazier (6 Flint, 4 Dressed Stone, 500 Petals)
+T|maizehollow-c4-the-beacon|seal|standing:78|1|25|0|-|The Maizehollow Seal: Expedition Standing 78%. Hobb lights the brazier and Wren binds the section
+
+# ---------------------------------------------------------------- Mistmoor, band 2 (barley, heather)
+C|mistmoor-n1-the-footbridge|NWE|1|3|The Footbridge|willow-rootstock|15-17|-|600|2497|-|1|-|-|-|Footbridge|🌉|[i]Dear friend,[/i]\n\nMistmoor, and I can tell you nothing about the view. The footbridge over the mill stream on Hedgerow Downs went in the autumn floods. Willow Rootstock wades across each morning and is not amused.\n\nA lamp by the stream would help the carters, who keep delivering to the wrong hedge. The seed swap has barley, four stalks' worth.\n\n[i]Wren[/i]|[i]Dear friend,[/i]\n\nWillow walked me over the new bridge herself, very proudly and very slowly. We met a duck coming the other way and Willow did not give ground.\n\nThe old book says "cross at the bridge". Willow has waded for years. It is true again, slowly, and she insists on slowly.\n\n[i]Wren[/i]|mistmoor-footbridge
+T|mistmoor-n1-the-footbridge|visit|-|1|15|0|-|Reach Mistmoor and read Wren's cover note
+T|mistmoor-n1-the-footbridge|grow|staple|2|15|0|-|Harvest 2 of Mistmoor's staple crops (rye, leek)
+T|mistmoor-n1-the-footbridge|adopt|zone:1|1|15-16|0|-|Do three things at a dark village on Hedgerow Downs, then adopt it
+T|mistmoor-n1-the-footbridge|raise|tier:1,zone:1|1|15-16|0|-|Light it: a Downs village at tier 1 where you are a Regular
+T|mistmoor-n1-the-footbridge|escort|who:the lost carter,from:off,to:stop|1|16|0|-|A carter lost in the hedgerow lanes: find him off the road and walk him to a Downs village
+T|mistmoor-n1-the-footbridge|plant|crop:barley:3|1|16-17|0|-|Grow barley from the seed swap and harvest 3
+T|mistmoor-n1-the-footbridge|stage|item:timber-plank:5,item:rope:3|1|16-17|0|-|Lay the deck (5 Timber Planks, 3 Rope)
+T|mistmoor-n1-the-footbridge|stage|item:building-stone:4,coins:300|1|16-17|0|-|Set the stone piers (4 Dressed Stone, 300 Petals)
+T|mistmoor-n1-the-footbridge|stage|meal:3|1|16-17|0|-|A feast on the new bridge (3 home-cooked meals)
+T|mistmoor-n1-the-footbridge|seal|leaf|1|17|0|-|The Downs leaf: Wren binds it into the Almanac
+
+C|mistmoor-n2-the-ley-walk|NWE|2|3|The Ley Walk|-|18-20|-|800|3636|-|1|-|-|-|Ley Stones|🪨|Professor Puff Morelby has found three fallen stones between the Standing Stones and Fernhollow Wood. He greets each of them before he greets you.\n\nHe says they mark the Waythread and that upright they will show the way. Meanwhile something small and bright is leading folk off the path, and seems to enjoy it.|[i]Dear friend,[/i]\n\nI walked the ley at dusk with Morelby. He stopped at every stone to say good evening. The third one hummed, or he did.\n\nThe old book says the stones "show the way". They show it when a lamp is near. Morelby says this proves his theory. It does not, quite.\n\n[i]Wren[/i]|-
+T|mistmoor-n2-the-ley-walk|find|The Standing Stones/Fairy-ring Clearing|2|18|0|-|Find the Standing Stones and the Fairy-ring Clearing
+T|mistmoor-n2-the-ley-walk|adopt|-|2|18|0|-|Release the Downs stop (it stays lit) and adopt a second Mistmoor village, toward Fernhollow
+T|mistmoor-n2-the-ley-walk|raise|tier:1|2|18|0|-|Light it: two lamps lit in Mistmoor
+T|mistmoor-n2-the-ley-walk|stage|item:building-stone:5,coins:300|1|18-19|0|-|Set the first ley stone upright (5 Dressed Stone, 300 Petals)
+T|mistmoor-n2-the-ley-walk|stage|item:rope:3|1|18-19|0|-|Haul up the second (3 Rope)
+T|mistmoor-n2-the-ley-walk|stage|fine:1|1|18-19|0|-|Wedge the third with something fine (1 uncommon or rare find)
+T|mistmoor-n2-the-ley-walk|defeat|creature:will-o-wisp|1|19|0|plant:flower:heather:1|A Will-o'-Wisp leads folk off the path: beat it or charm it (charmed, it lights the stone)
+T|mistmoor-n2-the-ley-walk|raise|tier:2,hearth|1|19-20|0|-|Open a stall at a stop you adopted or founded (tier 2): your Mistmoor Hearth
+T|mistmoor-n2-the-ley-walk|plant|bed:1|1|19-20|0|-|First Seed Bed hand-in (5 barley) at the old mill by the Footbridge
+T|mistmoor-n2-the-ley-walk|seal|leaf|1|20|0|-|The Wood leaf
+
+C|mistmoor-n3-a-smuggler-wants-out|NWE|3|3|A Smuggler Wants Out|-|21-23|-|1050|4987|-|1|-|-|-|Honest Stall|📦|Fenna Reedwhistle has a boat on the Fjordfang Coast called Mind Your Own. She says there is a gnome in the sea caves who would like to stop minding his.\n\nDab Tarrow has one crate left that is not his, and nowhere to sell anything that is. He cannot find the way out in the dark. He says he has not looked hard.|[i]Dear friend,[/i]\n\nDab weighed me out a quarter of barley sugar and then, from habit, looked over both shoulders. Fenna has renamed the boat. It is called Asked Nicely.\n\nThe old book has no smugglers in it at all. I have added one, under "stallholders".\n\n[i]Wren[/i]|-
+T|mistmoor-n3-a-smuggler-wants-out|find|Sea-cave Smugglers' Run|1|21|0|-|Find the mouth of the sea caves on the Fjordfang Coast
+T|mistmoor-n3-a-smuggler-wants-out|regular|zone:3|1|21|0|-|Become a Regular at a Fjordfang village (the jetty or the ferry)
+T|mistmoor-n3-a-smuggler-wants-out|escort|who:Dab Tarrow,from:Sea-cave Smugglers' Run,to:stop|1|21-22|0|-|Walk Dab Tarrow out of the caves to a Fjordfang village
+T|mistmoor-n3-a-smuggler-wants-out|raise|tier:2|1|22|0|-|Give him an honest stall: a Mistmoor village at tier 2 where you are a Regular
+T|mistmoor-n3-a-smuggler-wants-out|escort|who:Dab and his last crate,from:stop,to:Thatchtop Tearoom|1|22-23|0|-|Walk Dab and his last crate back to its owner at the Thatchtop Tearoom on the Downs
+T|mistmoor-n3-a-smuggler-wants-out|plant|flower:heather|1|22-23|0|-|Grow heather to bloom
+T|mistmoor-n3-a-smuggler-wants-out|plant|bed:2|1|22-23|0|-|Second Seed Bed hand-in (8 barley)
+T|mistmoor-n3-a-smuggler-wants-out|seal|leaf|1|23|0|-|The Coast leaf
+
+C|mistmoor-n4-lamps-in-the-fog|NWE|4|3|Lamps in the Fog|-|24-25|-|1300|3137|rich-loam|3|Field Hand|free_travel|Fast travel to Mistmoor costs nothing.|Twin Beacon|🕯️|Bracken Tuppence herds goats on the Long Night Fells. On the Fells a goat is weather, and today the weather has gone into the fog.\n\nShe says the moor could be crossed if each lamp could see the next. Warden Hobb Stiles has measured the gaps. He will tell you the number, and then the percentage.|[i]Dear Field Hand,[/i]\n\nI crossed the moor lamp to lamp and counted. At {hearth} there was [b]barley[/b] bread and Bracken's goats asleep under the bench.\n\nThe old book said the moor "cannot be crossed in fog". I have written: it can, and here is where the lamps are.\n\nSomebody has left one lamp lit on the Fells for years. Nobody here will own to it.\n\nThe twin beacon stands. If Maizehollow's is still dark, begin at Cornrow Flats. Then the Fell Pass and the Smugglers' Tide will open together.\n\n[i]Wren[/i]|-
+T|mistmoor-n4-lamps-in-the-fog|find|Northern Lights Sauna|1|24|0|-|Find the Northern Lights Sauna
+T|mistmoor-n4-lamps-in-the-fog|regular|zone:4|1|24|0|-|Become a Regular at a Fells village
+T|mistmoor-n4-lamps-in-the-fog|help|errand:nwe-goats|1|24|0|escort:who:Bracken's three goats,from:off,to:stop:1|Bracken's goats went into the fog: find the three and bring them to the lamp
+T|mistmoor-n4-lamps-in-the-fog|plant|bed:3|1|24-25|0|-|Third Seed Bed hand-in (12 barley): the stalls have barley bread
+T|mistmoor-n4-lamps-in-the-fog|raise|lit:60|1|24-25|0|-|A lamp in sight of the next: 60% of Mistmoor's villages lit, and you a Regular at each
+T|mistmoor-n4-lamps-in-the-fog|stage|item:flint:6,item:timber-plank:4,coins:500|1|25|0|-|Build the twin beacon (6 Flint, 4 Timber Planks, 500 Petals)
+T|mistmoor-n4-lamps-in-the-fog|seal|standing:78|1|25|0|-|The Mistmoor Seal: Expedition Standing 78%. The twin beacon is lit and Wren binds the section
+
+# ---------------------------------------------------------------- The Crossing (joint finale of band 2; the five tier 3 doors open with the two Seals, seals.php)
+C|the-crossing|NA|0|3|The Crossing|-|25|maizehollow-c4-the-beacon/mistmoor-n4-lamps-in-the-fog|1300|3136|-|1|-|-|-|Two Lamps|⛴️|[i]Dear Field Hand,[/i]\n\nTwo Seals, two beacons, and the Maplewold between them. The doors of the second ring are open already. A Seal is all Hobb ever asked for.\n\nThe rest is a party, at your leisure. Carry a light home through the Maplewold, bake a loaf with amaranth and barley in it, and walk me down the Tide Track. Fenna has a ferry she has not named yet.\n\n[i]Wren[/i]|[i]Dear Field Hand,[/i]\n\nWe ate the Two-lamp loaf on the Ferry Landing, standing up, because Fenna had lent the bench to a boat. I have copied the recipe onto the back of this page.\n\nThe old book said the two beacons "speak nightly". Hobb's has never once been answered. Last night it was. He gave it as one hundred percent.\n\nThe ferry is called Not Yet. Fenna says Hobb chose it and does not know he did.\n\n[i]Wren[/i]|-
+T|the-crossing|seal|seals:CA/NWE|1|25|0|-|Hold the Maizehollow and Mistmoor Seals (the five doors of the second ring open with them)
+T|the-crossing|deliver|item:beeswax:1,to:hearth|1|25|1|-|Optional: carry a lit lantern through the Maplewold to a stop you lit there (1 Beeswax for the wick)
+T|the-crossing|plant|crop:amaranth:2|1|25|1|-|Optional: harvest 2 amaranth for the Two-lamp loaf
+T|the-crossing|plant|crop:barley:2|1|25|1|-|Optional: harvest 2 barley for the Two-lamp loaf
+T|the-crossing|regular|zone:3|1|25|1|-|Optional: become a Regular at a Shallows village by the Tide Track
+T|the-crossing|deliver|meal:1,to:Ferry Landing|1|25|1|-|Optional: bake the loaf and bring it to the Ferry Landing (1 home-cooked meal)
+T|the-crossing|escort|who:Wren,from:Lighthouse of the Lost Lantern,to:Ferry Landing|1|25|1|-|Optional: walk Wren down the Tide Track, from the Lighthouse to the Ferry Landing
+T|the-crossing|seal|leaf|1|25|0|-|Hobb's beacon is answered. Fenna's first ferry is waiting
+
+# ---------------------------------------------------------------- Band 3, "Across the water": one chapter an area, seven slots (quests doc 2.5)
+C|sunsprinkle-the-lighthouse|CB|0|4|The Lighthouse|nettle-thornwhistle|25-35|-|2600|18513|seed-pearl|1|-|weekly_crate|A supply crate waits for you at the Sunsprinkle lighthouse once a week.|Lighthouse|🗼|[i]Dear Field Hand,[/i]\n\nFenna's ferry put me ashore with wet boots and a pineapple. The Sunsprinkle lighthouse has gone dark, and the supply boats will not come in after sunset. Nettle Thornwhistle keeps the lamp, and the tower is keeping very little.\n\nThe road is wet here, that is all. Light the landing stop first. The breadfruit tree by the ferry drops one fruit a year, always on someone, so wear a hat.\n\n[i]Wren[/i]|[i]Dear Pathfinder,[/i]\n\nThe first lit boat went out from {hearth} and every jetty lit behind it. Nettle cried and blamed the spray. Supper was [b]breadfruit[/b], roasted, with nothing on it. It wanted nothing.\n\nThe old book said the Isles "lie beyond the road". Crossed out. The road is wet here, that is all.\n\nA lamp was already burning on the far cay. Nobody keeps that cay.\n\nNo boat goes further from the Isles. The far ring starts on the Mistmoor side, at Olivewhistle and Birchbramble. Rainroot's Canoe Jetty first, if you have not been.\n\n[i]Wren[/i]|sunsprinkle-lighthouse
+T|sunsprinkle-the-lighthouse|visit|-|1|25|0|-|Reach the Sunsprinkle Isles and read Wren's cover note
+T|sunsprinkle-the-lighthouse|grow|staple|2|25|0|-|Harvest 2 of the Isles's staple crops (sweet potato, plantain)
+T|sunsprinkle-the-lighthouse|adopt|-|1|25-26|0|-|Do three things at a dark village on the road, then adopt it
+T|sunsprinkle-the-lighthouse|raise|tier:1|1|25-26|0|-|Light it: a village of the Isles at tier 1 where you are a Regular
+T|sunsprinkle-the-lighthouse|plant|crop:breadfruit:3|1|26-27|0|-|Grow breadfruit and harvest 3
+T|sunsprinkle-the-lighthouse|plant|bed:1|1|27-28|0|-|First Seed Bed hand-in (8 breadfruit) at the ferry-side orchard camp
+T|sunsprinkle-the-lighthouse|escort|who:the supply-boat pilot,from:off,to:Driftwood Tavern|1|28-30|0|-|A supply-boat pilot is stranded out on Coralteeth Reef: find him off the road and walk him to the Driftwood Tavern
+T|sunsprinkle-the-lighthouse|stage|item:building-stone:6,coins:400|1|29-32|0|-|Shore up the tower (6 Dressed Stone, 400 Petals)
+T|sunsprinkle-the-lighthouse|stage|item:rope:4,item:timber-plank:4|1|29-32|0|-|New stairs and pulleys (4 Rope, 4 Timber Planks)
+T|sunsprinkle-the-lighthouse|stage|fine:2,meal:3|1|29-32|0|-|Polish the lens and feed the keepers (2 uncommon or rare finds, 3 home-cooked meals)
+T|sunsprinkle-the-lighthouse|plant|flower:frangipani|1|30-31|0|-|Grow frangipani to bloom
+T|sunsprinkle-the-lighthouse|plant|bed:2|1|30-31|0|-|Second Seed Bed hand-in (12 breadfruit)
+T|sunsprinkle-the-lighthouse|find|The Singing Waterfall/Turtle Nesting Beach|2|31-33|0|-|Find The Singing Waterfall and Turtle Nesting Beach
+T|sunsprinkle-the-lighthouse|raise|lit:50|1|31-33|0|-|50% of the villages of the Isles lit, and you a Regular at each
+T|sunsprinkle-the-lighthouse|plant|bed:3|1|32-33|0|-|Third Seed Bed hand-in (16 breadfruit): the bed is full
+T|sunsprinkle-the-lighthouse|raise|tier:3,hearth|1|33-35|0|-|Your Hearth: a stop you adopted or founded, raised to its Wishing well or pool (tier 3)
+T|sunsprinkle-the-lighthouse|seal|standing:78|1|35|0|-|The Seal of the Isles: Expedition Standing 78%. Wren walks in on the lit road and binds the section
+
+C|olivewhistle-the-hill-windmill|SE|0|5|The Hill Windmill|dew-dewberry|25-35|-|2600|18513|rich-loam|5|-|native_plus:10|Native crops in your Olivewhistle Shore gardens grow 10% faster.|Hill Windmill|🌬️|[i]Dear Field Hand,[/i]\n\nOlivewhistle Shore smells of thyme and warm stone. The windmill on the hill has sails like old dishcloths, and Dew Dewberry grinds the village flour in a coffee mill, a cup at a time.\n\nThere is a light in the mill loft at night. Dew says it is not hers. Light the landing stop, and mind the olive trees. They have gone grey and wild, and one still fruits, out of spite.\n\n[i]Wren[/i]|[i]Dear Pathfinder,[/i]\n\nBread at {hearth}, dipped in the first pressing. Dew says the [b]olive[/b] trees were sulking and you talked them round. I have written "pruned".\n\nThe old book said the mill light "guides the boats". It was a lantern someone left in the loft. Now it is a mill, with a light, on purpose.\n\nWho left the lantern? It had fresh oil in it. Nobody on the Shore buys that kind.\n\nBoats now cross to the Dunewhisper. Start at the oasis and its waterwheel. Take a hat.\n\n[i]Wren[/i]|olivewhistle-windmill
+T|olivewhistle-the-hill-windmill|visit|-|1|25|0|-|Reach Olivewhistle Shore and read Wren's cover note
+T|olivewhistle-the-hill-windmill|grow|staple|2|25|0|-|Harvest 2 of the Shore's staple crops (artichoke, fava bean)
+T|olivewhistle-the-hill-windmill|adopt|-|1|25-26|0|-|Do three things at a dark village on the road, then adopt it
+T|olivewhistle-the-hill-windmill|raise|tier:1|1|25-26|0|-|Light it: a village of the Shore at tier 1 where you are a Regular
+T|olivewhistle-the-hill-windmill|plant|crop:olive:3|1|26-27|0|-|Grow olives and harvest 3
+T|olivewhistle-the-hill-windmill|plant|bed:1|1|27-28|0|-|First Seed Bed hand-in (8 olives) at the orchard camp below the mill
+T|olivewhistle-the-hill-windmill|escort|who:the bellwether,from:Goat Path Vineyards,to:stop|1|28-30|0|-|The goatherd's bellwether has gone up the Goat Path: find her at the Vineyards and walk her to a Shore village
+T|olivewhistle-the-hill-windmill|stage|item:building-stone:6,coins:500|1|29-32|0|-|Foundations (6 Dressed Stone, 500 Petals)
+T|olivewhistle-the-hill-windmill|stage|item:timber-plank:6,item:rope:4|1|29-32|0|-|Frame and fittings (6 Timber Planks, 4 Rope)
+T|olivewhistle-the-hill-windmill|stage|meal:3,fine:2|1|29-32|0|-|Feed the builders and add the finishing touches (3 home-cooked meals, 2 uncommon or rare finds)
+T|olivewhistle-the-hill-windmill|plant|flower:lavender|1|30-31|0|-|Grow lavender to bloom
+T|olivewhistle-the-hill-windmill|plant|bed:2|1|30-31|0|-|Second Seed Bed hand-in (12 olives)
+T|olivewhistle-the-hill-windmill|find|Goat Path Vineyards/Lemon Grove Monastery|2|31-33|0|-|Find Goat Path Vineyards and Lemon Grove Monastery
+T|olivewhistle-the-hill-windmill|raise|lit:50|1|31-33|0|-|50% of the villages of the Shore lit, and you a Regular at each
+T|olivewhistle-the-hill-windmill|plant|bed:3|1|32-33|0|-|Third Seed Bed hand-in (16 olives): the bed is full
+T|olivewhistle-the-hill-windmill|raise|tier:3,hearth|1|33-35|0|-|Your Hearth: a stop you adopted or founded, raised to its Wishing well or pool (tier 3)
+T|olivewhistle-the-hill-windmill|seal|standing:78|1|35|0|-|The Seal of the Shore: Expedition Standing 78%. Wren walks in on the lit road and binds the section
+
+C|rainroot-the-canoe-jetty|SA|0|6|The Canoe Jetty|rowan-burrowman|25-35|-|2600|18512|worm-castings|8|Pathfinder|free_travel|Fast travel to the Rainroot Reaches costs nothing.|Canoe Jetty|🛶|[i]Dear Field Hand,[/i]\n\nThe rains took the canoe jetty at the River Landing clean away. Rowan Burrowman says nobody can paddle the river until it is rebuilt. He says it from a canoe, going in a slow circle.\n\nThe river is the road here. Light the landing stop and the next bend can see you. Somewhere in the croft by the jetty is the last mate bush, being modest.\n\n[i]Wren[/i]|[i]Dear Pathfinder,[/i]\n\nRowan poured me [b]yerba mate[/b] on the new jetty and we watched your lamps come on down the river, one bend at a time. {friend} sends a wave.\n\nThe old book said the river "cannot be kept". I have written: it is kept at every jetty where someone pours mate.\n\nThe well at {hearth} hums the same four notes as the one at home. Linnet has stopped being surprised.\n\nThe boats south to the Coralscatter wait for a Seal from the far ring. Hobb has the number. Until then, the far ring starts on the Mistmoor side.\n\n[i]Wren[/i]|rainroot-jetty
+T|rainroot-the-canoe-jetty|visit|-|1|25|0|-|Reach the Rainroot Reaches and read Wren's cover note
+T|rainroot-the-canoe-jetty|grow|staple|2|25|0|-|Harvest 2 of the Reaches's staple crops (cassava, peanut)
+T|rainroot-the-canoe-jetty|adopt|-|1|25-26|0|-|Do three things at a dark village on the road, then adopt it
+T|rainroot-the-canoe-jetty|raise|tier:1|1|25-26|0|-|Light it: a village of the Reaches at tier 1 where you are a Regular
+T|rainroot-the-canoe-jetty|plant|crop:yerba-mate:3|1|26-27|0|-|Grow yerba mate and harvest 3
+T|rainroot-the-canoe-jetty|plant|bed:1|1|27-28|0|-|First Seed Bed hand-in (8 yerba mate) at the jetty-side herb croft
+T|rainroot-the-canoe-jetty|defeat|creature:giant-anteater|1|28-30|0|deliver:item:timber-plank:4,to:stop:1|A Giant Anteater is asleep on the jetty timber: beat it or charm it
+T|rainroot-the-canoe-jetty|stage|item:building-stone:6,coins:600|1|29-32|0|-|Foundations (6 Dressed Stone, 600 Petals)
+T|rainroot-the-canoe-jetty|stage|item:timber-plank:8,item:rope:5|1|29-32|0|-|Frame and fittings (8 Timber Planks, 5 Rope)
+T|rainroot-the-canoe-jetty|stage|meal:3,fine:2|1|29-32|0|-|Feed the builders and add the finishing touches (3 home-cooked meals, 2 uncommon or rare finds)
+T|rainroot-the-canoe-jetty|plant|flower:passionflower|1|30-31|0|-|Grow passionflower to bloom
+T|rainroot-the-canoe-jetty|plant|bed:2|1|30-31|0|-|Second Seed Bed hand-in (12 yerba mate)
+T|rainroot-the-canoe-jetty|find|Pink River Dolphin Pools/The Sky City Ruins|2|31-33|0|-|Find Pink River Dolphin Pools and The Sky City Ruins
+T|rainroot-the-canoe-jetty|raise|lit:50|1|31-33|0|-|50% of the villages of the Reaches lit, and you a Regular at each
+T|rainroot-the-canoe-jetty|plant|bed:3|1|32-33|0|-|Third Seed Bed hand-in (16 yerba mate): the bed is full
+T|rainroot-the-canoe-jetty|raise|tier:3,hearth|1|33-35|0|-|Your Hearth: a stop you adopted or founded, raised to its Wishing well or pool (tier 3)
+T|rainroot-the-canoe-jetty|seal|standing:78|1|35|0|-|The Seal of the Reaches: Expedition Standing 78%. Wren walks in on the lit road and binds the section
+
+C|birchbramble-the-drying-barn|EE|0|7|The Drying Barn|ginger-thornwhistle|25-35|-|2600|18512|seed-pearl|1|-|sell_bonus:10|Shops in Birchbramble Steppe pay 10% more for what you sell.|Drying Barn|🛖|[i]Dear Field Hand,[/i]\n\nBirchbramble's drying barn burned in a lightning storm. Ginger Thornwhistle is drying the plums on washing lines, between the socks, and says the socks have improved.\n\nThe Steppe has one road and not many on it. Light the landing stop. There is a sprig of buckwheat by the old barn door, and the bees queue for it.\n\n[i]Wren[/i]|[i]Dear Pathfinder,[/i]\n\nThe Drying Barn smells of plums and warm [b]buckwheat[/b], and Ginger has hung your name on a rack. I sat at {hearth} until the storks came in.\n\nThe old book said the steppe "has one road". It has one road and a great many people who now use it.\n\nMorelby says the Waythread does cross water. It is simply deep. He says he always said so.\n\nThe east road climbs to Spicepeak from here. The Tea Terraces first. They will feed you at the top.\n\n[i]Wren[/i]|birchbramble-barn
+T|birchbramble-the-drying-barn|visit|-|1|25|0|-|Reach Birchbramble Steppe and read Wren's cover note
+T|birchbramble-the-drying-barn|grow|staple|2|25|0|-|Harvest 2 of the Steppe's staple crops (buckwheat, plum, bell pepper)
+T|birchbramble-the-drying-barn|adopt|-|1|25-26|0|-|Do three things at a dark village on the road, then adopt it
+T|birchbramble-the-drying-barn|raise|tier:1|1|25-26|0|-|Light it: a village of the Steppe at tier 1 where you are a Regular
+T|birchbramble-the-drying-barn|plant|crop:buckwheat/plum:3|1|26-27|0|-|Grow buckwheat or plums and harvest 3
+T|birchbramble-the-drying-barn|plant|bed:1|1|27-28|0|-|First Seed Bed hand-in (8 buckwheat or plums) at the barn's mill stop
+T|birchbramble-the-drying-barn|defeat|creature:beaver-foreman|1|28-30|0|deliver:item:birch-log:4,to:stop:1|A Beaver Foreman is damming the Reedmarsh causeway: beat it or charm it (charmed, it calls a council)
+T|birchbramble-the-drying-barn|stage|item:building-stone:8,coins:700|1|29-32|0|-|Foundations (8 Dressed Stone, 700 Petals)
+T|birchbramble-the-drying-barn|stage|item:timber-plank:8,item:rope:5|1|29-32|0|-|Frame and fittings (8 Timber Planks, 5 Rope)
+T|birchbramble-the-drying-barn|stage|meal:4,fine:2|1|29-32|0|-|Feed the builders and add the finishing touches (4 home-cooked meals, 2 uncommon or rare finds)
+T|birchbramble-the-drying-barn|plant|flower:chamomile|1|30-31|0|-|Grow chamomile to bloom
+T|birchbramble-the-drying-barn|plant|bed:2|1|30-31|0|-|Second Seed Bed hand-in (12 buckwheat or plums)
+T|birchbramble-the-drying-barn|find|The Amber Woods/Stork Chimney Village|2|31-33|0|-|Find The Amber Woods and Stork Chimney Village
+T|birchbramble-the-drying-barn|raise|lit:50|1|31-33|0|-|50% of the villages of the Steppe lit, and you a Regular at each
+T|birchbramble-the-drying-barn|plant|bed:3|1|32-33|0|-|Third Seed Bed hand-in (16 buckwheat or plums): the bed is full
+T|birchbramble-the-drying-barn|raise|tier:3,hearth|1|33-35|0|-|Your Hearth: a stop you adopted or founded, raised to its Wishing well or pool (tier 3)
+T|birchbramble-the-drying-barn|seal|standing:78|1|35|0|-|The Seal of the Steppe: Expedition Standing 78%. Wren walks in on the lit road and binds the section
+
+
+# ---------------------------------------------------------------- Band 4, "The long table": one chapter an area, seven slots (quests doc 2.5)
+C|dunewhisper-the-oasis-waterwheel|MENA|0|8|The Oasis Waterwheel|holly-barkley|35-45|-|5000|33613|desert-glass|1|-|native_plus:10|Native crops in your Dunewhisper gardens grow 10% faster.|Oasis Waterwheel|💧|[i]Dear Pathfinder,[/i]\n\nThe waterwheel over the Oasis Well has fallen in, and Holly Barkley carries water by the bucket for the whole bazaar. She has named the buckets. One is called Again.\n\nOut here a lamp is a place to walk to. Light the oasis stop, and then the next, so that nobody has to cross a dark stretch to reach a table. There is a date seedling in a cracked pot. The keeper apologises to it daily.\n\n[i]Wren[/i]|[i]Dear Companion,[/i]\n\nI came in at dusk and there was a lamp, then a table, then [b]dates[/b]. Holly kept {hearth} open for me.\n\nThe old book said "no one stops in the Dunes". Everyone stops. There is a table. I sat at it.\n\nA Grey Cloak left a button by my cup and was gone before I looked up.\n\nThe caravan road forks. West to the Greatcanopy (ask for the Storyteller's Platform), east to Spicepeak (the Tea Terraces).\n\n[i]Wren[/i]|dunewhisper-waterwheel
+T|dunewhisper-the-oasis-waterwheel|visit|-|1|35|0|-|Reach the Dunewhisper and read Wren's cover note
+T|dunewhisper-the-oasis-waterwheel|grow|staple|2|35|0|-|Harvest 2 of the Dunewhisper's staple crops (chickpea, eggplant)
+T|dunewhisper-the-oasis-waterwheel|adopt|-|1|35-36|0|-|Do three things at a dark village on the road, then adopt it
+T|dunewhisper-the-oasis-waterwheel|raise|tier:1|1|35-36|0|-|Light it: a village of the Dunewhisper at tier 1 where you are a Regular
+T|dunewhisper-the-oasis-waterwheel|plant|crop:date:3|1|36-37|0|-|Grow dates and harvest 3
+T|dunewhisper-the-oasis-waterwheel|plant|bed:1|1|37-38|0|-|First Seed Bed hand-in (10 dates) at the oasis stop
+T|dunewhisper-the-oasis-waterwheel|escort|who:the caravan straggler,from:The Oasis That Moves,to:stop|1|38-40|0|-|A caravan straggler is sitting at the Oasis That Moves, waiting for it to move back: walk them to a Dunewhisper village
+T|dunewhisper-the-oasis-waterwheel|stage|item:building-stone:8,coins:800|1|39-42|0|-|Foundations (8 Dressed Stone, 800 Petals)
+T|dunewhisper-the-oasis-waterwheel|stage|item:timber-plank:10,item:rope:6|1|39-42|0|-|Frame and fittings (10 Timber Planks, 6 Rope)
+T|dunewhisper-the-oasis-waterwheel|stage|meal:4,fine:3|1|39-42|0|-|Feed the builders and add the finishing touches (4 home-cooked meals, 3 uncommon or rare finds)
+T|dunewhisper-the-oasis-waterwheel|plant|flower:damask-rose|1|40-41|0|-|Grow damask rose to bloom
+T|dunewhisper-the-oasis-waterwheel|plant|bed:2|1|40-41|0|-|Second Seed Bed hand-in (15 dates)
+T|dunewhisper-the-oasis-waterwheel|find|The Oasis That Moves/Cedar Sanctuary|2|41-43|0|-|Find The Oasis That Moves and Cedar Sanctuary
+T|dunewhisper-the-oasis-waterwheel|raise|lit:60|1|41-43|0|-|60% of the villages of the Dunewhisper lit, and you a Regular at each
+T|dunewhisper-the-oasis-waterwheel|plant|bed:3|1|42-43|0|-|Third Seed Bed hand-in (20 dates): the bed is full
+T|dunewhisper-the-oasis-waterwheel|raise|tier:4,hearth|1|43-45|0|-|Your Hearth: a stop you adopted or founded, raised to its Long-table hall (tier 4)
+T|dunewhisper-the-oasis-waterwheel|seal|standing:78|1|45|0|-|The Seal of the Dunewhisper: Expedition Standing 78%. Wren walks in on the lit road and binds the section
+
+C|spicepeak-the-tea-terraces|CSA|0|10|The Tea Terraces|sage-dewberry|35-45|-|5000|33613|edelweiss|1|-|native_plus:10|Native crops in your Spicepeak gardens grow 10% faster.|Tea Terraces|⛰️|[i]Dear Pathfinder,[/i]\n\nA landslide took the old tea terraces off the side of Spicepeak. Sage Dewberry wants them back with proper dry-stone walls, and has started alone, with a spoon, to make a point.\n\nIt is a long climb between tables. Light the landing stop and work upward. Somewhere under the croft one knob of turmeric is keeping its colour to itself.\n\n[i]Wren[/i]|[i]Dear Companion,[/i]\n\nSage walked me up the terraces and fed me at each. The hall at {hearth} is yellow to the elbows with [b]turmeric[/b], and so am I.\n\nThe old book said the pass "is for pilgrims". I have written: and for whoever is hungry at the top of it.\n\nThere were flags at the shrine for every lit stop, and one more. Nobody would say whose.\n\nThe high road east is open to Blossomreach. Begin at the Red Bridge. The low road goes to the Monsoon Tangle.\n\n[i]Wren[/i]|spicepeak-terraces
+T|spicepeak-the-tea-terraces|visit|-|1|35|0|-|Reach Spicepeak and read Wren's cover note
+T|spicepeak-the-tea-terraces|grow|staple|2|35|0|-|Harvest 2 of Spicepeak's staple crops (wheat, mung bean, ginger)
+T|spicepeak-the-tea-terraces|adopt|-|1|35-36|0|-|Do three things at a dark village on the road, then adopt it
+T|spicepeak-the-tea-terraces|raise|tier:1|1|35-36|0|-|Light it: a village of Spicepeak at tier 1 where you are a Regular
+T|spicepeak-the-tea-terraces|plant|crop:turmeric/ginger:3|1|36-37|0|-|Grow turmeric or ginger and harvest 3
+T|spicepeak-the-tea-terraces|plant|bed:1|1|37-38|0|-|First Seed Bed hand-in (10 turmeric or ginger) at the croft below the terraces
+T|spicepeak-the-tea-terraces|defeat|creature:dhole-pack|1|38-40|0|deliver:meal:3,to:stop:1|A Dhole Pack has taken the terrace wall: beat it or charm it
+T|spicepeak-the-tea-terraces|stage|item:building-stone:12,coins:1200|1|39-42|0|-|Foundations (12 Dressed Stone, 1,200 Petals)
+T|spicepeak-the-tea-terraces|stage|item:timber-plank:8,item:rope:6|1|39-42|0|-|Frame and fittings (8 Timber Planks, 6 Rope)
+T|spicepeak-the-tea-terraces|stage|meal:5,fine:3|1|39-42|0|-|Feed the builders and add the finishing touches (5 home-cooked meals, 3 uncommon or rare finds)
+T|spicepeak-the-tea-terraces|plant|flower:sacred-lotus|1|40-41|0|-|Grow sacred lotus to bloom
+T|spicepeak-the-tea-terraces|plant|bed:2|1|40-41|0|-|Second Seed Bed hand-in (15 turmeric or ginger)
+T|spicepeak-the-tea-terraces|find|Prayer-flag Pass/The Silk Road Caravanserai|2|41-43|0|-|Find Prayer-flag Pass and The Silk Road Caravanserai
+T|spicepeak-the-tea-terraces|raise|lit:60|1|41-43|0|-|60% of the villages of Spicepeak lit, and you a Regular at each
+T|spicepeak-the-tea-terraces|plant|bed:3|1|42-43|0|-|Third Seed Bed hand-in (20 turmeric or ginger): the bed is full
+T|spicepeak-the-tea-terraces|raise|tier:4,hearth|1|43-45|0|-|Your Hearth: a stop you adopted or founded, raised to its Long-table hall (tier 4)
+T|spicepeak-the-tea-terraces|seal|standing:78|1|45|0|-|The Seal of Spicepeak: Expedition Standing 78%. Wren walks in on the lit road and binds the section
+
+C|greatcanopy-the-storytellers-platform|WCA|0|12|The Storyteller’s Platform|lark-fernsway|35-45|-|5000|33612|morpho-scales|2|Hollow Ranger|sell_bonus:10|Shops in the Greatcanopy pay 10% more for what you sell.|Storyteller’s Platform|🌳|[i]Dear Pathfinder,[/i]\n\nA storm split the Storyteller's Tree and brought its platform down. No stories have been told since. Lark Fernsway says the town is too quiet, and says it quietly.\n\nThe drums still go, a long way off. Light the landing stop and the road toward the tree. There is a patch of fonio by the hall, with grains so small the cook counts them with her eyes shut.\n\n[i]Wren[/i]|[i]Dear Companion,[/i]\n\nThey told a new story on the Platform last night. It was about you, and it was mostly true. Afterwards, [b]fonio[/b] from one big pot at {hearth}.\n\nThe old book said the stories "are told nightly". They had stopped. I have written the night they started.\n\nThe Grey Cloaks were here. They are households, friend, not ghosts. They keep the shrines out of habit.\n\nThe river road runs on to Thornacre. Ask for the Waterhole Pump. Bring water.\n\n[i]Wren[/i]|greatcanopy-storytree
+T|greatcanopy-the-storytellers-platform|visit|-|1|35|0|-|Reach the Greatcanopy and read Wren's cover note
+T|greatcanopy-the-storytellers-platform|grow|staple|2|35|0|-|Harvest 2 of the Greatcanopy's staple crops (yam, okra, millet)
+T|greatcanopy-the-storytellers-platform|adopt|-|1|35-36|0|-|Do three things at a dark village on the road, then adopt it
+T|greatcanopy-the-storytellers-platform|raise|tier:1|1|35-36|0|-|Light it: a village of the Greatcanopy at tier 1 where you are a Regular
+T|greatcanopy-the-storytellers-platform|plant|crop:fonio:3|1|36-37|0|-|Grow fonio and harvest 3
+T|greatcanopy-the-storytellers-platform|plant|bed:1|1|37-38|0|-|First Seed Bed hand-in (10 fonio) at the platform's hall stop
+T|greatcanopy-the-storytellers-platform|escort|who:the old storyteller,from:off,to:stop|1|38-40|0|-|The old storyteller went home to the Shea Sahel when the Platform fell: find them off the road and walk them to a Greatcanopy village
+T|greatcanopy-the-storytellers-platform|stage|item:building-stone:14,coins:1600|1|39-42|0|-|Foundations (14 Dressed Stone, 1,600 Petals)
+T|greatcanopy-the-storytellers-platform|stage|item:timber-plank:16,item:rope:8|1|39-42|0|-|Frame and fittings (16 Timber Planks, 8 Rope)
+T|greatcanopy-the-storytellers-platform|stage|meal:6,fine:4|1|39-42|0|-|Feed the builders and add the finishing touches (6 home-cooked meals, 4 uncommon or rare finds)
+T|greatcanopy-the-storytellers-platform|plant|flower:wild-gardenia|1|40-41|0|-|Grow wild gardenia to bloom
+T|greatcanopy-the-storytellers-platform|plant|bed:2|1|40-41|0|-|Second Seed Bed hand-in (15 fonio)
+T|greatcanopy-the-storytellers-platform|find|Mud Mosque Library/Gorilla Glade|2|41-43|0|-|Find Mud Mosque Library and Gorilla Glade
+T|greatcanopy-the-storytellers-platform|raise|lit:60|1|41-43|0|-|60% of the villages of the Greatcanopy lit, and you a Regular at each
+T|greatcanopy-the-storytellers-platform|plant|bed:3|1|42-43|0|-|Third Seed Bed hand-in (20 fonio): the bed is full
+T|greatcanopy-the-storytellers-platform|raise|tier:4,hearth|1|43-45|0|-|Your Hearth: a stop you adopted or founded, raised to its Long-table hall (tier 4)
+T|greatcanopy-the-storytellers-platform|seal|standing:78|1|45|0|-|The Seal of the Greatcanopy: Expedition Standing 78%. Wren walks in on the lit road and binds the section
+
+C|thornacre-the-waterhole-pump|ESA|0|13|The Waterhole Pump|poppy-puddlejump|35-45|-|5000|33612|geode|2|-|weekly_crate|The Thornacre rangers leave you a crate every week.|Waterhole Pump|🐘|[i]Dear Pathfinder,[/i]\n\nThe dry season came early to Thornacre and the waterhole is the size of a hat. The old pump is broken. Poppy Puddlejump is working the handle anyway, to keep its spirits up.\n\nThe plain is wide and the stops are far apart. Light the one below the Baobab Inn first. Under the baobab is one tuft of teff the goats missed. The goats know.\n\n[i]Wren[/i]|[i]Dear Companion,[/i]\n\nThe pump works. Poppy made me try it. Supper at {hearth} was [b]teff[/b] flatbread, and every seat taken but one. Ottilie set it anyway.\n\nThe old book said the plain "belongs to the herds". It does. The bench under the baobab belongs to everyone else.\n\nA stranger sat with us and left before pudding. There is a page sewn into that coat. I saw the corner.\n\nThe road north-east climbs to Spicepeak, and from its top the high road and the low road go to the far edge. Mind the ostrich.\n\n[i]Wren[/i]|thornacre-pump
+T|thornacre-the-waterhole-pump|visit|-|1|35|0|-|Reach Thornacre Savanna and read Wren's cover note
+T|thornacre-the-waterhole-pump|grow|staple|2|35|0|-|Harvest 2 of Thornacre's staple crops (teff, sorghum, collard)
+T|thornacre-the-waterhole-pump|adopt|-|1|35-36|0|-|Do three things at a dark village on the road, then adopt it
+T|thornacre-the-waterhole-pump|raise|tier:1|1|35-36|0|-|Light it: a village of Thornacre at tier 1 where you are a Regular
+T|thornacre-the-waterhole-pump|plant|crop:teff:3|1|36-37|0|-|Grow teff and harvest 3
+T|thornacre-the-waterhole-pump|plant|bed:1|1|37-38|0|-|First Seed Bed hand-in (10 teff) at the road stop below the Baobab Inn
+T|thornacre-the-waterhole-pump|defeat|creature:meerkat-mob|1|38-40|0|deliver:item:sorghum:3,to:stop:1|A Meerkat Mob has dug in round the pump: beat it or charm it
+T|thornacre-the-waterhole-pump|stage|item:building-stone:16,coins:1800|1|39-42|0|-|Foundations (16 Dressed Stone, 1,800 Petals)
+T|thornacre-the-waterhole-pump|stage|item:timber-plank:14,item:rope:10|1|39-42|0|-|Frame and fittings (14 Timber Planks, 10 Rope)
+T|thornacre-the-waterhole-pump|stage|meal:6,fine:4|1|39-42|0|-|Feed the builders and add the finishing touches (6 home-cooked meals, 4 uncommon or rare finds)
+T|thornacre-the-waterhole-pump|plant|flower:king-protea|1|40-41|0|-|Grow king protea to bloom
+T|thornacre-the-waterhole-pump|plant|bed:2|1|40-41|0|-|Second Seed Bed hand-in (15 teff)
+T|thornacre-the-waterhole-pump|find|Coffee Ceremony Hut/Flamingo Shallows|2|41-43|0|-|Find Coffee Ceremony Hut and Flamingo Shallows
+T|thornacre-the-waterhole-pump|raise|lit:60|1|41-43|0|-|60% of the villages of Thornacre lit, and you a Regular at each
+T|thornacre-the-waterhole-pump|plant|bed:3|1|42-43|0|-|Third Seed Bed hand-in (20 teff): the bed is full
+T|thornacre-the-waterhole-pump|raise|tier:4,hearth|1|43-45|0|-|Your Hearth: a stop you adopted or founded, raised to its Long-table hall (tier 4)
+T|thornacre-the-waterhole-pump|seal|standing:78|1|45|0|-|The Seal of Thornacre: Expedition Standing 78%. Wren walks in on the lit road and binds the section
+
+
+# ---------------------------------------------------------------- Band 5, "The far end is the near end": one chapter an area, seven slots (quests doc 2.5)
+C|blossomreach-the-red-bridge|EA|0|9|The Red Bridge|fennick-barkley|45-55|-|7500|68243|rich-loam|8|Wren’s Companion|weekly_crate|The Blossomreach gardeners leave you a crate every week.|Red Bridge|🎏|[i]Dear Companion,[/i]\n\nThe red bridge over the koi pond has rotted through. Fennick Barkley worries that the koi miss their visitors. The koi have not said.\n\nThe road here is lit like a badly darned sock, a bright stretch and then a dark one. The oldest lamp in Blossomreach only likes certain hands. Try yours. In the orchard by the bridge one tree holds a single persimmon, like a lamp it forgot to put out.\n\n[i]Wren[/i]|[i]Dear Keeper,[/i]\n\nThe oldest lamp in Blossomreach lit for you. Fennick says it has refused four mayors. We ate dried [b]persimmon[/b] on the Red Bridge and I got petals in the glue.\n\nThe old book said the Clovercove road "is the short way home". It is closed. I have written closed, in pencil.\n\nThe Stranger was at {hearth} this morning and did not leave. That is new.\n\nTwo stretches remain: the Stilt Boathouse in the Monsoon Tangle and the Reef Garden in the Coralscatter. Then the Gatehouse, I think.\n\n[i]Wren[/i]|blossomreach-bridge
+T|blossomreach-the-red-bridge|visit|-|1|45|0|-|Reach Blossomreach and read Wren's cover note
+T|blossomreach-the-red-bridge|grow|staple|2|45|0|-|Harvest 2 of Blossomreach's staple crops (bok choy, daikon, adzuki)
+T|blossomreach-the-red-bridge|adopt|-|1|45-46|0|-|Do three things at a dark village on the road, then adopt it
+T|blossomreach-the-red-bridge|raise|tier:1|1|45-46|0|-|Light it: a village of Blossomreach at tier 1 where you are a Regular
+T|blossomreach-the-red-bridge|plant|crop:persimmon:3|1|46-47|0|-|Grow persimmons and harvest 3
+T|blossomreach-the-red-bridge|plant|bed:1|1|47-48|0|-|First Seed Bed hand-in (12 persimmons) at the orchard by the bridge
+T|blossomreach-the-red-bridge|escort|who:the tea-pilgrim,from:The Thousand Gates,to:Cherry Blossom Teahouse|1|48-50|0|-|A tea-pilgrim has lost count in the Thousand Gates: walk them through to the Cherry Blossom Teahouse
+T|blossomreach-the-red-bridge|stage|item:building-stone:10,coins:1000|1|49-52|0|-|Foundations (10 Dressed Stone, 1,000 Petals)
+T|blossomreach-the-red-bridge|stage|item:timber-plank:10,item:rope:6|1|49-52|0|-|Frame and fittings (10 Timber Planks, 6 Rope)
+T|blossomreach-the-red-bridge|stage|meal:4,fine:3|1|49-52|0|-|Feed the builders and add the finishing touches (4 home-cooked meals, 3 uncommon or rare finds)
+T|blossomreach-the-red-bridge|plant|flower:sakura|1|50-51|0|-|Grow cherry blossom to bloom
+T|blossomreach-the-red-bridge|plant|bed:2|1|50-51|0|-|Second Seed Bed hand-in (18 persimmons)
+T|blossomreach-the-red-bridge|find|The Thousand Gates/Pearl Diver Cove|2|51-53|0|-|Find The Thousand Gates and Pearl Diver Cove
+T|blossomreach-the-red-bridge|raise|lit:60|1|51-53|0|-|60% of the villages of Blossomreach lit, and you a Regular at each
+T|blossomreach-the-red-bridge|plant|bed:3|1|52-53|0|-|Third Seed Bed hand-in (24 persimmons): the bed is full
+T|blossomreach-the-red-bridge|raise|tier:4,hearth|1|53-55|0|-|Your Hearth: a stop you adopted or founded, raised to its Long-table hall (tier 4)
+T|blossomreach-the-red-bridge|seal|standing:78|1|55|0|-|The Seal of Blossomreach: Expedition Standing 78%. Wren walks in on the lit road and binds the section
+
+C|monsoon-tangle-the-stilt-boathouse|SEA|0|11|The Stilt Boathouse|moss-petalwing|45-55|-|7500|68243|firefly-glow|2|-|free_travel|Fast travel to the Monsoon Tangle costs nothing.|Stilt Boathouse|🛶|[i]Dear Companion,[/i]\n\nThe floods knocked the old boathouse off its stilts. Moss Petalwing cannot get the canoes out to the paddies, and has taken to rowing a washtub, badly, with dignity.\n\nIt rains on every page here. Light the landing stop and the lamps along the water. One terrace under the boathouse still stands in rows, planted by somebody who did not leave a name.\n\n[i]Wren[/i]|[i]Dear Keeper,[/i]\n\nIt rained on every page and I did not mind. Moss rowed me under the Boathouse to the paddies. The [b]rice[/b] at {hearth} came in bowls the size of my hat.\n\nThe old book said the paddies "feed the Tangle". They feed three areas. I counted the canoes.\n\nPell's sack is nearly flat. One letter is left and he will not read me the address.\n\nIf the Reef Garden in the Coralscatter or the Red Bridge in Blossomreach is still dark, go there. Otherwise, the Clovercove Gatehouse.\n\n[i]Wren[/i]|monsoon-boathouse
+T|monsoon-tangle-the-stilt-boathouse|visit|-|1|45|0|-|Reach the Monsoon Tangle and read Wren's cover note
+T|monsoon-tangle-the-stilt-boathouse|grow|staple|2|45|0|-|Harvest 2 of the Tangle's staple crops (rice, kangkong, lemongrass)
+T|monsoon-tangle-the-stilt-boathouse|adopt|-|1|45-46|0|-|Do three things at a dark village on the road, then adopt it
+T|monsoon-tangle-the-stilt-boathouse|raise|tier:1|1|45-46|0|-|Light it: a village of the Tangle at tier 1 where you are a Regular
+T|monsoon-tangle-the-stilt-boathouse|plant|crop:rice:3|1|46-47|0|-|Grow rice and harvest 3
+T|monsoon-tangle-the-stilt-boathouse|plant|bed:1|1|47-48|0|-|First Seed Bed hand-in (12 rice) at the paddies under the boathouse
+T|monsoon-tangle-the-stilt-boathouse|defeat|creature:proboscis-monkey|1|48-50|0|deliver:item:rice:5,to:stop:1|A Proboscis Monkey is sunning on the slipway: beat it or charm it
+T|monsoon-tangle-the-stilt-boathouse|stage|item:building-stone:12,coins:1400|1|49-52|0|-|Foundations (12 Dressed Stone, 1,400 Petals)
+T|monsoon-tangle-the-stilt-boathouse|stage|item:timber-plank:14,item:rope:8|1|49-52|0|-|Frame and fittings (14 Timber Planks, 8 Rope)
+T|monsoon-tangle-the-stilt-boathouse|stage|meal:5,fine:3|1|49-52|0|-|Feed the builders and add the finishing touches (5 home-cooked meals, 3 uncommon or rare finds)
+T|monsoon-tangle-the-stilt-boathouse|plant|flower:sampaguita|1|50-51|0|-|Grow sampaguita to bloom
+T|monsoon-tangle-the-stilt-boathouse|plant|bed:2|1|50-51|0|-|Second Seed Bed hand-in (18 rice)
+T|monsoon-tangle-the-stilt-boathouse|find|Lantern Festival River/Root-wrapped Temple|2|51-53|0|-|Find Lantern Festival River and Root-wrapped Temple
+T|monsoon-tangle-the-stilt-boathouse|raise|lit:60|1|51-53|0|-|60% of the villages of the Tangle lit, and you a Regular at each
+T|monsoon-tangle-the-stilt-boathouse|plant|bed:3|1|52-53|0|-|Third Seed Bed hand-in (24 rice): the bed is full
+T|monsoon-tangle-the-stilt-boathouse|raise|tier:4,hearth|1|53-55|0|-|Your Hearth: a stop you adopted or founded, raised to its Long-table hall (tier 4)
+T|monsoon-tangle-the-stilt-boathouse|seal|standing:78|1|55|0|-|The Seal of the Tangle: Expedition Standing 78%. Wren walks in on the lit road and binds the section
+
+C|coralscatter-the-reef-garden|OC|0|14|The Reef Garden|quill-rootstock|45-55|-|7500|68243|seed-pearl|2|Keeper of the Hollow|native_plus:10|Native crops in your Coralscatter gardens grow 10% faster.|Reef Garden|🪸|[i]Dear Companion,[/i]\n\nOn a quiet beach in the Coralscatter there is a garden that runs from the sand into the shallows. The storms have let the sea into its walls. Quill Rootstock, the reef keeper, bails it with a coconut shell and good manners.\n\nThis is the far end of the road, and I think it is also the near end. Light the landing stop. A few big taro leaves still stand in the wet, holding rain like cups.\n\n[i]Wren[/i]|[i]Dear Keeper,[/i]\n\nI stood in the shallows at {hearth} with my boots off and my notebook on my head. The [b]taro[/b] beds run straight into the sea, and nobody can say where garden stops and reef starts.\n\nThe old book said "the reef sings". It hums. Four notes. You know them.\n\nThe Stranger has stopped leaving, Keeper. They are waiting at a gate.\n\nWhen all fourteen sections are bound, the Clovercove road opens from the Blossomreach side. It comes out at the Gatehouse, a short walk from the first stop you ever lit.\n\n[i]Wren[/i]|coralscatter-reefgarden
+T|coralscatter-the-reef-garden|visit|-|1|45|0|-|Reach the Coralscatter and read Wren's cover note
+T|coralscatter-the-reef-garden|grow|staple|2|45|0|-|Harvest 2 of the Coralscatter's staple crops (taro, coconut, pandanus)
+T|coralscatter-the-reef-garden|adopt|-|1|45-46|0|-|Do three things at a dark village on the road, then adopt it
+T|coralscatter-the-reef-garden|raise|tier:1|1|45-46|0|-|Light it: a village of the Coralscatter at tier 1 where you are a Regular
+T|coralscatter-the-reef-garden|plant|crop:taro:3|1|46-47|0|-|Grow taro and harvest 3
+T|coralscatter-the-reef-garden|plant|bed:1|1|47-48|0|-|First Seed Bed hand-in (12 taro) at the Reef Garden's beds
+T|coralscatter-the-reef-garden|escort|who:the navigator,from:Starpath Canoe,to:Kava Circle|1|48-50|0|-|A navigator has lost the Starpath and is sitting in the canoe about it: walk them to the Kava Circle
+T|coralscatter-the-reef-garden|stage|item:building-stone:18,coins:2500|1|49-52|0|-|Foundations (18 Dressed Stone, 2,500 Petals)
+T|coralscatter-the-reef-garden|stage|item:timber-plank:16,item:rope:10|1|49-52|0|-|Frame and fittings (16 Timber Planks, 10 Rope)
+T|coralscatter-the-reef-garden|stage|meal:8,fine:5|1|49-52|0|-|Feed the builders and add the finishing touches (8 home-cooked meals, 5 uncommon or rare finds)
+T|coralscatter-the-reef-garden|plant|flower:tiare|1|50-51|0|-|Grow tiare to bloom
+T|coralscatter-the-reef-garden|plant|bed:2|1|50-51|0|-|Second Seed Bed hand-in (18 taro)
+T|coralscatter-the-reef-garden|find|Starpath Canoe/Stone Head Watchers|2|51-53|0|-|Find Starpath Canoe and Stone Head Watchers
+T|coralscatter-the-reef-garden|raise|lit:60|1|51-53|0|-|60% of the villages of the Coralscatter lit, and you a Regular at each
+T|coralscatter-the-reef-garden|plant|bed:3|1|52-53|0|-|Third Seed Bed hand-in (24 taro): the bed is full
+T|coralscatter-the-reef-garden|raise|tier:4,hearth|1|53-55|0|-|Your Hearth: a stop you adopted or founded, raised to its Long-table hall (tier 4)
+T|coralscatter-the-reef-garden|seal|standing:78|1|55|0|-|The Seal of the Coralscatter: Expedition Standing 78%. Wren walks in on the lit road and binds the section
+
+# ---------------------------------------------------------------- The Last Page (all 14 Seals; no fight; quests doc 2.6, flavor doc 2.3)
+C|the-last-page|NA|0|15|The Last Page|-|55|blossomreach-the-red-bridge/monsoon-tangle-the-stilt-boathouse/coralscatter-the-reef-garden|10000|8121|-|1|Roundwalker|-|-|The Roll of Keepers|📖|[i]Dear Keeper,[/i]\n\nFourteen sections, bound. The Clovercove road is open from the Blossomreach side, and it comes out at a gatehouse a short walk from the first stop you ever lit. I had the map upside down all this time.\n\nSomeone is waiting at the gate. They have the page that was cut from the old book. They cut it out to keep it safe and then had nobody to give it back to.\n\nThere is an empty bed by the Gatehouse. Bring a seed. Bring tea, if there is tea.\n\n[i]Wren[/i]|[i]Dear Keeper,[/i]\n\nThe old Roll is bound in. I used the good thread. Facing it is a fresh leaf, and it is the one page of this book I did not write. Your line is under the Stranger's. I checked the spelling twice.\n\nOttilie counted the chairs and then counted again, and then sat down, which I have never seen her do. Hobb gave no percentage. Fusby filed the form. The Stranger had two cups of tea and stayed for pudding.\n\nThe old book said the Round "is walked each year". I have not crossed that out. I am going to go and see if it is true.\n\nI have oiled the handcart. I will write from every stop, and I will start with the first one you lit, because you did.\n\nKeep the lamp trimmed. Leave room at the bottom of the page.\n\n[i]Wren[/i]|-
+T|the-last-page|seal|seals:14|1|55|0|-|Hold all 14 Seals
+T|the-last-page|visit|-|1|55|0|-|Walk the Clovercove road from the Blossomreach side to the Gatehouse
+T|the-last-page|plant|crop:wild-rice/amaranth/barley/breadfruit/yerba-mate/olive/buckwheat/date/turmeric/fonio/teff/persimmon/rice/taro:1|1|55|0|-|Sow one signature seed, any of the fourteen, for the empty bed at the Gatehouse (harvest 1)
+T|the-last-page|deliver|meal:1,to:off|1|55|0|-|The Stranger asks if there is tea. Bring supper to go with it (1 home-cooked meal, anywhere off the road in the Maplewold)
+T|the-last-page|escort|who:the Stranger,from:off,to:stop|1|55|0|-|Walk the Stranger from the Gatehouse to a Maplewold village (your Hearth, if you keep one)
+T|the-last-page|raise|tier:1|1|55|0|-|Trim the lamp at the first stop you ever lit (a lit Maplewold village where you are a Regular)
+T|the-last-page|seal|leaf|1|55|0|-|Sign the Roll of Keepers at Wren's desk

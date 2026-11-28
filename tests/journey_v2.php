@@ -51,11 +51,12 @@ ok('events do nothing to v2 while off', !q_val('SELECT 1 FROM user_quest_steps W
 echo "== journey_v2_open = 1: the Maplewold chapters\n";
 setg('journey_v2_open', '1');
 $chs = journey_chapters();
-$v2 = array_values(array_filter($chs, 'journey_is_v2'));
-ok('7 v2 chapters, M1 to M7', count($v2) === 7 && $v2[0]['slug'] === 'maplewold-m1-first-lamp' && $v2[6]['slug'] === 'maplewold-m7-the-lighting', implode(',', array_column($v2, 'slug')));
-ok('the old Sugar Shack chapter is replaced (13 others stay)', !in_array('maplewold-sugar-shack', array_column($chs, 'slug'), true) && count($chs) === 20);
+$allV2 = array_values(array_filter($chs, 'journey_is_v2'));
+$v2 = array_values(array_filter($allV2, fn($c) => str_starts_with((string)$c['slug'], 'maplewold-m')));   // the Maplewold's seven; the other 21 are checked by tests/quest_data.php
+ok('7 Maplewold v2 chapters, M1 to M7', count($v2) === 7 && $v2[0]['slug'] === 'maplewold-m1-first-lamp' && $v2[6]['slug'] === 'maplewold-m7-the-lighting', implode(',', array_column($v2, 'slug')));
+ok('the old Sugar Shack chapter is replaced (as all 14 old chapters are: 28 v2 chapters in play)', !in_array('maplewold-sugar-shack', array_column($chs, 'slug'), true) && count($chs) === 28 && count($allV2) === 28);
 setting('__reload__');
-ok('seeding is stamped and safe to repeat', setting('journey_v2_seeded') !== '' && (function () { journey_v2_seed(); return (int)q_val('SELECT COUNT(*) FROM quest_chapters WHERE engine = 1') === 7; })());
+ok('seeding is stamped and safe to repeat', setting('journey_v2_seeded') !== '' && (function () { journey_v2_seed(); return (int)q_val('SELECT COUNT(*) FROM quest_chapters WHERE engine = 1') === 28; })());
 ok('Wren\'s new prologue', str_contains(journey_prologue(), 'Waythread') && !str_contains(journey_prologue(), 'Tansy'));
 $xp = array_sum(array_map('journey_paid_xp', $v2));
 $band = xp_for_level(15);
