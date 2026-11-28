@@ -9096,7 +9096,7 @@ label.check input[type=checkbox] { width: 24px; height: 24px; flex: none; }
 
 /* 2.8.93 Map v2: the lit floor region map widget (includes/map_v2.php region_map_block, assets/mapv2.js). Without JavaScript the map is a 16:9 picture
    with the list under it; with it (.mv2.on) the map pans and zooms inside a tall viewport and the list is a sheet over its bottom edge. */
-.mv2 { max-width: 760px; margin: 0 auto; }
+.mv2 { width: 100%; max-width: 980px; margin: 0 auto; }   /* 2.8.97: width 100% (inside a grid the auto margins shrank it to 314 px on a desktop) */
 .mv2-vp { position: relative; }
 .mv2-vp:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .mv2-svg { display: block; width: 100%; height: auto; background: #0e0f09; }
@@ -9136,7 +9136,7 @@ label.check input[type=checkbox] { width: 24px; height: 24px; flex: none; }
 .mv2-key { display: inline-block; width: 22px; height: 4px; border-radius: 2px; vertical-align: middle; background: #f0c85a; box-shadow: 0 0 0 2px #14110a; }
 .mv2-key.un { background: repeating-linear-gradient(90deg, #a39f8f 0 3px, transparent 3px 8px); }
 /* with JavaScript: a tall viewport the map pans in, controls top right, the list a sheet over the bottom */
-.mv2.on .mv2-vp { height: min(520px, 68vh); overflow: hidden; touch-action: none; border-radius: var(--radius); background: #0e0f09; cursor: grab; }
+.mv2.on .mv2-vp { height: min(620px, 72vh); overflow: hidden; touch-action: none; border-radius: var(--radius); background: #0e0f09; cursor: grab; }
 .mv2.on .mv2-vp.drag { cursor: grabbing; }
 .mv2.on .mv2-svg { width: 100%; height: 100%; max-width: none; border-radius: 0; box-shadow: none; user-select: none; -webkit-user-select: none; }
 .mv2.on .mv2-ctl { position: absolute; top: 8px; right: 8px; flex-direction: column; z-index: 3; }

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.97
+- **Map v2 region map was tiny on a desktop.** Inside the page's grid the map box had `width: auto` with auto side margins, so it shrank to about 314 px. It is now full width up to 980 px, and the pan and zoom viewport is a little taller (620 px, 72% of the screen). Phones are unchanged.
+
 ## 2.8.96
 - **Admin > Settings: "Map v2 check".** A fold at the bottom lists, in plain words, the version, the two settings, whether the world picture and layout and each region's picture and road match are there, and which maps are new or old. Added because a site with both settings on still showed the old maps and nothing said why.
 
