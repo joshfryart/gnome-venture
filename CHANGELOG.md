@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2.8.100
+- **Links to Mossbottom on the maps open its Here picture.** The old world map, the new delve-down world map and the mycelium world map pointed at the town-square list; they now go to `here.php?hub=1` (the list when the Here pictures are off).
 - **Town states, switched off behind `town_states_open` (Admin, Settings; default Off; needs Lasting marks on).** Slices 0, 1, 3, 4 and 5 of `claude/proposal-town-states.md` (the pictures come separately). With it on:
   - **Each region town is Run low, Mending or Thriving, for each gnome.** It follows how many villages of the region the gnome has mended: a village whose Repairs bar is full counts 2, one with Repairs 34 or more counts 1, your home village always counts at least 1. Mending from 15 out of 100, Thriving from 50, or at once when you hold the region's Seal. The town's own Repairs bar at 34 or more makes it at least Mending. A town never goes back to a lower state. Mossbottom is not part of this.
   - **The town page and the Here picture say so:** a "Run low" / "Mending" / "Thriving" chip and two lines ("The shelves are thin but the door is open." ...). In a Run low town Wren adds: "The towns kept one lamp lit and the door open. Then the carts stopped coming." and "They never shut. They just ran out. Mend the villages and the carts come back." Mending a village that lifts the town gives a line ("A cart got through to Maplewold Market. The square is mending."). Wren's Journey page shows "Town: Mending (R 30 of 50)".
