@@ -43,15 +43,15 @@ sqlq "INSERT OR REPLACE INTO settings (name, value) VALUES ('sso_secret', '$SECR
 ok "secret set: anonymous gets 403" $(is "$(code $BASE/sso_issue.php)" 403)
 ok "secret set: a player gets 403" $(is "$(code -b $P $BASE/sso_issue.php)" 403)
 ok "...with no hint" $(is "$(cat $TD/sso.html)" "Not available.")
-c=$(code -b $A $BASE/sso_issue.php); L=$(grep -i '^location:' $TD/sso.hdr | tr -d '\r' | cut -d' ' -f2-)
-ok "admin: 302 to https://test.gnomeventure.ca/sso.php?t=..." $( [ "$c" = 302 ] && [[ "$L" == https://test.gnomeventure.ca/sso.php?t=*.* ]] && echo 1 || echo 0) "$c $L"
+c=$(code -b $A $BASE/sso_issue.php)
+ok "admin: 200 page that POSTs the token to https://test.gnomeventure.ca/sso.php" $( [ "$c" = 200 ] && grep -q 'method="post" action="https://test.gnomeventure.ca/sso.php"' $TD/sso.html && grep -q 'name="t" value="[^"]*\.[^"]*"' $TD/sso.html && grep -qi "^content-security-policy:.*form-action https://test.gnomeventure.ca;" $TD/sso.hdr && echo 1 || echo 0) "$c"
 ok "open redirect ?to=evil.com refused" $(is "$(code -b $A "$BASE/sso_issue.php?to=evil.com")" 400)
 ok "?to=test.gnomeventure.ca.evil.com refused" $(is "$(code -b $A "$BASE/sso_issue.php?to=test.gnomeventure.ca.evil.com")" 400)
 ok "?to=127.0.0.1 (not listed) refused" $(is "$(code -b $A "$BASE/sso_issue.php?to=127.0.0.1")" 400)
 sqlq "INSERT OR REPLACE INTO settings (name, value) VALUES ('sso_targets', 'test.gnomeventure.ca,127.0.0.1')"
-code -b $A "$BASE/sso_issue.php?to=127.0.0.1" >/dev/null; L=$(grep -i '^location:' $TD/sso.hdr | tr -d '\r' | cut -d' ' -f2-)
-TOKEN=${L#https://127.0.0.1/sso.php?t=}
-ok "listed ?to=127.0.0.1: a token for that host" $( [[ "$L" == https://127.0.0.1/sso.php?t=* ]] && [ -n "$TOKEN" ] && echo 1 || echo 0) "$L"
+code -b $A "$BASE/sso_issue.php?to=127.0.0.1" >/dev/null
+TOKEN=$(grep -o 'name="t" value="[^"]*"' $TD/sso.html | sed 's/.*value="//;s/"$//')
+ok "listed ?to=127.0.0.1: a token for that host" $( grep -q 'action="https://127.0.0.1/sso.php"' $TD/sso.html && [ -n "$TOKEN" ] && echo 1 || echo 0)
 code -b $A $BASE/admin/settings.php?q=sso >/dev/null
 ok "Admin > Game settings shows the SSO fields" $(has $TD/sso.html 'name="s\[sso_secret\]"')
 ok "...but never the secret itself" $(grep -q "$SECRET" $TD/sso.html && echo 0 || echo 1)
@@ -73,7 +73,7 @@ ok "robots.txt says Disallow: /" $(curl -s $BASE/robots.txt | grep -qx 'Disallow
 ok "the player's old session is bounced" $(is "$(code -b $P $BASE/garden.php)" 302)
 ok "sso.php with a bad token: 403, the generic page" $( [ "$(code "$BASE/sso.php?t=abc.def")" = 403 ] && grep -q 'That sign-in did not work' $TD/sso.html && echo 1 || echo 0)
 ok "...logged without the token" $(grep -q 'SSO sign-in refused: bad signature' $GAME/data/error-log.txt && ! grep -q 'abc.def' $GAME/data/error-log.txt && echo 1 || echo 0)
-c=$(curl -s -c $N -b $N -o /dev/null -D $TD/sso.hdr -w '%{http_code}' "$BASE/sso.php?t=$TOKEN")
+c=$(curl -s -c $N -b $N -o /dev/null -D $TD/sso.hdr -w '%{http_code}' --data-urlencode "t=$TOKEN" "$BASE/sso.php")
 ok "sso.php with the main site's token: logged in, 302 to the game" $( [ "$c" = 302 ] && grep -qiE '^location: .*(welcome|gnome).php' $TD/sso.hdr && echo 1 || echo 0) "$c"
 c=$(curl -s -c $N -b $N -o /dev/null -D $TD/sso.hdr -w '%{http_code}' "$BASE/garden.php")
 ok "the signed-in admin is not bounced to login.php" $( grep -qi '^location: .*login.php' $TD/sso.hdr && echo 0 || echo 1) "$c"

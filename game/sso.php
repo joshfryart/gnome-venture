@@ -19,7 +19,7 @@ if (lockdown_mode() !== 'sso' || !sso_secret_ok((string)($CONFIG['sso_secret'] ?
 $why = 'too many tries';
 $user = null;
 if (!rate_limited('sso', 10, 15) && !rate_limited_all('sso', 60, 15)) {
-    $t = $_GET['t'] ?? '';
+    $t = $_POST['t'] ?? $_GET['t'] ?? '';   // POST from sso_issue.php; GET kept for older links
     [$user, $why] = sso_accept(is_string($t) ? $t : '', sso_host());
 }
 if ($user) {
