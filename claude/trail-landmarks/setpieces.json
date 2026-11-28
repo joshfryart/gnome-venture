@@ -12,7 +12,8 @@
    273,
    274,
    233,
-   237
+   237,
+   481
   ]
  },
  "grassland-the-picnic-knoll": {
@@ -71,7 +72,8 @@
    289,
    275,
    249,
-   422
+   422,
+   481
   ]
  },
  "grassland-the-wind-combed-meadow": {
@@ -187,7 +189,9 @@
   "routes": [
    381,
    293,
-   333
+   333,
+   485,
+   486
   ]
  },
  "wetland-the-stilt-house": {
@@ -199,7 +203,9 @@
    270,
    295,
    419,
-   426
+   426,
+   482,
+   486
   ]
  },
  "wetland-the-willow-curtain": {
@@ -230,7 +236,10 @@
    432,
    277,
    403,
-   294
+   294,
+   475,
+   482,
+   485
   ]
  },
  "mountain-the-scree-slope": {
@@ -241,7 +250,9 @@
    383,
    365,
    429,
-   436
+   436,
+   487,
+   491
   ]
  },
  "mountain-the-pine-shelf": {
@@ -270,7 +281,10 @@
    377,
    436,
    424,
-   425
+   425,
+   479,
+   480,
+   491
   ]
  },
  "mountain-the-goat-ledge": {
@@ -288,7 +302,11 @@
    250,
    251,
    252,
-   424
+   424,
+   480,
+   487,
+   490,
+   491
   ]
  },
  "grassland-the-daisy-ring": {
@@ -305,7 +323,8 @@
    229,
    347,
    249,
-   283
+   283,
+   481
   ]
  },
  "end-haven-1-grassland": {
@@ -374,7 +393,9 @@
    271,
    293,
    334,
-   419
+   419,
+   476,
+   484
   ]
  },
  "end-wonder-2-wetland": {
@@ -399,7 +420,8 @@
    341,
    348,
    417,
-   425
+   425,
+   488
   ]
  },
  "mountain-the-waterfall-mist": {
@@ -408,7 +430,8 @@
   "caption": "A waterfall mists the path with tiny rainbows.",
   "routes": [
    389,
-   429
+   429,
+   479
   ]
  },
  "end-lair-1-mountain": {
@@ -525,7 +548,8 @@
    372,
    265,
    456,
-   328
+   328,
+   494
   ]
  },
  "coast-the-kelp-line": {
@@ -555,7 +579,8 @@
    259,
    303,
    470,
-   471
+   471,
+   474
   ]
  },
  "desert-the-sun-bleached-bones": {
@@ -721,7 +746,9 @@
    294,
    295,
    340,
-   418
+   418,
+   475,
+   484
   ]
  },
  "wetland-the-dragonfly-bend": {
@@ -732,7 +759,8 @@
    297,
    277,
    405,
-   340
+   340,
+   483
   ]
  },
  "rainforest-the-stepping-roots": {
@@ -743,7 +771,9 @@
    244,
    325,
    407,
-   415
+   415,
+   477,
+   478
   ]
  },
  "rainforest-the-giant-fern-glade": {
@@ -757,7 +787,8 @@
    414,
    459,
    344,
-   351
+   351,
+   477
   ]
  },
  "rainforest-the-orchid-tree": {
@@ -797,7 +828,8 @@
    342,
    350,
    351,
-   331
+   331,
+   478
   ]
  },
  "rainforest-the-vine-bridge": {
@@ -854,7 +886,9 @@
    367,
    377,
    437,
-   285
+   285,
+   480,
+   489
   ]
  },
  "mountain-the-stone-hut": {
@@ -884,7 +918,8 @@
    348,
    349,
    285,
-   417
+   417,
+   490
   ]
  },
  "end-wonder-1-rainforest": {
@@ -937,7 +972,9 @@
    251,
    252,
    349,
-   416
+   416,
+   488,
+   491
   ]
  },
  "island-the-hammock-palms": {
@@ -1031,7 +1068,8 @@
   "feature": "the stranded rowboat",
   "caption": "A rowboat on the sand, waiting for the sea to come back and apologise.",
   "routes": [
-   356
+   356,
+   495
   ]
  },
  "tundra-the-snow-fort": {
@@ -1040,7 +1078,8 @@
   "caption": "A snow fort with a flag. It has seen better battles, and better snacks.",
   "routes": [
    357,
-   358
+   358,
+   493
   ]
  },
  "tundra-the-lone-fir": {
@@ -1048,7 +1087,8 @@
   "feature": "the lone fir",
   "caption": "One fir tree wearing a good deal of snow.",
   "routes": [
-   357
+   357,
+   493
   ]
  },
  "tundra-the-aurora-rise": {
@@ -1058,7 +1098,8 @@
   "routes": [
    358,
    363,
-   364
+   364,
+   493
   ]
  },
  "end-wonder-1-grassland": {
@@ -1091,7 +1132,8 @@
   "feature": "the ice-shelf steps",
   "caption": "Steps of pale ice that squeak under each boot.",
   "routes": [
-   363
+   363,
+   492
   ]
  },
  "tundra-the-star-chart-stones": {
@@ -1099,7 +1141,9 @@
   "feature": "the star-chart stones",
   "caption": "Flat stones scratched with constellations by patient hands.",
   "routes": [
-   363
+   363,
+   492,
+   493
   ]
  },
  "end-lair-2-tundra": {
@@ -1107,7 +1151,8 @@
   "feature": "the way into a lair: the threshold of <the place>",
   "caption": "A wide, scuffed circle of earth. The kind of place a very large friend might sleep.",
   "routes": [
-   363
+   363,
+   492
   ]
  },
  "end-haven-1-tundra": {
@@ -1151,7 +1196,8 @@
   "routes": [
    257,
    259,
-   267
+   267,
+   495
   ]
  },
  "coast-the-driftwood-arch": {
@@ -1165,7 +1211,8 @@
    266,
    410,
    298,
-   300
+   300,
+   474
   ]
  },
  "mountain-the-cairn-pass": {
@@ -1179,7 +1226,9 @@
    437,
    399,
    285,
-   425
+   425,
+   479,
+   489
   ]
  },
  "island-the-sand-spit": {
@@ -1225,7 +1274,9 @@
    461,
    470,
    267,
-   410
+   410,
+   474,
+   495
   ]
  },
  "end-wonder-1-mountain": {
@@ -1298,7 +1349,9 @@
    404,
    412,
    340,
-   426
+   426,
+   475,
+   476
   ]
  },
  "wetland-the-heron-s-post": {
@@ -1312,7 +1365,8 @@
    295,
    333,
    339,
-   340
+   340,
+   476
   ]
  },
  "end-haven-1-wetland": {
@@ -1321,7 +1375,8 @@
   "caption": "A smell of something warm drifts down the path from <the place>.",
   "routes": [
    432,
-   455
+   455,
+   483
   ]
  },
  "end-wonder-2-grassland": {
@@ -1348,7 +1403,8 @@
   "routes": [
    436,
    399,
-   424
+   424,
+   489
   ]
  },
  "end-delve-1-mountain": {
@@ -1356,7 +1412,8 @@
   "feature": "the way into a delve: the mine mouth of <the place>",
   "caption": "The mouth of <the place> breathes cool air and a hint of old echoes.",
   "routes": [
-   437
+   437,
+   490
   ]
  },
  "island-the-coconut-grove": {
@@ -1452,7 +1509,8 @@
   "feature": "the way into a haven: the <the place> path",
   "caption": "A smell of something warm drifts down the path from <the place>.",
   "routes": [
-   397
+   397,
+   494
   ]
  },
  "end-lair-2-desert": {
@@ -1495,7 +1553,8 @@
   "caption": "Small glowing fruits hang low, just to be friendly.",
   "routes": [
    408,
-   338
+   338,
+   477
   ]
  },
  "end-wonder-2-rainforest": {
@@ -1531,7 +1590,8 @@
   "routes": [
    453,
    350,
-   351
+   351,
+   478
   ]
  },
  "end-lair-1-island": {
@@ -1563,7 +1623,8 @@
   "feature": "the way into a delve: the lantern line to <the place>",
   "caption": "A line of old lanterns leads to <the place>. Please bring your own light.",
   "routes": [
-   339
+   339,
+   485
   ]
  },
  "end-lair-2-wetland": {
@@ -1579,7 +1640,8 @@
   "feature": "the way into a wonder: the <the place> gates",
   "caption": "Something wonderful is close. You can feel it in your shoes.",
   "routes": [
-   426
+   426,
+   484
   ]
  }
 }

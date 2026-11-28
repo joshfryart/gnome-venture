@@ -60,9 +60,9 @@ foreach (array_keys($all) as $k) unset($oth[$k]);
 $old = json_decode((string)@file_get_contents($game . '/includes/data/trail_maps.json'), true)['routes'] ?? [];
 $bad = []; $osecs = 0; $oE = []; $prevPic = 0;
 foreach ($oth as $rid => $r) {
-    if (!isset($old[$rid])) $bad[] = "$rid not in the old file";
+    if (!isset($old[$rid])) { if ((int)$rid < 474) $bad[] = "$rid not in the old file"; }   // 474-495: the World v2 routes (2.8.94) are not in the old file
     else {
-        if (count($old[$rid]['sections']) !== count($r['sections'])) $bad[] = "$rid section count";
+        if (count($old[$rid]['sections']) !== count($r['sections']) && !in_array((int)$rid, [425, 435, 458, 471], true)) $bad[] = "$rid section count";   // those four lairs got a 5th section in 2.8.94
         if ((string)($old[$rid]['boss'] ?? '') !== (string)($r['boss'] ?? '')) $bad[] = "$rid boss";
         if ((string)$old[$rid]['land'] !== (string)$r['land']) $bad[] = "$rid land";
     }
@@ -88,7 +88,7 @@ foreach ($oth as $rid => $r) {
         $prev = $ex;
     }
 }
-ok('230 other routes, 624 sections', count($oth) === 230 && $osecs === 624, count($oth) . ' routes, ' . $osecs . ' sections');
+ok('252 other routes, 690 sections (230 / 624 before the World v2 routes 474-495 and the 5th section of four lairs, 2.8.94)', count($oth) === 252 && $osecs === 690, count($oth) . ' routes, ' . $osecs . ' sections');
 ok('same boss, land and section count as the old file; 30 x 18; entry and exit on edges; reachable; S only in section 1; joins line up; pic r', !$bad, implode('; ', array_slice($bad, 0, 12)));
 $oEbad = array_filter($oE, function ($x) use ($oth) { [$rid, $si] = explode('#', $x); return (int)$si !== count($oth[$rid]['sections']) - 1 || ($oth[$rid]['boss'] ?? '') === ''; });
 ok('a fixed fight (E) only on the last section of a route that has a boss or miniboss', !$oEbad, implode(',', array_slice($oEbad, 0, 10)));
@@ -224,7 +224,7 @@ foreach (glob($game . '/includes/data/trail_maps/*_30x18.json') as $f) {
         if ((int)$g['min_tier'] !== $want) $tierBad[] = "$reg $rid#$si tier {$g['min_tier']}";
     }
 }
-ok("every gate outside the Maplewold follows the region rule ({$tierN[2]} at tier 2, {$tierN[3]} at tier 3)", !$tierBad && $tierN[2] === 18 && $tierN[3] === 20, implode('; ', array_slice($tierBad, 0, 6)));
+ok("every gate outside the Maplewold follows the region rule ({$tierN[2]} at tier 2, {$tierN[3]} at tier 3)", !$tierBad && $tierN[2] === 21 && $tierN[3] === 20, implode('; ', array_slice($tierBad, 0, 6)));
 echo "== decor: the rich look as data (2026-11-14, tools/trail_decor.py)\n";
 $gameAll = trail_authored_load($game . '/includes/data');
 $secN = $noDec = 0; $badRect = []; $overlap = []; $wrongTile = []; $agree = $disagree = 0; $dis = [];

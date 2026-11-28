@@ -250,7 +250,7 @@ $wrong = [];
 foreach (trail_sight_folk() as $sl => $lst) foreach ($lst as $f) if (str_contains($f['who'], '@') && !trail_sight_folk_id($f['who'])) $wrong[] = $f['who'];
 ok('every pinned villager (Name@village) exists in that village', !$wrong, implode(', ', array_slice($wrong, 0, 6)));
 // the Trail page: mark over the landmark, Sights button, card
-$exp = active_expedition((int)$u['id']); $sc = trail_scene($exp);
+$exp = active_expedition((int)$u['id']); if ($exp) $sc = trail_scene($exp);   // 2.8.94: the loop's last route may not exist in the DB (World v2 off), leaving no walk
 $exp['encounter'] = null; q("UPDATE expeditions SET status = 'done' WHERE user_id = ?", [$u['id']]);
 q("UPDATE routes SET kind = 'road' WHERE id = 240"); $rr = q_one('SELECT * FROM routes WHERE id = 240'); q("UPDATE users SET location_id = ?, energy = 150 WHERE id = ?", [$rr['a_id'], $u['id']]);
 $u = q_one('SELECT * FROM users WHERE id = ?', [$u['id']]); start_expedition($u, 240); $exp = active_expedition((int)$u['id']); $sc = trail_scene($exp);

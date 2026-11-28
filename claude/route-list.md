@@ -1,10 +1,10 @@
 # Route list for the authored route maps
 
-Generated from the game's own routes table (a fresh install of the current code). 246 routes, 665 sections in all. (2026-11-07: a bendy 30 x 18 version of every route is in `claude/bend-prototype/`; plan in `claude/plan-route-map-bends.md`. Section counts stay as listed.)
+Generated from the game's own routes table (a fresh install of the current code). 268 routes, 731 sections in all. (2026-11-07: a bendy 30 x 18 version of every route is in `claude/bend-prototype/`; plan in `claude/plan-route-map-bends.md`. Section counts stay as listed.) 2026-11-28: World v2 added routes 474-495 (they exist only once the setting `world_v2_open` is on: `game/includes/world_v2.php`, `data/world_v2_places.txt`; 474-481 are the two new roads, 482-495 the named side paths) and the lairs 425, 435, 458, 471 have 5 steps now (was 4). 491 and 493 are listed under The Maplewold: the World v2 region layout draws Stonethorpe and Froststead in the Maplewold frame.
 
 Columns: `route id | from -> to | land | sections (= steps, 2 to 5) | min level`. A route is one map; the game reads it backwards for the return walk. `(town)` = a main town, `(village)` = a village or stop, `(haven)` `(wonder)` `(delve)` `(lair)` = a landmark at that end.
 
-Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 9. Make as many sections as the line says.
+Sections per route are NOT all 3: 2 sections = 116 routes, 3 = 122, 4 = 17, 5 = 13. Make as many sections as the line says.
 
 
 ## Birchbramble Steppe (15 routes, 39 sections)
@@ -152,7 +152,7 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 |---|---|---|---|---|---|
 | 265 | Sprayglen (village) | Gullwell (village) | coast | 3 | 1 |
 
-## Spicepeak (17 routes, 49 sections)
+## Spicepeak (17 routes, 50 sections)
 
 | id | from | to | land | sections | min lv |
 |---|---|---|---|---|---|
@@ -170,7 +170,7 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 | 432 | Windstead (village) | Floating Flower Market (haven) | wetland | 2 | 1 |
 | 433 | Poppythorpe (village) | The Silk Road Caravanserai (wonder) | grassland | 3 | 8 |
 | 434 | Leafmead (village) | Tea Garden Slopes (wonder) | forest | 3 | 8 |
-| 435 | Newtdell (village) | Temple of the Tiger Moth (lair) | forest | 4 | 14 |
+| 435 | Newtdell (village) | Temple of the Tiger Moth (lair) | forest | 5 | 14 |
 | 436 | Rushdell (village) | Prayer-flag Pass (wonder) | mountain | 4 | 18 |
 | 437 | Heronby (village) | Snowleopard Ledges (delve) | mountain | 4 | 20 |
 
@@ -186,7 +186,7 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 |---|---|---|---|---|---|
 | 293 | Leafmead (village) | Marshcrest (village) | wetland | 3 | 1 |
 
-## The Coralscatter (17 routes, 44 sections)
+## The Coralscatter (17 routes, 45 sections)
 
 | id | from | to | land | sections | min lv |
 |---|---|---|---|---|---|
@@ -204,7 +204,7 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 | 468 | Brineglen (village) | Kava Circle (haven) | island | 2 | 1 |
 | 469 | Palmgate (village) | Starpath Canoe (wonder) | island | 2 | 1 |
 | 470 | Reefknoll (village) | Glowworm Grotto (wonder) | coast | 3 | 8 |
-| 471 | Turtleburrow (village) | Reef of the Box Jelly Queen (lair) | coast | 4 | 14 |
+| 471 | Turtleburrow (village) | Reef of the Box Jelly Queen (lair) | coast | 5 | 14 |
 | 472 | Brineglen (village) | Stone Head Watchers (wonder) | forest | 3 | 8 |
 | 473 | Palmgate (village) | The Red Rock Songlines (delve) | desert | 4 | 20 |
 
@@ -242,7 +242,7 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 |---|---|---|---|---|---|
 | 277 | Meadowbrook (village) | Heronby (village) | wetland | 3 | 1 |
 
-## The Greatcanopy (16 routes, 43 sections)
+## The Greatcanopy (18 routes, 49 sections)
 
 | id | from | to | land | sections | min lv |
 |---|---|---|---|---|---|
@@ -262,6 +262,8 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 | 413 | Thistleholt (village) | Gorilla Glade (wonder) | rainforest | 4 | 18 |
 | 414 | Hayglen (village) | The Canopy Bridges (delve) | rainforest | 4 | 20 |
 | 415 | Cloverbottom (village) | Hollow of the Silverback Spider (lair) | rainforest | 5 | 28 |
+| 476 | Fenmead (village) | Fenwell (village) | wetland | 3 | 1 |
+| 477 | Fenwell (village) | The Greatcanopy Market (town) | rainforest | 3 | 1 |
 
 ## The Greatcanopy -> Thornacre Savanna (1 routes, 3 sections)
 
@@ -269,7 +271,7 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 |---|---|---|---|---|---|
 | 281 | Hayglen (village) | Meadowden (village) | grassland | 3 | 1 |
 
-## The Maplewold (16 routes, 41 sections)
+## The Maplewold (29 routes, 76 sections)
 
 | id | from | to | land | sections | min lv |
 |---|---|---|---|---|---|
@@ -289,6 +291,19 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 | 314 | Honeybrook (village) | Lighthouse of the Lost Lantern (wonder) | coast | 3 | 8 |
 | 315 | Cloverholt (village) | Den of the Great White Owl (lair) | tundra | 5 | 28 |
 | 316 | Poppyburrow (village) | Aurora Camp (haven) | tundra | 2 | 1 |
+| 482 | Honeybrook (village) | Cattailmere (village) | wetland | 2 | 8 |
+| 483 | Cattailmere (village) | Heron Stilt Village (haven) | wetland | 2 | 8 |
+| 484 | Cattailmere (village) | The Dam Debt (wonder) | wetland | 3 | 9 |
+| 485 | Cattailmere (village) | Beaverdam Tunnels (delve) | wetland | 3 | 10 |
+| 486 | Cattailmere (village) | Pebblestead (village) | wetland | 2 | 8 |
+| 487 | Poppyburrow (village) | Granitegate (village) | mountain | 2 | 12 |
+| 488 | Granitegate (village) | Cairn Keeper's Hut (haven) | mountain | 2 | 12 |
+| 489 | Granitegate (village) | Cairnback Pass (wonder) | mountain | 3 | 13 |
+| 490 | Granitegate (village) | Hollow Peak (delve) | mountain | 3 | 14 |
+| 491 | Granitegate (village) | Stonethorpe (village) | mountain | 4 | 15 |
+| 492 | Aurora Camp (haven) | Den of the Great White Owl (lair) | tundra | 3 | 11 |
+| 493 | Den of the Great White Owl (lair) | Froststead (village) | tundra | 4 | 15 |
+| 494 | Lighthouse of the Lost Lantern (wonder) | Ferry Landing (haven) | coast | 2 | 7 |
 
 ## The Maplewold -> Maizehollow (1 routes, 3 sections)
 
@@ -308,7 +323,13 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 |---|---|---|---|---|---|
 | 237 | Cloverholt (village) | Honeythorpe (village) | grassland | 3 | 1 |
 
-## The Monsoon Tangle (17 routes, 47 sections)
+## The Maplewold -> The Sunsprinkle Isles (1 routes, 3 sections)
+
+| id | from | to | land | sections | min lv |
+|---|---|---|---|---|---|
+| 495 | Ferry Landing (haven) | The Sunsprinkle Isles Market (town) | coast | 3 | 25 |
+
+## The Monsoon Tangle (17 routes, 48 sections)
 
 | id | from | to | land | sections | min lv |
 |---|---|---|---|---|---|
@@ -326,7 +347,7 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 | 455 | Rushglen (village) | Floating Market (haven) | wetland | 2 | 1 |
 | 456 | Lilyby (village) | Lantern Festival River (wonder) | coast | 3 | 8 |
 | 457 | Sandpiperglen (village) | Volcano Spice Gardens (wonder) | island | 3 | 8 |
-| 458 | Shellnook (village) | Dragonlizard Den (lair) | island | 4 | 14 |
+| 458 | Shellnook (village) | Dragonlizard Den (lair) | island | 5 | 14 |
 | 459 | Marshcrest (village) | Root-wrapped Temple (wonder) | rainforest | 4 | 18 |
 | 460 | Rushglen (village) | Firefly Caves (delve) | rainforest | 4 | 20 |
 
@@ -336,7 +357,7 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 |---|---|---|---|---|---|
 | 301 | Shellnook (village) | Turtleburrow (village) | island | 3 | 1 |
 
-## The Rainroot Reaches (17 routes, 47 sections)
+## The Rainroot Reaches (18 routes, 50 sections)
 
 | id | from | to | land | sections | min lv |
 |---|---|---|---|---|---|
@@ -357,6 +378,7 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 | 350 | Highcove (village) | Pink River Dolphin Pools (wonder) | rainforest | 4 | 18 |
 | 351 | Barleyglen (village) | Anaconda Hollows (delve) | rainforest | 4 | 20 |
 | 352 | Windwell (village) | The Mirror Salt Flat (wonder) | desert | 3 | 8 |
+| 478 | The Rainroot Reaches Market (town) | Stoneden (village) | rainforest | 3 | 1 |
 
 ## The Rainroot Reaches -> The Coralscatter (1 routes, 3 sections)
 
@@ -364,7 +386,13 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 |---|---|---|---|---|---|
 | 253 | Highcove (village) | Palmgate (village) | island | 3 | 1 |
 
-## The Sunsprinkle Isles (16 routes, 42 sections)
+## The Rainroot Reaches -> Thornacre Savanna (1 routes, 3 sections)
+
+| id | from | to | land | sections | min lv |
+|---|---|---|---|---|---|
+| 479 | Stoneden (village) | Pinecombe (village) | mountain | 3 | 1 |
+
+## The Sunsprinkle Isles (17 routes, 45 sections)
 
 | id | from | to | land | sections | min lv |
 |---|---|---|---|---|---|
@@ -384,6 +412,7 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 | 338 | Breezehollow (village) | The Singing Waterfall (wonder) | rainforest | 3 | 8 |
 | 339 | Palmknoll (village) | Mangrove Root Maze (delve) | wetland | 4 | 20 |
 | 340 | Shoreford (village) | Lair of the Hurricane Crab (lair) | wetland | 5 | 28 |
+| 474 | The Sunsprinkle Isles Market (town) | Sandpipergate (village) | coast | 3 | 1 |
 
 ## The Sunsprinkle Isles -> The Rainroot Reaches (1 routes, 3 sections)
 
@@ -391,7 +420,13 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 |---|---|---|---|---|---|
 | 249 | Palmknoll (village) | Thistlebottom (village) | grassland | 3 | 1 |
 
-## Thornacre Savanna (16 routes, 42 sections)
+## The Sunsprinkle Isles -> The Greatcanopy (1 routes, 3 sections)
+
+| id | from | to | land | sections | min lv |
+|---|---|---|---|---|---|
+| 475 | Sandpipergate (village) | Fenmead (village) | wetland | 3 | 1 |
+
+## Thornacre Savanna (18 routes, 49 sections)
 
 | id | from | to | land | sections | min lv |
 |---|---|---|---|---|---|
@@ -408,9 +443,11 @@ Sections per route are NOT all 3: 2 sections = 110 routes, 3 = 108, 4 = 19, 5 = 
 | 422 | Meadowbottom (village) | Baobab Inn (haven) | grassland | 2 | 1 |
 | 423 | Summitglen (village) | The Great Migration (wonder) | grassland | 2 | 1 |
 | 424 | Meadowden (village) | Coffee Ceremony Hut (wonder) | mountain | 3 | 8 |
-| 425 | Clovergate (village) | Snowcrown Peak (lair) | mountain | 4 | 14 |
+| 425 | Clovergate (village) | Snowcrown Peak (lair) | mountain | 5 | 14 |
 | 426 | Meadowbottom (village) | Flamingo Shallows (wonder) | wetland | 3 | 8 |
 | 427 | Summitglen (village) | Fynbos Fire Trails (delve) | desert | 4 | 20 |
+| 480 | Pinecombe (village) | Echoford (village) | mountain | 3 | 1 |
+| 481 | Echoford (village) | Thornacre Savanna Market (town) | grassland | 3 | 1 |
 
 ## Thornacre Savanna -> Spicepeak (1 routes, 3 sections)
 
