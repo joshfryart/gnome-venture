@@ -363,11 +363,15 @@ function tea_brew(array $u, array $slugs, bool $confirm = false): array
         return [false, $e->getMessage(), $cup];
     }
     $unlocked = tea_kettle_unlocks($uid);
+    require_once __DIR__ . '/stop_mark_hooks.php';
+    $back = mark_charges_fire($uid, 'first_tea_brewed', mark_ctx_here($uid)) ? $have[$cup['parts'][0]]['item'] : null;   // A2 lasting marks: one ingredient back
+    if ($back) give_item($uid, (int)$back['id'], 1);
     $bt = tea_buff_text($cup['buff']);
     $msg = '🫖 You brew a cup of ' . $cup['name'] . ' and drink it warm. ' . ($bt !== '' ? $bt . ' until you sleep.' : 'It is pleasant, but too weak for a boost.');
     if ($old) $msg = '🫖 You pour out the ' . $old['name'] . '. ' . substr($msg, strlen('🫖 '));
     if ($new) { $j = tea_journal($uid); $msg .= ' New in your Tea Journal: ' . $cup['name'] . ' (' . $j['n'] . ' of ' . $j['total'] . ').'; }
     foreach ($unlocked as $k) $msg .= ' Your journal earns you the ' . $k . '!';
+    if ($back) $msg .= ' 🏅 A lasting mark: your ' . $back['name'] . ' is back in the satchel.';
     return [true, $msg, $cup];
 }
 

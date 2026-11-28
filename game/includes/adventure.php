@@ -240,6 +240,8 @@ function start_expedition(array $u, int $routeId): array
     require_once __DIR__ . '/trail_tiles.php';   // graphical navigation 2d
     $trail = trail_on();   // tile walk: one energy to step on, the rest of the Trail is free; a timer walk is unchanged
     $cost = $trail ? trail_base_cost($u, $route) : route_energy($u, $route);
+    $mkWalk = mark_charges_ready((int)$u['id'], 'first_walk_from_to_the_stop', mark_ctx_walk((int)$here['id'], $to, (int)$route['id']));   // A1/A3 lasting marks: taken once the walk starts
+    $cost = mark_charge_energy($mkWalk, $cost);
     $staffWear = null;
     $roadFree = $cost === 0;   // v0.9.1: a Master Wayfinder's road walk is already free
     if ($cost > 0 && staff_free((int)$u['id'])) {   // v0.7.30: the walking staff carries you (v0.7.86: and wears a little); v0.9.1: a free walk doesn't touch the staff
@@ -288,8 +290,11 @@ function start_expedition(array $u, int $routeId): array
     $rkScene = $trail && trail_scene_make((int)$u['id'], $newExp, $route, (int)$route['b_id'] === (int)$here['id'] && (int)$route['a_id'] !== (int)$here['id']);
     if ($rkScene) q('UPDATE expeditions SET steps_total = ?, arrive_at = ? WHERE id = ?', [trail_sections($route), now(), $newExp]);   // 2d: sections instead of steps and minutes
     if ($rkDefer && !$rkScene) { gclock_charge((int)$u['id'], 'travel', $rkSecs); }   // no tile map to ask the toll on: the plain road's time
+    $mkTaken = mark_charges_take((int)$u['id'], $mkWalk);
+    $mkLess = count(array_filter($mkTaken, fn($p) => $p['family'] === 'A1'));
+    $mkNote = implode('', array_map(fn($l) => ' 🏅 ' . $l . '.', array_merge($mkLess ? [$mkLess . ' energy less (a lasting mark)'] : [], mark_charge_lines($mkTaken))));
     return [true, '🍄 You step onto the mycelium. ' . ($quickWalk && !$quick ? '💨 Quick walk. ' : '') . ($cost ? '(−' . $cost . ' energy)' : ($roadFree ? '🧭 A Wayfinder knows the road: no energy used.' : '🦯 Your staff makes light work of it: no energy used.'))
-        . ($staffWear ? ' ' . $staffWear : '') . ($rkNote !== '' ? ' ' . $rkNote : '')];
+        . ($staffWear ? ' ' . $staffWear : '') . ($rkNote !== '' ? ' ' . $rkNote : '') . $mkNote];
 }
 
 /** v1.9.0: how many log lines to keep: the usual 25, or 160 while a fight is on (the whole fight, for "Show all"). */

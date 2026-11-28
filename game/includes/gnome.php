@@ -649,6 +649,7 @@ function eat_item(array $u, int $itemId, ?bool $confirm = null): array
         give_item($uid, $scrapId, $scraps);
         $msgs[] = '♻️ +' . $scraps . ' Food Scrap' . ($scraps === 1 ? '' : 's') . '.';
     }
+    if ($item['category'] === 'food') foreach (mark_charge_lines(mark_charges_fire($uid, 'first_dish_eaten_cooked_at_the_stop', mark_ctx_here($uid))) as $m) $msgs[] = '🏅 ' . $m;   // A3 lasting marks
     if ($mastLine !== '') $msgs[] = $mastLine;
     if ($rankLine !== '') $msgs[] = $rankLine;
     db()->commit();

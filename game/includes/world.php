@@ -288,6 +288,8 @@ function travel_to(array $u, int $regionId): array
     $energy = max(0, $energy - calling_perk($u, 'fast_travel_energy_minus'));
     $mkFrom = mark_ctx_here((int)$u['id']);   // lasting marks: a fast travel starts where the gnome stands
     $cost = mark_less($cost, mark_fx((int)$u['id'], 'travel', $mkFrom));   // F18 fast travel cost
+    $mkFt = mark_charges_ready((int)$u['id'], 'fast_travel', $mkFrom);   // A1 lasting marks: 1 energy less, taken once the travel is paid
+    $energy = mark_charge_energy($mkFt, $energy);
     db()->beginTransaction();
     $market = q_val("SELECT id FROM locations WHERE region_id = ? AND kind = 'market' ORDER BY id LIMIT 1", [$target['id']]);
     if (q('UPDATE users SET coins = coins - ?, energy = energy - ?, location = ?, location_id = ?, arrived_at = ? WHERE id = ? AND coins >= ? AND energy >= ?',
@@ -306,6 +308,7 @@ function travel_to(array $u, int $regionId): array
             $find = ' 🧭 On the way you find some wild ' . $seed['name'] . '!';
         }
     }
+    if (mark_charges_take((int)$u['id'], $mkFt)) $find .= ' 🏅 A lasting mark saved you 1 energy.';
     record_region_visit((int)$u['id'], (int)$target['id']);
     db()->commit();
     calling_event((int)$u['id'], 'travel', (string)$target['code'], 1);   // v0.9.4 N4: a fast travel
@@ -391,8 +394,9 @@ function buy_from_shop(array $u, int $stockId, int $qty): array
         return [false, 'You can’t afford ' . $qty . ' × ' . $s['name'] . ' (' . number_format($cost) . ' ' . setting('currency_name') . ').'];
     }
     give_item((int)$u['id'], (int)$s['item_id'], $qty);
+    $mkLine = mark_buy_charges((int)$u['id'], (int)$s['sid'], (int)$s['item_id'], (string)$s['item_category'], (string)$s['name']);   // A3 lasting marks: one extra
     db()->commit();
-    return [true, "You buy $qty × {$s['name']} for " . number_format($cost) . ' ' . setting('currency_name') . '.', $cost, (string)$s['name']];
+    return [true, "You buy $qty × {$s['name']} for " . number_format($cost) . ' ' . setting('currency_name') . '.' . ($mkLine !== '' ? ' ' . $mkLine . '.' : ''), $cost, (string)$s['name']];
 }
 
 /** What a player pays in a shop: Charm, then any friendship discount with the staff (v0.7.13). */
@@ -568,7 +572,8 @@ function sell_to_shop(array $u, int $itemId, int $qty, int $shopId = 0): array
     }
     $total += min($room, mark_more($total, $mk));
     q('UPDATE users SET coins = coins + ? WHERE id = ?', [$total, $u['id']]);
-    $mkLine = mark_coins_line(mark_coins_on((int)$u['id'], 'first_sale_at_the_stops_stall', $mkCtx));   // A4: a stall's first sale of the game day
+    $mkLine = implode('. ', array_filter(array_merge([mark_coins_line(mark_coins_on((int)$u['id'], 'first_sale_at_the_stops_stall', $mkCtx))],   // A4: a stall's first sale of the game day
+        array_map(fn($l) => '🏅 ' . $l, mark_charge_lines(mark_charges_fire((int)$u['id'], 'first_sale_at_the_stops_stall', $mkCtx))))));   // A3: the stallholder adds something
     db()->commit();
     calling_event((int)$u['id'], 'sell', (string)$item['slug'], $qty, ['cat' => (string)$item['category'], 'coins' => $total]);   // v0.9.4 N6: sold to a shop
     return [true, "You sell $qty × {$item['name']} for " . number_format($total) . ' ' . setting('currency_name') . '.' . ($mkLine !== '' ? ' ' . $mkLine . '.' : ''), $total, (string)$item['name']];

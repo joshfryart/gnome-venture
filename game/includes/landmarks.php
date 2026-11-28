@@ -237,6 +237,12 @@ function wonder_try(array $u, int $lmId, string $stat): array
     $roll = random_int(1, 20);
     $total = $roll + eff_mod($u, $stat) + calling_perk($u, 'wonder_bonus');   // v0.9.1: Seedkeepers read wonders better
     $lines = [GNOME_STATS[$stat][0] . ' ' . $total . ' vs ' . $dc];
+    require_once __DIR__ . '/stop_mark_hooks.php';
+    if ($total < $dc && mark_hooks_on() && mark_charges_fire($uid, 'failed_check_at_a_wonder', ['kind' => $stat, 'region' => mark_region_code((int)$lm['region_id'])])) {   // A2 lasting marks: rolled again
+        $roll = random_int(1, 20);
+        $total = $roll + eff_mod($u, $stat) + calling_perk($u, 'wonder_bonus');
+        $lines[] = '🏅 A lasting mark: rolled again, ' . $total;
+    }
     require_once __DIR__ . '/events.php';
     $lvl = (int)$lm['level'];
     if ($total >= $dc) {

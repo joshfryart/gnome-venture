@@ -338,6 +338,10 @@ function tool_use(int $uid, string $type, string $kind = 'use'): ?string
     if ($limit < 1) return null;
     $day = $kind === 'day';
     $iid = (int)$tool['id'];
+    if (!$day && setting('stop_marks_open') === '1') {   // A2 lasting marks: the first wear of the game day skipped
+        require_once __DIR__ . '/stop_mark_hooks.php';
+        if (mark_tool_wear_skipped($uid, $type)) return '🏅 A lasting mark: no wear on your ' . $tool['name'] . ' this time.';
+    }
     if ($day) {
         $today = gclock_my_date();
         $n = q('UPDATE user_items SET wear = wear + 1, wear_day = ? WHERE user_id = ? AND item_id = ? AND qty > 0 AND (wear_day IS NULL OR wear_day <> ?)',

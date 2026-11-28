@@ -244,3 +244,5 @@ function mark_coins_line(int $coins): string
 {
     return $coins > 0 ? '🏅 +' . $coins . ' ' . setting('currency_name') . ' (a lasting mark)' : '';
 }
+
+require_once __DIR__ . '/stop_mark_charges.php';   // part 2: daily charges A1-A3 and flags

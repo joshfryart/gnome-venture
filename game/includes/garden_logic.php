@@ -1330,6 +1330,10 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
             $cost = 0;
             $msgs[] = '🐦 Wren’s tour: that one was on the house (no energy).';
         }
+        if ($cost > 0 && in_array($action, ['weed', 'water'], true) && mark_charges_fire($uid, $action === 'weed' ? 'weeding' : 'watering', [])) {   // A1 lasting marks
+            $cost = 0;
+            $msgs[] = '🏅 A lasting mark: that took no energy.';
+        }
         if ($cost > 0 && !spend_energy($uid, $cost)) {
             throw new UserError('You’re too tired. Rest a bit and your energy will come back.' . tired_hint($uid));
         }
@@ -1411,6 +1415,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
                 break;
             case 'plant':
                 if (!give_item($uid, $itemId, -1)) throw new UserError('You don’t have that seed.');
+                if (!$sapling && mark_charges_fire($uid, 'planting', [])) { give_item($uid, $itemId, 1); $msgs[] = '🏅 A lasting mark: the seed was not used up.'; }   // A2
                 $head = $sapling ? intdiv((int)$np['grow_minutes'] * 60 * (int)setting('sapling_head_start'), 100) : 0;
                 if (q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = ?, growth_updated_at = ?, last_watered = NULL, water_day = NULL, owed_days = 0, grow_day = ' . GCLOCK_OWNER_DAY_SQL . ', harvests = 0, nipped = 0, pest = NULL, pest_at = NULL, pest_check = ?
                        WHERE id = ? AND plant_id IS NULL', [$np['id'], gclock_maint_now((int)$t['plot_id']), $head, now(), gclock_plot_date((int)$t['plot_id']), $t['id']])->rowCount() !== 1) {
@@ -1598,6 +1603,7 @@ function do_harvest(array $u, array $t, array $p, ?string $helper = null, int $c
             [$gt, $mk] = mark_vs_old($uid, 'harvest', mark_ctx_crop($p), 'green_thumb', 'perk_green_thumb');   // F10 lasting marks: the larger of the two
             if ($qty > 0 && $gt > 0 && mt_rand(1, 100) <= $gt) { $qty++; $msgs[] = '🌱 Green Thumb: one extra!'; }   // 2.6.33
             if ($qty > 0 && mark_roll($mk)) { $qty++; $msgs[] = '🏅 A lasting mark: one extra!'; }
+            if ($qty > 0 && mark_charges_fire($uid, 'first_harvest_of_a_named_crop', mark_ctx_crop($p))) { $qty++; $msgs[] = '🏅 A lasting mark: one extra today!'; }   // A3
             $kept = $helper !== null && !$pal ? max(1, (int)floor($qty * (100 - (int)setting('helper_cut_percent')) / 100)) : $qty;   // v2.6.40: a crew pal keeps nothing
             give_item($uid, (int)$p['produce_item_id'], $kept);
             require_once __DIR__ . '/harvest_show.php';

@@ -863,6 +863,7 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
     $msg = '';
     $mkAct = mark_hooks_on() ? mark_ctx_loc((int)$loc['id']) + ['kind' => $kind, 'type' => stop_type_of($loc), 'group' => $energy > 0 ? ['energy'] : []] : [];   // lasting marks: this act
     mark_act_ctx($mkAct);
+    $mkCharge = [];   // lines of the A1-A3 lasting marks taken by this act
     db()->beginTransaction();
     try {
         q('UPDATE users SET id = id WHERE id = ?', [$uid]);   // v1.0.0: one of this gnome's rest-stop actions at a time (their lock), so the once-a-day check below can't be raced
@@ -873,6 +874,7 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
             [$uid, (int)$loc['id'], $slug, $visit, $visit . '#%']);
         db_insert('stop_log', ['user_id' => $uid, 'location_id' => (int)$loc['id'], 'visit_key' => $again ? substr($visit, 0, 19) . '#' . ($again + 1) : $visit,
             'day' => $day, 'act' => $slug, 'kind' => $kind, 'note' => '', 'at' => now()]);
+        [$energy, $mkCharge] = mark_act_charges($uid, $mkAct, $energy);   // A1-A3 lasting marks: the first act / first rest here this game day
         if (!spend_energy($uid, $energy, 'stop')) throw new UserError('You need ' . $energy . ' energy for that.');
         $fresh = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
         $lines = [];
@@ -886,6 +888,7 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
                 [$stat, $dc, $label] = [$opts[$i][0], (int)$opts[$i][1], $opts[$i][2]];
                 [$ok] = stop_check($fresh, $stat, $dc);
                 if (!$ok && mark_roll(mark_fx($uid, 'check', $mkAct))) $ok = true;   // F16 lasting marks: a kinder check
+                if (!$ok && mark_charges_fire($uid, 'failed_stop_check_re_roll', $mkAct)) [$ok] = stop_check($fresh, $stat, $dc);   // A2 lasting marks: rolled again
                 $lines = stop_rewards($fresh, $loc, $ok ? $win : $lose, 1.0, $seed);
                 $msg = $icon . ' ' . ($ok ? ($lineWin !== '' ? $lineWin : 'It goes well.') : ($lineLose !== '' ? $lineLose : 'It doesn’t go your way.'));
                 $note = $stat . ($ok ? ' ok' : ' miss');
@@ -1086,10 +1089,15 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
     }
     $mkCoins = mark_coins_on($uid, 'first_act_of_a_kind_at_the_stop', $mkAct) + ($kind === 'rest' ? mark_coins_on($uid, 'first_rest_act_at_the_stop', $mkAct) : 0);   // A4 lasting marks
     if ($mkCoins > 0) $lines[] = mark_coins_line($mkCoins);
+    $lines = array_merge($lines, $mkCharge);
     if ($folk) {   // a little chat tag so the villager appears in the text sometimes
         $msg = trim($msg);
     }
     if ($kind !== 'thread' || stop_marks_active($uid)) $lines = array_merge($lines ?? [], stop_living_after($u, $loc, $a, $note));   // v2.5.72: the place remembers (lasting marks: a thread beat feeds its bar too)
+    if ($kind === 'contest' && $note === 'miss' && mark_charges_fire($uid, 'lost_contest_replay', $mkAct)) {   // A2 lasting marks: a lost contest can be played again today
+        q('DELETE FROM stop_log WHERE user_id = ? AND location_id = ? AND act = ? AND day = ?', [$uid, (int)$loc['id'], $slug, $day]);
+        $lines[] = '🔁 You can play it again today (a lasting mark)';
+    }
     calling_event($uid, 'townact', 'stop:' . $slug, 1, ['stop' => (string)$loc['slug']]);
     return [true, trim($msg . ($lines ? ' (' . implode(', ', $lines) . ')' : ''))];
 }

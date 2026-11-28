@@ -201,9 +201,11 @@ function stop_gift(array $u, array $loc, int $folkId, int $itemId): array
     $pts = (int)round($pts * (1 + 0.08 * max(0, eff_mod($u, 'charm'))));
     require_once __DIR__ . '/stop_mark_hooks.php';
     $pts += mark_friend_extra($uid, mark_ctx_loc((int)$loc['id']) + mark_ctx_item($itemId));   // F14 lasting marks
+    $kept = (bool)mark_charges_take($uid, array_filter(mark_charges_ready($uid, 'first_gift_to_the_stops_folk', mark_ctx_loc((int)$loc['id'])), fn($p) => mark_charge_item_ok($p, (string)$item['category'])));
+    if ($kept) give_item($uid, $itemId, 1);   // A2 lasting marks: the first gift here this game day is not used up
     $before = stop_friend_points($uid, $folkId);
     $new = stop_friend_add($uid, $folkId, $pts);
-    return [true, npc_icon($folk['species']) . ' ' . $folk['name'] . ' takes the ' . $item['name'] . ' with a grateful smile. (💛 +' . ($new - $before) . ')'];
+    return [true, npc_icon($folk['species']) . ' ' . $folk['name'] . ' takes the ' . $item['name'] . ' with a grateful smile. (💛 +' . ($new - $before) . ')' . ($kept ? ' 🏅 A lasting mark: you still have yours.' : '')];
 }
 
 // ---------------------------------------------------------------- errands
