@@ -270,7 +270,7 @@ endif; ?>
           <?php foreach (GNOME_STATS as $k => [$nm, $ic]):
               $base = (int)$u['stat_' . $k]; $tot = eff_stat($u, $k); $mod = stat_mod($tot); ?>
             <li class="<?= $k === $selK ? 'on' : '' ?>">
-              <a href="<?= e($gurl('stats', ['s' => $k])) ?>" data-inplace><span class="sn"><span aria-hidden="true"><?= $ic ?></span> <b><?= e($nm) ?></b></span> <span class="sc"><?= $tot ?></span> <span class="statmod"><?= $k === 'luck' ? rtrim(rtrim(number_format(luck_percent($u), 3), '0'), '.') . '%' : ($mod >= 0 ? '+' : '') . $mod ?></span></a>
+              <a href="<?= e($gurl('stats', ['s' => $k])) ?>" data-inplace><span class="sn"><span aria-hidden="true"><?= $ic ?></span> <b><?= e($nm) ?></b></span> <span class="sc"><?= $tot ?></span><?php if ($tot !== $base): ?> <small class="sbd muted" title="Your own points, plus boosts">(<?= $base ?><?= $tot > $base ? ' +' : ' ' ?><?= $tot - $base ?>)</small><?php endif; ?> <span class="statmod"><?= $k === 'luck' ? rtrim(rtrim(number_format(luck_percent($u), 3), '0'), '.') . '%' : ($mod >= 0 ? '+' : '') . $mod ?></span></a>
               <?php if ($pts > 0 && $base < $stMax): ?><form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="stat"><input type="hidden" name="stat" value="<?= e($k) ?>"><button class="btn small" aria-label="Add one point to <?= e($nm) ?>">+1</button></form><?php endif; ?>
             </li>
           <?php endforeach; ?>
@@ -279,6 +279,9 @@ endif; ?>
       <?php [$sn, $si, $sdesc, $sgar, $sadv] = GNOME_STATS[$selK]; $sb = eff_stat($u, $selK) - (int)$u['stat_' . $selK]; ?>
       <div class="statsel"><b><?= $si ?> <?= e($sn) ?></b> · <?= e($sdesc) ?>
         <div>🌱 <?= e($sgar) ?></div><div>⚔️ <?= e($sadv) ?></div>
+        <?php $sp = eff_stat_parts($u, $selK); ?>
+        <div class="sbreak"><b>Base <?= (int)$sp['base'] ?></b> <span class="muted">(your own points)</span><?php foreach ($sp['parts'] as [$pl, $pn]): ?><br><span class="good"><?= $pn > 0 ? '+' : '' ?><?= (int)$pn ?></span> <?= e($pl) ?><?php endforeach; ?><?php if ($sp['parts']): ?><br><b>= <?= (int)$sp['total'] ?></b> <span class="muted">now</span><?php endif; ?></div>
+        <?php require_once __DIR__ . '/includes/pfdeck.php'; if (function_exists('pfd_statpieces_open') && pfd_statpieces_open($u) && in_array($selK, ['nimble', 'lore', 'luck', 'sense'], true)): ?><div class="muted">🧩 Stat pieces unlock from your base points (<?= (int)$sp['base'] ?>), not boosts. Boosts make the pieces you own stronger.</div><?php endif; ?>
         <div class="muted">🍴 food bonus <?= (int)($food[$selK] ?? 0) ?>/<?= $cap ?><?= $sb ? ' · <span class="good">+' . $sb . ' from a boost</span>' : '' ?></div></div>
       <h3 id="effects">✨ Active effects</h3>
       <?php $fx = active_effects($u); if ($fx): ?>

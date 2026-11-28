@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.90
+- **Gnome page: base stat and boosts shown plainly.** A boosted stat reads `18 (12 +6)` in the list, and the chosen stat has a breakdown: `Base 12 (your own points)`, then each boost by name (Meal, Second meal, Lucky moment, Town outing, Cup of tea) and the total. With stat pieces on, it says they unlock from base points, not boosts. New `eff_stat_parts()` (always adds up to `eff_stat()`; test `tests/stat_parts.sh`).
+
 ## 2.8.89
 - Version bump only: the style sheet and scripts are linked with `?v=<version>`, so a new number makes a host cache that kept an old `style.css` fetch the new one.
 

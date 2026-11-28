@@ -219,6 +219,25 @@ function eff_stat(array $u, string $stat): int
     return (int)($u['stat_' . $stat] ?? 10) + (int)(active_buff($u)[$stat] ?? 0) + $ev + $tw + gnome_ev2_amt($u, $stat) + (int)(gnome_tea_buff($u)[$stat] ?? 0);
 }
 
+/** Where a stat's number comes from right now: ['base' => own points, 'parts' => [[label, amount], ...], 'total' => base + parts]. Same sources as eff_stat() (which stays the one the game uses). */
+function eff_stat_parts(array $u, string $stat): array
+{
+    $parts = [];
+    $add = function (string $label, int $n) use (&$parts): void { if ($n !== 0) $parts[] = [$label, $n]; };
+    $first = true;
+    foreach ([['buff', 'buff_until'], ['buff2', 'buff2_until']] as [$b, $until]) {
+        if (empty($u[$b]) || ts_gnome($u[$until] ?? null) <= time()) continue;
+        $n = (int)((json_decode((string)$u[$b], true) ?: [])[$stat] ?? 0);
+        $add($first ? 'Meal' : 'Second meal', $n); $first = false;
+    }
+    $add('Lucky moment', (!empty($u['ev_stat']) && ($u['ev_stat'] === $stat || ($u['ev_stat'] === 'all' && isset(GNOME_STATS[$stat]))) && ts_gnome($u['ev_until'] ?? null) > time() && !gnome_ev_slept($u)) ? (int)$u['ev_amt'] : 0);
+    $add('Town outing', (!empty($u['town_stat']) && $u['town_stat'] === $stat && ts_gnome($u['town_until'] ?? null) > time()) ? (int)$u['town_amt'] : 0);
+    $add('Second lucky moment', gnome_ev2_amt($u, $stat));
+    $add('Cup of tea', (int)(gnome_tea_buff($u)[$stat] ?? 0));
+    $base = (int)($u['stat_' . $stat] ?? 10);
+    return ['base' => $base, 'parts' => $parts, 'total' => $base + array_sum(array_column($parts, 1))];
+}
+
 /** The Hovel kettle: the day key a cup is drunk on (users.tea_day): the game day while the game clock is on, else the Hollow date. */
 function gnome_tea_day(array $u): string
 {

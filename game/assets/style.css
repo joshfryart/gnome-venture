@@ -9091,3 +9091,5 @@ label.check input[type=checkbox] { width: 24px; height: 24px; flex: none; }
 .mk-plaque { margin: 4px 0; font-style: italic; }
 .mk-flags { display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 4px 0; }
 .mk-flag { cursor: help; }
+.statlist .sbd { font-size: .8em; white-space: nowrap; }   /* 2.8.90: "(12 +3)" next to a boosted stat */
+.statsel .sbreak { margin: 4px 0; }
