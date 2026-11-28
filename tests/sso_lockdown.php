@@ -1,6 +1,6 @@
 <?php
 // Private test site lockdown + SSO from the main site (includes/lockdown.php): tokens are built with the same helpers sso_issue.php uses and
-// checked with sso_accept() (what sso.php runs) against a test-site config array, so one install plays both sites.
+// checked with sso_accept() (what mainlogin.php runs) against a test-site config array, so one install plays both sites.
 // Valid token logs in (and makes the admin on first sign-on); wrong signature, expired, future, wrong aud, wrong email, replay, tampering,
 // non-admin account and open-redirect targets are all refused. Run by sso_lockdown.sh on a walk.sh install: php tests/sso_lockdown.php GAME
 $_SERVER['SCRIPT_NAME'] = '/index.php';

@@ -5,10 +5,10 @@ declare(strict_types=1);
  *
  * The same code runs on both sites. What a copy does is set in two places:
  *  - main site (gnomeventure.ca): Game settings sso_secret (blank = off: sso_issue.php is a 404) and sso_targets (allowed test hosts).
- *    sso_issue.php gives a logged-in admin a short-lived signed token and sends the browser to https://<target>/sso.php?t=<token>.
+ *    sso_issue.php gives a logged-in admin a short-lived signed token and sends the browser to https://<target>/mainlogin.php?t=<token>.
  *  - test site: config.php keys written by install.php: 'lockdown' => 'sso' | 'admin', 'lockdown_email', 'sso_secret', 'sso_main'.
  *    lockdown_gate() (called from bootstrap right after the current user is loaded, never on the command line) lets nobody but the
- *    admin with lockdown_email past login.php / sso.php / logout.php. sso.php checks the token and logs that admin in.
+ *    admin with lockdown_email past login.php / mainlogin.php / logout.php. mainlogin.php checks the token and logs that admin in.
  *
  * Token: base64url(JSON payload) . '.' . base64url(HMAC-SHA256(base64url(JSON payload), secret)).
  * Payload: {v:1, email, username, nonce (16 random bytes, hex), iat, exp = iat + 60, aud = the target host}.
@@ -17,7 +17,7 @@ declare(strict_types=1);
 const SSO_TTL = 60;           // seconds a token lives
 const SSO_SKEW = 30;          // clock difference allowed between the two servers
 const SSO_MIN_SECRET = 32;    // a shorter secret counts as not set
-const LOCKDOWN_OPEN_PAGES = ['sso.php', 'login.php', 'logout.php'];
+const LOCKDOWN_OPEN_PAGES = ['mainlogin.php', 'login.php', 'logout.php'];
 const LOCKDOWN_404_PAGES = ['register.php', 'guest.php', 'forgot.php', 'reset.php', 'verify.php'];
 const LOCKDOWN_ROBOTS = "# Private test site: nothing here is for search engines.\nUser-agent: *\nDisallow: /\n";
 
@@ -219,7 +219,7 @@ function sso_local_admin(array $p): array
 }
 
 /**
- * Test site: the whole check for sso.php, without sending anything. $conf = config.php. Returns [user, ''] or [null, reason].
+ * Test site: the whole check for mainlogin.php, without sending anything. $conf = config.php. Returns [user, ''] or [null, reason].
  * The caller logs the user in (log_in_user) and redirects.
  */
 function sso_accept(string $token, string $host, ?array $conf = null, ?int $now = null): array

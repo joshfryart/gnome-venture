@@ -7,7 +7,7 @@ The same code runs on two sites:
   pressing **Sign in with gnomeventure.ca** (single sign-on, SSO). There is no password form on the test site.
 
 How it works: the main site's `sso_issue.php` gives a logged-in admin a signed token that lives 60 seconds and sends
-the browser to `https://test.gnomeventure.ca/sso.php?t=<token>`. The test site checks the signature (HMAC-SHA256 with a
+the browser to `https://test.gnomeventure.ca/mainlogin.php?t=<token>`. The test site checks the signature (HMAC-SHA256 with a
 shared secret), the time, that the token is for its own host name, that the email is the one it was installed for,
 and that the token has not been used before. Then it logs that admin in. Code: `game/includes/lockdown.php`.
 
@@ -77,7 +77,7 @@ Between steps 2 and 3 sign-in does not work; that is all. To switch SSO off on t
 
 What the lockdown does:
 
-- Every PHP page except `login.php`, `sso.php` and `logout.php` needs the admin whose email is `lockdown_email`.
+- Every PHP page except `login.php`, `mainlogin.php` and `logout.php` needs the admin whose email is `lockdown_email`.
   Anyone else gets a redirect to `login.php` (GET) or a 403 (POST and ajax). A session of any other account is signed out.
 - `register.php`, `guest.php`, `forgot.php`, `reset.php` and `verify.php` answer 404. The login page has no password form
   (SSO mode) and POSTs to it are refused.

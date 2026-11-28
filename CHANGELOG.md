@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.88
+- **Test-site sign-in page renamed** from `sso.php` to `mainlogin.php`: on one host a firewall reset every request to a file called `sso.php`. Nothing else changes.
+
 ## 2.8.87
 - **Test-site sign-in sends the token by POST.** `sso_issue.php` now shows a small page that posts the signed token to the test site's `sso.php` (script `sso_go.js` submits it; a button is there if scripts are off). Before, the token rode in the address, and some hosts' firewalls reset the connection on a long query string. `sso.php` reads the POST first and still accepts the old `?t=` form. Test `sso_lockdown`.
 
