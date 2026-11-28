@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.91
+- Version bump so the upgrade step creates `first_week_ticks` (2.8.90's changes ship in this build too: Gnome page base + boosts, First Week goals stay ticked).
+
 ## 2.8.90
 - **Gnome page: base stat and boosts shown plainly.** A boosted stat reads `18 (12 +6)` in the list, and the chosen stat has a breakdown: `Base 12 (your own points)`, then each boost by name (Meal, Second meal, Lucky moment, Town outing, Cup of tea) and the total. With stat pieces on, it says they unlock from base points, not boosts. New `eff_stat_parts()` (always adds up to `eff_stat()`; test `tests/stat_parts.sh`).
 - **First Week goals stay ticked.** A goal that was ever met is written down (`first_week_ticks`) and never un-ticks, so re-marking Almanac pages unread (the one-time page rewrites do that), or removing a pot or decoration later, cannot take a tick away. Fixes "read three Almanac pages" not counting. Test `tests/first_week_latch.sh`.
