@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.98
+- **Map v2: a Puzzle Pal waiting at a place shows its own picture.** It was a small 🧩 text mark. It is now the pal's picture in a ring by rarity (grey common, blue uncommon, gold dashed rare), about 20 units across (the size of the place dot), drawn over the place's dot on region maps (stops and places off the road); the hover title names the pal. Same marker the older map uses (`ppal_marker_svg`).
+
 ## 2.8.97
 - **Map v2 region map was tiny on a desktop.** Inside the page's grid the map box had `width: auto` with auto side margins, so it shrank to about 314 px. It is now full width up to 980 px, and the pan and zoom viewport is a little taller (620 px, 72% of the screen). Phones held upright are unchanged. A phone on its side (screen shorter than 520 px): the map fills the height above the bottom bar and the list sheet is a side panel on the right (it covered most of the map before); the zoom buttons move to the left.
 

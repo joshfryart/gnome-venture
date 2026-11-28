@@ -650,7 +650,7 @@ function region_map2_svg(array $M): string
             if (isset($M['plots'][$id])) $inner .= '<text x="9" y="-6" text-anchor="middle" font-size="9">' . ($id === $M['home'] ? '🏡' : '🌱') . '</text>';
             if (isset($M['ruins'][$id])) $inner .= '<text x="-9" y="-6" text-anchor="middle" font-size="8">🏚️</text>';
         }
-        if (isset($M['pp'][$id]) && !$isMe) $inner .= '<text x="9" y="9" text-anchor="middle" font-size="9"><title>A Puzzle Pal waits here</title>🧩</text>';
+        if (isset($M['pp'][$id]) && !$isMe) $inner .= map2_pal($M['pp'][$id], 10);
         if ($isMe) $inner .= $hat;
         $label = $f ? $nm . ', ' . (MAPV2_KIND_WORD[$k] ?? 'Place') . ' off the road' : 'A place not found yet';
         $cls = 'rmp mv2-p k-' . $k . ($f ? ' found' : ' unfound') . ($near === $sel && $sel ? ' on' : '') . ($isMe ? ' here' : '') . (isset($onRoute[$id]) ? ' onroute' : '') . ($id === (int)$M['at'] ? ' at' : '');
@@ -687,7 +687,7 @@ function region_map2_svg(array $M): string
             . '<circle class="dot" r="' . ($isTown ? 8.4 : 6.6) . '" fill="' . ($isTown ? '#f0c85a' : ($seen ? '#f4ead0' : '#4a3626')) . '" stroke="' . ($isSel ? '#ffe38a' : '#14110a') . '" stroke-width="' . ($isSel ? 2.4 : 1.6) . '"/>'
             . (!$seen ? '<text y="2.6" text-anchor="middle" font-size="7">❔</text>' : '')
             . (isset($M['plots'][$id]) ? '<text x="8" y="-5" text-anchor="middle" font-size="9">' . ($id === $M['home'] ? '🏡' : '🌱') . '</text>' : '')
-            . (isset($M['pp'][$id]) && !$isMe ? '<text x="8" y="9" text-anchor="middle" font-size="9"><title>A Puzzle Pal waits here</title>🧩</text>' : '')
+            . (isset($M['pp'][$id]) && !$isMe ? map2_pal($M['pp'][$id], 11) : '')
             . ($nm !== '' && ($isTown || $list || $isSel) ? map2_plate(max(38 - $x, min($W - 38 - $x, 0)), -12.6, $nm, 7.8, $isSel ? '#ffe38a' : '#f4ead0') : '')
             . ($isMe ? $hat : '');
         $label = $nm !== '' ? $nm : 'A stop on the road you have not visited yet';
@@ -861,4 +861,12 @@ function map_v2_report(): array
         $o[] = $code . ': picture ' . ($pic ? 'found' : 'MISSING') . ', roads ' . ($sig ? 'match' : 'DO NOT match') . ' -> ' . (map_v2_region_on($code) ? 'new map ON' : 'old map');
     }
     return $o;
+}
+
+/** 2.8.98: a Puzzle Pal waiting at a place: its own picture in a rarity ring (grey, blue, gold), $r units out, drawn over the place's dot. */
+function map2_pal(array $sp, int $r = 15): string
+{
+    require_once __DIR__ . '/puzzle_pals.php';
+    $name = (string)($sp['pal']['name'] ?? 'A Puzzle Pal');
+    return '<g class="mv2-pal"><title>' . e($name) . ' waits here</title>' . ppal_marker_svg($sp, '', $r) . '</g>';
 }
