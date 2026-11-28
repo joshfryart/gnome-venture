@@ -1,0 +1,137 @@
+# What the side quests of Wren's Journey v2 give the first time (2026-11-28; claude/proposal-story-2-quests.md 4.2 and 5.2). Named by the
+# `extra` field of journey_errands.txt and stop_threads_v2.txt (unlock=place:slug, theme:, recipe:, tea:, shop:, page=slug) and by carried
+# items in their steps. Data for journey_v2_open, read by includes/quest_data.php (journey_extras()): nothing here exists in the game while
+# the setting is off, and nothing is imported into recipes, teas, landmarks or stop themes until the errands engine grants it.
+# Each row keeps the columns of the file it will be imported into, so the import is a copy. No pipe inside a field.
+#
+# PLACE  | slug | region | zone # | type (haven or wonder) | Gnomish name | flavour                    (landmarks.txt + slug; hidden until unlocked)
+# THEME  | variant slug | stop types | tier | name | icon | what it gives everybody | plaque line       (stop_tier_themes.txt; needs = the default
+#                                                                                                        row's: a look and words, never a new power)
+# RECIPE | slug | Dish name | ingredients | meal buff | buff minutes | energy | description | tier | cook minutes      (recipes.txt)
+# TEA    | slug | Name | components | note                                                              (teas.txt)
+# SHOP   | slug | region | goods name | what the tier 2 stalls of the area say about it                 (one more line of goods at the area's stalls)
+# PAGE   | slug | title | text                                                                          (an Almanac page; counts for the Standing "pages" row)
+# ITEM   | slug | Name | what it is                                                                     (carried for an errand, never sold or kept)
+# Counts (lint): 13 places, 16 themes (the 12 of the quests doc + 4 that stand in for the dropped Puzzle Pal extras), 13 recipes (the 14th,
+# three-sisters-stew, is in recipes.txt already), 4 teas, 11 stall lines.
+
+# ---------------------------------------------------------------- secret places (13)
+PLACE|drowned-paddy-boardwalk|NA|5|wonder|The Drowned Paddy Boardwalk|An old plank walk under a hand of water, running out through the reeds to the middle of the paddy. Herons use it.
+PLACE|walkers-bivouac|NA|6|haven|The Walkers' Bivouac|A flat place behind the cairns, out of the wind, with a ring of stones for a fire. Somebody has slept here, not long ago.
+PLACE|the-second-echo|CA|3|wonder|The Second Echo|A dry gallery under the Cenote where two wells' voices meet. Say something. It will be passed on.
+PLACE|cinder-lee|CA|4|haven|Cinder Lee|A hollow under a ledge on the Ash Road, out of the ash wind. Room for a mule train, a fire and one polite vulture.
+PLACE|the-inner-ring|NWE|2|wonder|The Inner Ring|A second fairy ring a hand across, in the middle of the first. The grass inside is a different green.
+PLACE|the-upper-pool|SA|3|wonder|The Upper Pool|A still pool up a channel no ferry could find, with one old lantern post standing in the water. The dolphins bring the post here.
+PLACE|the-top-terrace|SE|2|haven|The Top Terrace|One last terrace at the head of the Goat Path, with a stone bench and the whole Shore under it. The vine got here first.
+PLACE|the-ninth-well|MENA|4|haven|The Ninth Well|A well the caravans kept to themselves, a day past the last stop. They wait here until the road ahead is lit.
+PLACE|the-wind-hermitage|CSA|4|haven|The Wind Hermitage|A hut the size of a cupboard above the shrine, at the end of a string of flags. The lamp in its window is always trimmed.
+PLACE|the-listening-hollow|WCA|3|wonder|The Listening Hollow|A hollow under the roots of the Storyteller's Tree where every word from the Platform comes down clear. Children knew.
+PLACE|clovercove-overlook|EA|2|wonder|Clovercove Overlook|A gap in the brambles at the bend of the closed road. Below: a valley, a gatehouse with one lit window, and a lamp you know.
+PLACE|the-quiet-reach|SEA|2|haven|The Quiet Reach|A backwater below the last bend where the festival lanterns come to rest, still lit. Somebody has been collecting them.
+PLACE|the-fourth-atoll|OC|1|wonder|The Fourth Atoll|An islet out past the ring that was on the grandmothers' charts and no others. One palm, one post, good holding ground.
+
+# ---------------------------------------------------------------- stop themes (16): cosmetic variants an adopter who has one can pick
+THEME|lantern-glass-post|jetty,ferry|1|Lantern-glass post|🏮|A post to sit under (+3 energy), with the old lighthouse glass round its lamp.|A lamp behind the Lost Lantern's own glass. Boats can see it.
+THEME|papel-picado-awning|market|1|Cut-paper awning|🎏|A shady spot to rest (+3 energy) under strings of cut paper.|An awning of cut paper that throws small bright shapes on everyone.
+THEME|shell-lamp-post|tower|1|Shell lamp post|🐚|A bench at the tower foot (+3 energy), its lamp set in a spiral shell.|A lamp in a shell. The crab comes up on clear nights to look at it.
+THEME|carved-prow-jetty|jetty|1|Carved-prow pier|🛶|A pier end to sit on (+3 energy), with a carved prow for an end post.|A pier with a python for a prow, out of respect.
+THEME|kite-mast-tower|tower|1|Kite mast|🪁|A bench at the tower foot (+3 energy), under a mast with a kite on it.|A kite on a long line. It says "good morning" to the next isle.
+THEME|painted-shutters|market,inn|2|Painted shutters|🥚|The same stall, behind shutters painted like the eggs.|Shutters painted to match an egg in the window. It is catching.
+THEME|shade-sail-bench|spring,camp|1|Shade-sail bench|⛵|A bench to rest on (+3 energy) under four poles and two water-skins.|A bench under a sail of water-skins. Its keeper looks like the owner of a ship.
+THEME|lotus-garlands|market|1|Lotus garlands|🪷|A shady spot to rest (+3 energy), every post hung with lotus.|A garland on every post, and one on the boatman's dog.
+THEME|drum-ring-fire|camp|1|Drum-ring fire|🪘|A fire to rest by (+3 energy), ringed with flat stones for sitting.|A ring of stones round the fire. Nobody remembers putting them there.
+THEME|moss-lantern-path|shrine|1|Moss lantern path|🏯|A quiet step to rest on (+3 energy), by a stone lantern in the moss.|A small stone lantern where the salamander's head was.
+THEME|boat-stall|jetty,ferry|2|Boat stall|🚣|The same stall, moored to the jetty with its scales aboard.|A stall that is a boat. Mind the step. There is no step.
+THEME|glow-lamp-post|camp,jetty|1|Glow lamp post|✨|A post to sit under (+3 energy) that glows soft green with no flame in it.|A post rubbed with grotto moss. It glows on its own, and counts.
+THEME|heron-toll-post|herb,ferry,jetty|1|Heron's toll-post|🪶|A post to sit under (+3 energy), with a heron on it most days.|The old toll-post. The toll was always a fish. It has been paid.
+THEME|goat-bell-post|camp|1|Goat-bell post|🔔|A fire to rest by (+3 energy), with a goat's bell on the lantern post.|A bell on the post, so the post knows when the fourth goat is home.
+THEME|hatchling-lantern|camp|1|Hatted lantern|🐢|A fire to rest by (+3 energy), its lantern shaded on the seaward side.|A lantern that wears a hat, so the small turtles follow the moon.
+THEME|ostrich-proof-seat|tower|1|Lookout bench for two|🪑|A bench at the tower foot (+3 energy), and a higher one with a rail.|Two seats. The higher one is the ostrich's. Do not discuss it.
+
+# ---------------------------------------------------------------- recipes (13 new; ca-s05 teaches three-sisters-stew of recipes.txt)
+RECIPE|mill-day-apple-loaf|Mill-day Apple Loaf|apple:2,oats:2|hardiness:2,charm:2|240|10|A loaf the size of a hat, with apple all through it. The end is the best bit.|meal|15
+RECIPE|snowshoe-stew|Snowshoe Stew|wild-rice:2,kidney-bean:1,lentil:1|hardiness:3,grit:2|300|11|Thick enough to stand a spoon in, for bathers who took the wrong path.|meal|15
+RECIPE|two-lamp-loaf|Two-lamp Loaf|amaranth:2,barley:2|grit:3,luck:2|300|11|Amaranth from one beacon and barley from the other, baked into one loaf. Eaten standing up.|meal|15
+RECIPE|breadfruit-chips|Breadfruit Chips|breadfruit:2,lime:1|nimble:2,luck:1|180|6|Sliced thin and fried. Most of the plate does not last the ferry back.|snack|3
+RECIPE|salt-flat-flatbread|Salt-flat Flatbread|quinoa:2,cassava:1|hardiness:3,sense:1|240|10|Hot flatbread rubbed with a block of salt. The recipe is "do that".|meal|15
+RECIPE|lemon-olive-bread|Lemon and Olive Bread|olive:2,lemon:1,oregano:1|sense:3,charm:1|240|10|The monastery loaf, with lemon in it and the first pressing on it.|meal|15
+RECIPE|buckwheat-plum-cakes|Buckwheat Plum Cakes|buckwheat:2,plum:2|grit:2,nimble:2|240|10|A buckwheat cake with a plum in the middle, from the batch that is for testing.|meal|15
+RECIPE|rosewater-date-sweets|Rosewater Date Sweets|date:2,sesame:1,pomegranate:1|charm:3,luck:1|240|7|Dates rolled in rosewater and sesame. The bazaar smells of them on a west wind.|snack|3
+RECIPE|fonio-feast-bowl|Fonio Feast Bowl|fonio:3,okra:2,cowpea:2,yam:1|hardiness:4,charm:3|480|24|The smallest grain in the biggest pot. Feeds the hall and two tables outside.|feast|45
+RECIPE|teff-flatbread|Teff Flatbread|teff:3,collard:1|grit:3,hardiness:1|240|10|Sour and soft, torn and passed along the shade bench under the hats.|meal|15
+RECIPE|dried-persimmon|Dried Persimmon|persimmon:5||0|4|Peeled in one go and dried a month under the eaves, white with its own sugar. The method is mostly waiting.|preserve|4320|4
+RECIPE|festival-sticky-rice|Festival Sticky Rice|rice:2,lemongrass:1,longan:1|charm:2,luck:2|240|10|Steamed sweet in a leaf, with one white flower on top that you are not to eat.|meal|15
+RECIPE|taro-leaf-parcels|Taro Leaf Parcels|taro:2,coconut:1|hardiness:3,lore:1|240|10|Taro leaves round a filling, tied with their own stem and left in the earth oven. They take as long as they take.|meal|15
+
+# ---------------------------------------------------------------- teas (4)
+TEA|moor-mist-blend|Moor Mist Blend|meadowsweet,nettle,elderflower|Willow's own blend, for bailing boots and for walking slowly over bridges.
+TEA|jetty-mate|Jetty Mate|yerba-mate,mint|Mate cut with mint for the hot afternoons. Pass it left.
+TEA|caravan-brick-tea|Caravan Brick Tea|tea,cardamom,goat-milk|Shaved off a brick that came down the terraces. It tastes like the road used to.
+TEA|three-cup-ceremony|Three-cup Ceremony|rooibos,clove,cane-syrup|The third cup is the blessing. You are not to leave before it.
+
+# ---------------------------------------------------------------- stall lines (11): one more line of goods at the area's tier 2 stalls
+SHOP|smokehouse-rack|NA|Smoked fish|Smoked on the jetty rack, now that the gulls take only the heads and tails.
+SHOP|chili-strings|CA|Chili strings|A string of chilies over the scales, from the Market of a Thousand Chilies.
+SHOP|heather-honey|NWE|Heather honey|Honey with opinions. It has to be cut with a knife.
+SHOP|smugglers-shelf|NWE|The paid-for shelf|One thing from far off, with a receipt. Dab frames the receipts.
+SHOP|saddle-blanket|SA|Saddle blankets|Striped, from the Gaucho Gnome Ranch. Everything on the ranch is striped.
+SHOP|lavender-sachet|SE|Lavender sachets|Little bags of mill lavender, for folk who have moths of their own.
+SHOP|straw-bed-cover|EE|Straw bed covers|A cover for a garden bed, tucked in at the corners, for the first frost.
+SHOP|yak-wool-blanket|CSA|Yak-wool blankets|Warm enough for a pass, big enough for a rhino.
+SHOP|talking-drum|WCA|Talking drums|A small drum with a big voice. The parrots have the sticks on loan.
+SHOP|crab-pot|SEA|Crab pots|Woven pots for the slip, now that the slip can be used.
+SHOP|kava-bowl|OC|Kava bowls|A carved bowl, so that the next stop can sit in a circle too.
+
+# ---------------------------------------------------------------- Almanac pages: Sorrel's fourteen map sheets (they make the Whole Map of the last page)
+PAGE|sorrel-map-na|Sorrel's Map: the Maplewold|The prairie, the lamp, the bench and a small figure labelled "self". One blank bit, with a question mark in it.
+PAGE|sorrel-map-ca|Sorrel's Map: Maizehollow|The Barrens, with a lake drawn in a dotted line and the note "afternoons only".
+PAGE|sorrel-map-nwe|Sorrel's Map: Mistmoor|The wood, and in it a ring drawn as a ring, with forty-one small boot prints round it.
+PAGE|sorrel-map-cb|Sorrel's Map: the Sunsprinkle Isles|The Galleon, with one line for where the water was and another for where it is.
+PAGE|sorrel-map-sa|Sorrel's Map: the Rainroot Reaches|The Sky City stairs. The number of steps is crossed out. Beside it: "many".
+PAGE|sorrel-map-se|Sorrel's Map: Olivewhistle Shore|The Labyrinth Isle as far as the second corner. The rest is labelled "more of the same".
+PAGE|sorrel-map-ee|Sorrel's Map: Birchbramble Steppe|The Amber Woods, drawn as one large birch with "etc." beside it.
+PAGE|sorrel-map-mena|Sorrel's Map: the Dunewhisper|One oasis, drawn four times on one sheet, with dates.
+PAGE|sorrel-map-csa|Sorrel's Map: Spicepeak|Prayer-flag Pass and its height, with the note "approx., cloud".
+PAGE|sorrel-map-wca|Sorrel's Map: the Greatcanopy|Finished from eleven older maps at once. The footnotes are longer than the map.
+PAGE|sorrel-map-esa|Sorrel's Map: Thornacre Savanna|A broad arrow for the herd, and a very small arrow going the other way.
+PAGE|sorrel-map-ea|Sorrel's Map: Blossomreach|The Thousand Gates, with "about a thousand" in small letters.
+PAGE|sorrel-map-sea|Sorrel's Map: the Monsoon Tangle|The temple in one ink and the roots over it in another, until one can hardly see the first.
+PAGE|sorrel-map-oc|Sorrel's Map: the Coralscatter|The Stone Head Watchers, one by one. The fourteenth sheet. Laid by the others, the edges join.
+# ---- pages of the area quests (9)
+PAGE|waythread-first-guess|Morelby: A First Guess|"Bare bed, clear jar. Planted bed, glowing jar. Thin rings in the lean years. It is all one thing." Underlined until the pencil broke.
+PAGE|cairn-count|The Cairn Count|One stone a walker, every year, counted down by Garrow Stonecount. The last old stone is marked with a button, not a ring.
+PAGE|seed-temple-tally|The Temple Tally|Four notches on the long stick: corn, black bean, tomatillo, chayote. Half the shelves of the Stepped Seed Temple are still empty.
+PAGE|fairy-ring|The Fairy Ring|Morelby's count, a mushroom a day, and the gap that closed. His last note says "AS PREDICTED" in fresher ink than the rest.
+PAGE|stork-chimneys|The Stork Chimneys|A cartwheel on every chimney. Storks will not build on bare wood. They like to think somebody else began.
+PAGE|star-roads|The Star Roads|The Grey Cloaks name the stars as stops: this one a day from that one, a well between. Copied from the sand.
+PAGE|library-road-ledger|The Road Ledger|A page of the library's loan book in another hand: names, stops and dates, one a year. The last line has no name, only a button.
+PAGE|oldest-lamp-ea|The Oldest Lamp|Inside the glass, a tally of the years it was lit. The marks stop for a long while. Then there is one more.
+PAGE|star-path|The Star Path|A chart of shells on a frame of sticks: each shell an island, each stick a swell. One shell more than the newer charts have.
+# ---- pages of the cast threads (12): Morelby's theory, Linnet's tune, the Stranger's Roll clues
+PAGE|waythread-follows-water|Morelby: It Follows the Water|"It follows the water where the beds are, the beds where the water is not, and the road in any case. As I have always maintained."
+PAGE|waythread-crosses-water|Morelby: It Does Cross|"Jar at the full length of the lead line: a glow. It does cross the sea. It is simply deep."
+PAGE|waythread-oasis|Morelby: The Oasis Follows the Road|"The glow moves a day before the water. The thread goes where boots and lamps go, and the water comes up after it."
+PAGE|waythread-one-living-thing|Morelby: One Living Thing|"The same glow in every book. The same four notes. Not a great many that agree. One. It goes all the way round."
+PAGE|linnet-phrase-1|Linnet's Tune: the Second Phrase|Four notes caught at dusk between one well ending and the next beginning. A torn half page.
+PAGE|linnet-phrase-2|Linnet's Tune: the Third Phrase|Four notes heard mid-river where the two banks overlap. Copied from the back of her hand.
+PAGE|linnet-phrase-3|Linnet's Tune: the Fourth Phrase|Four notes that nobody at the table was singing and everybody heard. Passed down the table to you.
+PAGE|linnet-phrase-4|Linnet's Tune: the Whole of It|The whole tune, written fair in a ring, with no beginning marked. The last four notes are the first four.
+PAGE|roll-clue-button|A Button, Cut With a Ring and a Line|From the bottom of a stallholder's jar. The Grey Cloaks have always paid in buttons. This mark is on the cairn stones too.
+PAGE|roll-clue-island-lamps|A Tally From an Empty Cay|A ring and a line for each year one lamp was kept, alone, since the Round stopped. The last marks are shaky. The newest is not.
+PAGE|roll-clue-coat-page|The Page in the Coat|Old paper sewn into a grey lining, cut along one edge with a knife. Under the plate: "Not lost. Kept safe."
+PAGE|roll-clue-gate|An Arrow and a Gate|Scratched on a bench with a knife. They have not gone on. They have gone ahead, to wait.
+
+# ---------------------------------------------------------------- carried things (handed out at `from`, gone at `to`)
+ITEM|old-letter|Old Letter|A letter from the bottom of Pell's sack. Not for reading.
+ITEM|lantern|Walk Lantern|A lit lantern for the dusk walk.
+ITEM|honest-crate|Honest Crate|A crate with a bill of sale, signed.
+ITEM|salt-block|Salt Block|A block cut from the Mirror Salt Flat.
+ITEM|stall-load|Stall Load|A market stall's worth of goods from the ranch, on your back.
+ITEM|oil-jar|Jar of First Pressing|Green oil from the Olive Press Piazza. It bites.
+ITEM|painted-egg|Painted Egg|One day's work of the painter at the Painted Egg House. Walk carefully.
+ITEM|water-skin|Water-skin|A full skin from the oasis.
+ITEM|tea-brick|Tea Brick|Pressed leaf from the Tea Garden Slopes. It keeps for years.
+ITEM|library-book|Overdue Book|Out "for a week", some years ago.
+ITEM|roasted-beans|Roasted Beans|Coffee beans roasted slowly in a pan while everyone watched.
+ITEM|market-bundle|Market Bundle|A parcel that changes hulls three times before it is sold.
+ITEM|shell-chart|Shell Chart|Shells tied to a frame of sticks: islands and swells.

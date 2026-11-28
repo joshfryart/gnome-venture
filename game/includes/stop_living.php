@@ -228,20 +228,23 @@ function stop_cal_next(array $loc, int $count = 3, int $days = 21): array
 
 // ---------------------------------------------------------------- threads
 
-/** @return array<string,array> data/stop_threads.txt: id | icon | name | stop types | regions | reward | beat1 ;; beat2 ... (a beat is "title ~ story") */
+/** @return array<string,array> data/stop_threads.txt (and stop_threads_v2.txt while journey_v2_open is on): id | icon | name | stop types | regions | reward | beat1 ;; beat2 ... (a beat is "title ~ story") | trigger | extra */
 function stop_threads(): array
 {
-    static $t = null;
-    if ($t === null) {
+    static $all = [];
+    $v2 = (int)(setting('journey_v2_open') === '1');   // 2026-11-28: the Journey v2 threads (stop_threads_v2.txt) only while that setting is on
+    if (!isset($all[$v2])) {
         $t = [];
-        foreach (stops_file_rows('stop_threads.txt') as $r) {
+        foreach (array_merge(stops_file_rows('stop_threads.txt'), $v2 ? stops_file_rows('stop_threads_v2.txt') : []) as $r) {
             if (count($r) < 7) continue;
             $beats = [];
             foreach (array_filter(array_map('trim', explode(';;', $r[6]))) as $b) { [$ti, $tx] = array_pad(array_map('trim', explode('~', $b, 2)), 2, ''); $beats[] = ['title' => $ti, 'text' => $tx]; }
-            if ($beats) $t[$r[0]] = ['id' => $r[0], 'icon' => $r[1], 'name' => $r[2], 'types' => $r[3], 'regions' => array_values(array_filter(array_map('trim', explode(',', $r[4])))), 'reward' => $r[5], 'beats' => $beats];
+            if ($beats) $t[$r[0]] = ['id' => $r[0], 'icon' => $r[1], 'name' => $r[2], 'types' => $r[3], 'regions' => array_values(array_filter(array_map('trim', explode(',', $r[4])))), 'reward' => $r[5], 'beats' => $beats,
+                'trigger' => $r[7] ?? '', 'extra' => $r[8] ?? ''];
         }
+        $all[$v2] = $t;
     }
-    return $t;
+    return $all[$v2];
 }
 
 /** The thread offered to this player here today (one beat a day, Regulars and up): the act row to show, or null. */
