@@ -557,3 +557,14 @@ Build plan 6 and 11 in code: `game/includes/seals.php` (Standing with high-water
 ## 16. DECISIONS AFTER THE SIM (Josh, 2026-11-27)
 - **Seal threshold lowered from 80 to 78** (`seal_threshold` default 78 in code; docs updated). Gives a non-fighter about 2 points of slack.
 - **Chapter XP = about 40% of the band's real XP** (quests doc 1.4). With the real totals this is 7,350 XP across M1-M7. Per-chapter XP in the quests doc was sized on the wrong total: rescale each chapter's `xp` when the data files are written (target: chapters sum to 40% of band XP, split by level span).
+
+## 17. DECISION: HOW MANY MAPLEWOLD VILLAGES THE STORY USES (Josh, 2026-11-28)
+- **Finding.** The Maplewold's region layout holds **28 villages**: 9 on roads (Poppyburrow, Larkbrook, Poppynook, Honeybrook, Windbottom, Windburrow, Cloverholt, Honeythorpe, Clovercove) and 19 off the road (Acornby, Birchhollow, Mossgate, Shellhollow, Pebblestead, Iciclecrest, Snowcombe, Frondthorpe, Orchiddell, Stonethorpe, Flintcove, Fernden, Hazelmere, Froststead, Sleetford, Brambleburrow, Sprayholt, plus the two story villages Cattailmere and Granitegate). The story's "12 villages" were the 9 road stops, the Market town and haven-stops counted as stops, plus Cattailmere and Granitegate.
+- **Decision.** The story should use most of the villages. Where the 12-village main line is fine as it is (it is: the Standing weights, Seal threshold, the 7 chapters and the sim were all built on it), **keep it as the main line and give the other villages to side quests and deeper threads**, so every one of the 28 is used.
+- **What this means.**
+  1. Main line unchanged: Wren's chapters M1-M7, the Standing rows, the Seal at 78.
+  2. The 17 off-road villages that are not Cattailmere or Granitegate (Acornby ... Sprayholt) each get one **in-depth side quest** (a short multi-step thread, for extra rewards or an unlock, never needed for the Seal). They already have stop threads and happenings in `data/stop_threads*.txt` and `data/stop_happenings.txt`; the new quests go in the errands data (`journey_errands.txt`, side-quest kind) and use the same step kinds.
+  3. Each such quest counts for "Folk: errands" under the existing cap (2 of 5), so the Seal does not depend on them.
+  4. Off-road adoption (a Standing stub today): not part of the Seal; may add a small cosmetic Hearth for off-road villages later.
+  5. The region map draws all 28 villages. The road stops and the two story villages are the lit markers; the others show as found places.
+- **Open.** The side-quest text is not written yet (17 quests). A Fable pass should write them from each village's stop thread and signature (see `proposal-story-2-quests.md` for tone).
