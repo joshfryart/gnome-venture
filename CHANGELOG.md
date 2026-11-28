@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.92
+- Version bump for a catch-up build: every file changed since 2.7.99 (code, route art, combat and pre-fight animation scripts and pictures) in one update zip, for a site whose `assets/` was copied before it had them.
+
 ## 2.8.91
 - Version bump so the upgrade step creates `first_week_ticks` (2.8.90's changes ship in this build too: Gnome page base + boosts, First Week goals stay ticked).
 
