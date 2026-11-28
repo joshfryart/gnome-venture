@@ -241,6 +241,17 @@ function sights_v2_folk_line(array $u, array $sc, array $m, array $fh, array $no
     return $h . '</p>';
 }
 
+/**
+ * Is the Trail's "what just happened" toast for the walk log line $key one the v2 result card already showed? $shown = the result card is on this page:
+ * its line is remembered, so the toast stays away now and on later pages too. Always false with v2 off (the toast as before).
+ */
+function sights_v2_quiet_toast(string $key, bool $shown): bool
+{
+    if (!sights_v2_on() || session_status() !== PHP_SESSION_ACTIVE) return false;
+    if ($shown) $_SESSION['sgv2_quiet'] = $key;
+    return ($_SESSION['sgv2_quiet'] ?? '') === $key;
+}
+
 /** Keep the result of a v2 Sight use for the result card (shown once, on the next Trail page). */
 function sights_v2_result_set(array $r): void
 {

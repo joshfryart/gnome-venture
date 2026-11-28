@@ -380,7 +380,7 @@ elseif ($exp && !$trailSc && !$fsc && !$pfAct && !($overMap && !$hasMap)) { echo
   <?php if (!empty($sgMarks)): /* 2.8.99: sginline = on a computer (721 px and up) the panel sits under the buttons instead of floating (assets/hubscene.js, style.css) */ ?><dialog class="picker hubpop sginline<?= $sgV2 ? ' sgpromote' : '' ?>" id="hubpop-tsights" aria-labelledby="hubpop-tsights-t"<?= !empty($_GET['sg']) ? ' open' : '' ?>><div class="pickbox">
     <div class="pickhead"><h3 id="hubpop-tsights-t">🔎 Sights here</h3><a class="pickx" href="<?= e(url('adventure.php')) ?>" data-pop-close aria-label="Close">✕</a></div>
     <div class="hubcard sgcards"><?= $sgV2 ? sights_v2_cards_html($u, $trailSc, $sgMarks, $exp, is_string($_GET['sgs'] ?? null) ? (string)$_GET['sgs'] : '') : trail_sights_cards_html($u, $trailSc, $sgMarks, $exp) ?></div></div></dialog><?php endif; ?>
-  <?= $sgV2 ? sights_v2_result_html() : '' ?>
+  <?php $sgResHtml = $sgV2 ? sights_v2_result_html() : ''; echo $sgResHtml; ?>
   <?php foreach (empty($exp['encounter']) ? trail_sights_folk_on_map($u, $exp, $trailSc, $sgMarks) : [] as $fi => $fe): /* v2.6.68: tap a villager out and about at a Sight: their card (chat, gift) */ ?><dialog class="picker hubpop" id="hubpop-tfolk-<?= (int)$fi ?>" aria-labelledby="hubpop-tfolk-<?= (int)$fi ?>-t"><div class="pickbox">
     <div class="pickhead"><h3 id="hubpop-tfolk-<?= (int)$fi ?>-t">💬 <?= e((string)$fe[3]) ?></h3><a class="pickx" href="<?= e(url('adventure.php')) ?>" data-pop-close aria-label="Close">✕</a></div>
     <div class="hubcard sgcards"><?= trail_sight_folk_card_html($u, $fe, $trailSc) ?></div></div></dialog><?php endforeach; ?>
@@ -417,7 +417,8 @@ $gvCarrier = function (string $html) use ($exp, $log): string {   // the "what j
     return $txt === '' ? '' : '<div hidden data-gvtoast="' . (int)($exp['id'] ?? 0) . ':' . count($log) . ':' . crc32((string)end($log)) . '">' . e($txt) . '</div>';
 };
 if (!$enc && $latestHtml !== '') {
-    if ($trailSc || $mapMode || ($dv2Scene && $dv2Scene['map'])) $latestHtml = $gvCarrier($latestHtml);   // a tile map page (Trail, delve): one toast box + a pop-up over the map, no card in the page
+    if ($trailSc && sights_v2_quiet_toast((int)($exp['id'] ?? 0) . ':' . count($log) . ':' . crc32((string)end($log)), ($sgResHtml ?? '') !== '')) $latestHtml = '';   // 2.8.99 Sights v2: the result card says it; no toast of the same line (now or on a later page)
+    elseif ($trailSc || $mapMode || ($dv2Scene && $dv2Scene['map'])) $latestHtml = $gvCarrier($latestHtml);   // a tile map page (Trail, delve): one toast box + a pop-up over the map, no card in the page
 }
 ?>
 <?php if ($isWalk && !$mapMode) echo route_fold_html($u, $last, $wi); ?>

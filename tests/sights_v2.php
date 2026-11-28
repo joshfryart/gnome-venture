@@ -62,6 +62,7 @@ ok('off: the old card (no v2 card, the old cost line)', !str_contains($html, 'sg
 ok('off: no picture taps on the map', !str_contains(trail_view_html($row(), $exp, trail_scene($exp), false, false), 'name="gosg"'));
 $put(['check' => '-', 'tool' => 'bucket:3', 'rewards' => 'c=20'] + $std);
 ok('off: sights_v2_on() is false', sights_v2_on() === false);
+ok('off: the toast is never left out', !sights_v2_quiet_toast('9:4:123', true) && !sights_v2_quiet_toast('9:4:123', false));
 ok('off: a tool Sight without the tool is refused', !$use()[0]);
 
 echo "== on: the card (all rows)\n";
@@ -112,6 +113,7 @@ ok('... the result: not lucky, half a share; resting 6 sleeps (cooldown 55)', st
 $rh = sights_v2_result_html();
 ok('the result card: story, chips, lucky line, resting line, one Lovely button', str_contains($rh, 'LOSELINE') && str_contains($rh, 'sgchip') && substr_count($rh, 'sgchip') <= 4 && str_contains($rh, 'Back in 6 sleeps.') && substr_count($rh, '>Lovely<') === 1 && str_contains($rh, 'sginline'), strip_tags($rh));
 ok('... shown once', sights_v2_result_html() === '');
+ok('the toast of the same log line is left out (with the card, and on a later page); another line still toasts', sights_v2_quiet_toast('9:4:123', true) && sights_v2_quiet_toast('9:4:123', false) && !sights_v2_quiet_toast('9:5:77', false));
 $h = $card(); ok('a resting Sight says "Resting. Back in 6 sleeps." and has no button', str_contains($h, 'Resting. Back in 6 sleeps.') && !str_contains($h, '<button') && !str_contains($h, 'again soon'), strip_tags($h));
 t('two sleeps later it says 4 sleeps', function () use ($uid, $card) { q('UPDATE trail_sight_uses SET got_tick = got_tick - 2880 WHERE user_id = ?', [$uid]); $h = $card(); return str_contains($h, 'Back in 4 sleeps.') ? true : strip_tags($h); });
 $put(['check' => 'sense:1', 'rewards' => 'c=20,xp=10', 'win' => 'WINLINE', 'lose' => 'LOSELINE'] + $std);
