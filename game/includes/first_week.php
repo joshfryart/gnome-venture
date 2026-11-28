@@ -71,7 +71,18 @@ function first_week_unlocked(string $start): int
     return max(1, min(7, $d + 1));
 }
 
+/** A goal counts once it has ever been met: the first time it is true it is written down (first_week_ticks) and stays ticked. */
 function first_week_check(int $uid, string $key): bool
+{
+    try {
+        if (q_val('SELECT 1 FROM first_week_ticks WHERE user_id = ? AND task = ?', [$uid, $key])) return true;
+    } catch (Throwable $e) { return first_week_check_now($uid, $key); }   // the table arrives with the version's upgrade step
+    if (!first_week_check_now($uid, $key)) return false;
+    try { q('INSERT INTO first_week_ticks (user_id, task) VALUES (?, ?)', [$uid, $key]); } catch (Throwable $e) {}
+    return true;
+}
+
+function first_week_check_now(int $uid, string $key): bool
 {
     return match ($key) {
         'harvest' => (bool)q_val('SELECT 1 FROM user_plant_knowledge WHERE user_id = ? AND knowledge > 0 LIMIT 1', [$uid]),

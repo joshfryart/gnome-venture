@@ -110,6 +110,11 @@ function social100_schema(string $PK, string $ID, string $END): array
         claimed_at DATETIME NOT NULL,
         PRIMARY KEY (user_id, day)
     )$END";
+    $t[] = "CREATE TABLE IF NOT EXISTS first_week_ticks (
+        user_id $ID NOT NULL,
+        task VARCHAR(20) NOT NULL,
+        PRIMARY KEY (user_id, task)
+    )$END";   // 2.8.90: a goal that was ever met stays ticked (a page that is re-marked unread, a pot or decoration removed later never un-ticks it)
     $t[] = "CREATE TABLE IF NOT EXISTS daily_ticks (
         user_id $ID NOT NULL,
         day VARCHAR(10) NOT NULL,
