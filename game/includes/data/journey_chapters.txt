@@ -1,0 +1,95 @@
+# Wren's Journey v2 chapters (2026-11-28; claude/proposal-story-2-quests.md 1.2 and 2.1, claude/proposal-story-3-flavor.md 2, master doc 6 and 16).
+# Read by includes/journey_v2.php, and only while the setting journey_v2_open is on. A chapter is added once (by slug) and never changed after,
+# so admin edits stand: to change a live chapter, edit it in the database. "\n" in a field is a new line; no pipe inside a field; "-" = empty.
+#
+# P | Wren's prologue (replaces JOURNEY_PROLOGUE while v2 is on)
+# C | slug | area code | zone # (the world's zone number, 0 = whole area) | sort | title | giver npc slug | levels | needs (chapter slugs joined by /)
+#   | Petals | XP (paid in full) | item slug | qty | title | benefit | benefit text | project name | icon | intro | letter (leaf note or Seal letter) | replaces (old chapter slug)
+# T | chapter slug | kind | spec | qty | levels | optional (0/1) | alt (kind:spec:qty) | label
+#
+# Kinds and specs: the header of includes/journey_v2.php. Steps are listed in order; stages are handed in in their own order.
+# Zone numbers are the world's (zones.txt): Maplewold 1 Bramblesweep Prairie, 2 Old Maplewood, 3 Foghorn Shallows, 4 The Frostbitten North,
+# 5 Beaverdam Fens (Cattailmere), 6 Cairnback Ridge (Granitegate). The quests doc calls the Fens zone 4 and the North zone 5.
+# A place named in a step that this world does not have yet (world_v2_open off) counts as anywhere in the area.
+#
+# XP: the band 1 chapters pay 40% of the band's real XP (Lv 1-15 = 18,375 XP, so 7,350; master doc 16), split by each chapter's
+# level span on the XP curve (xp_for_level(max) - xp_for_level(min); M7, at Lv 15, takes the 14-15 span):
+# M1 166, M2 414, M3 663, M4 973, M5 1,376, M6 2,704, M7 1,054 = 7,350. Petals: band 1, 150 to 600 rising by zone (quests doc 1.4).
+# The region guide and the area benefit are paid once, at the Seal (M7).
+
+P|Under every road in the Hollow runs the Waythread, one old fungus that glows where a lamp is lit and boots go by. Once a year the Roundwalkers walked the whole ring of roads. They lit the lamps, mended the benches, carried post and seed, and wrote it down in the Almanac.\n\nThen each walker thought somebody else had the next stretch. Nobody ended the Round. It only became nobody's job. Folk call the years since the Long Quiet.\n\nWren is a bookbinder with a handcart of pages. She wants an Almanac that is true today. Light a stop, plant its bed, come back often, and she will follow one area behind you, on the lit road, with a letter.
+
+C|maplewold-m1-first-lamp|NA|1|1|The First Lamp|clover-puddlejump|1-4|-|150|166|plain-compost|5|-|-|-|Sugar Shack|🍁|[i]Dear friend,[/i]\n\nThis is the cover note. The Maplewold is where the Round began, and where it stopped first. The prairie lamps are cold, and Clover Puddlejump says the old Sugar Shack lost its roof over the winter.\n\nThe hamlets on the prairie road could each use a lamp. Do three things at one, adopt it, and give it a bench and a lantern post. Then help Clover with the Shack.\n\n[i]Wren[/i]|[i]Dear friend,[/i]\n\nClover sent me a jar of the first syrup from the mended shack. It lasted a day.\n\nThe old book said the prairie lamps were lit "by whoever is passing". I have crossed that out and written your name.\n\n[i]Wren[/i]|maplewold-sugar-shack
+T|maplewold-m1-first-lamp|visit|-|1|1|0|-|Reach the Maplewold and read Wren's cover note
+T|maplewold-m1-first-lamp|puzzle|pic:jig-maplewold,tier:advanced|1|1|0|-|Finish the Maplewold jigsaw on Advanced or Expert (its Puzzle Pals start waiting at Maplewold places on your map)
+T|maplewold-m1-first-lamp|grow|staple|2|1-2|0|-|Sow Wren's seed packet: harvest 2 of the Maplewold's staple crops (oats, lentil)
+T|maplewold-m1-first-lamp|adopt|zone:1|1|1-2|0|-|Do three things at a dark prairie hamlet, then adopt it (your first adoption here is free)
+T|maplewold-m1-first-lamp|raise|tier:1,zone:1|1|2-3|0|-|Build its Bench & lantern post (tier 1)
+T|maplewold-m1-first-lamp|escort|who:the lost lamb,from:off,to:stop|1|2-3|0|-|A lost lamb: find it off the road and walk it back to a prairie hamlet
+T|maplewold-m1-first-lamp|stage|item:flint:3,coins:50|1|3-4|0|-|Clear the Sugar Shack rubble (3 Flint, 50 Petals)
+T|maplewold-m1-first-lamp|stage|item:timber-plank:2|1|3-4|0|-|New roof beams (2 Timber Planks, made in Crafting → Building)
+T|maplewold-m1-first-lamp|stage|item:rope:1,coins:100|1|3-4|0|-|Hang the sap buckets (1 Rope, 100 Petals)
+T|maplewold-m1-first-lamp|seal|leaf|1|4|0|-|The Prairie leaf: Wren binds it into the Almanac
+
+C|maplewold-m2-hand-it-back|NA|2|1|Hand It Back|-|4-7|-|225|414|-|1|-|-|-|Mill Sluice|⚙️|Bodkin and Thrum, the tinkers, have measured the old mill sluice in the Maplewood twice and got two answers. Both agree it leaks.\n\nA lamp does not need its keeper to stay. Hand your first stop back to the road (it keeps its lamp) and light a second one: two lamps make a road that glows between them.|[i]Dear friend,[/i]\n\nTwo lamps, and the road between them glows the colour of weak tea. Bodkin says it is amber. Thrum says it is not.\n\nThe old book says the mill "never stops". It had stopped. It says so now, and that you started it.\n\n[i]Wren[/i]|-
+T|maplewold-m2-hand-it-back|find|Thousand Rings Stump|1|4-5|0|-|Find the Thousand Rings Stump in the Maplewood
+T|maplewold-m2-hand-it-back|regular|zone:2|1|4-5|0|-|Become a Regular at a village in the Maplewood (three things done)
+T|maplewold-m2-hand-it-back|adopt|zone:1|2|4-5|0|-|Release your first stop (it stays lit) and adopt a second prairie hamlet
+T|maplewold-m2-hand-it-back|raise|tier:1|2|5-6|0|-|Light it: two lamps lit, one glowing road between them
+T|maplewold-m2-hand-it-back|defeat|creature:barn-rat|1|5-6|0|deliver:meal:2,to:stop:1|Something is in the mill sacks: a Barn Rat. Beat it or charm it
+T|maplewold-m2-hand-it-back|stage|item:timber-plank:2,item:rope:1|1|6-7|0|-|Mend the sluice with the tinkers (2 Timber Planks, 1 Rope)
+T|maplewold-m2-hand-it-back|stage|coins:100|1|6-7|0|-|Pay the tinkers' tea bill (100 Petals)
+T|maplewold-m2-hand-it-back|plant|crop:apple/hops:3|1|6-7|0|-|Grow apples or hops and harvest 3 for the mill's bake day
+T|maplewold-m2-hand-it-back|seal|leaf|1|7|0|-|The Maplewood leaf
+
+C|maplewold-m3-lost-lantern|NA|3|1|The Lost Lantern|-|7-10|-|300|663|-|1|-|-|-|Lost Lantern|🏮|Fenna Reedwhistle names every boat on the Shallows, and she would like a light to see them by. The Lighthouse of the Lost Lantern has been dark since before the bench.\n\nOpen a Little stall at a stop you hold, carry the lamp oil out to the point, and help the keeper relight the big lamp.|[i]Dear friend,[/i]\n\nFenna rowed me out under the lamp. The boat is called Patience. It was not, about the oars.\n\nThe old book calls it the Lost Lantern. I have left the name. It suits it better now that it is found.\n\n[i]Wren[/i]|-
+T|maplewold-m3-lost-lantern|find|Lighthouse of the Lost Lantern|1|7|0|-|Find the Lighthouse of the Lost Lantern
+T|maplewold-m3-lost-lantern|regular|zone:3|1|7-8|0|-|Become a Regular at a Shallows village (jetty or ferry landing)
+T|maplewold-m3-lost-lantern|escort|who:the stranded fisher,from:off,to:stop|1|8|0|-|A stranded fisher on the sandbar: walk him back to a Shallows village
+T|maplewold-m3-lost-lantern|raise|tier:2,hearth|1|8-9|0|-|Open a Little stall (tier 2) at a stop you adopted or founded
+T|maplewold-m3-lost-lantern|deliver|item:beeswax:2,to:Lighthouse of the Lost Lantern|1|9|0|-|Carry lamp oil to the lighthouse (2 Beeswax)
+T|maplewold-m3-lost-lantern|stage|item:building-stone:3,coins:150|1|9-10|0|-|Mend the lamp room (3 Dressed Stone, 150 Petals)
+T|maplewold-m3-lost-lantern|stage|item:rope:2,item:timber-plank:2|1|9-10|0|-|Relight the big lamp (2 Rope, 2 Timber Planks)
+T|maplewold-m3-lost-lantern|plant|flower:goldenrod|1|10|0|-|Grow goldenrod to bloom for the keeper's bees
+T|maplewold-m3-lost-lantern|find|Ferry Landing|1|10|0|-|Walk the Tide Track to the Ferry Landing (Hobb's first "not yet")
+T|maplewold-m3-lost-lantern|seal|leaf|1|10|0|-|The Shallows leaf
+
+C|maplewold-m4-dam-debt|NA|5|1|The Dam Debt|-|8-11|-|375|973|-|1|-|-|-|Sluice Gate|🦫|Marsh-reeve Tully Sedgewick of Heron Stilt Village keeps a ledger of who owes whom a log. The beavers are on one page, the stilt-folk on the other, and the causeway sluice is in between.\n\nCattailmere, the causeway croft, keeps the wild-rice paddy. Its lamp is what wakes the paddy again.|[i]Dear friend,[/i]\n\nTully has closed the ledger. Both sides say they won.\n\nThe old book says the beavers "trespassed upon the road". Crossed out. They kept the water when no one kept the sluice.\n\n[i]Wren[/i]|-
+T|maplewold-m4-dam-debt|find|Heron Stilt Village/The Dam Debt|2|8-9|0|-|Find Heron Stilt Village and the Dam Debt
+T|maplewold-m4-dam-debt|help|errand:na-dam-debt|1|8-10|0|deliver:item:birch-log:3,to:Heron Stilt Village:1|Settle the Dam Debt: hear both sides and bring the council what it is owed
+T|maplewold-m4-dam-debt|stage|item:timber-plank:4,item:rope:2,coins:200|1|9-10|0|-|Build the agreed sluice gate (4 Timber Planks, 2 Rope, 200 Petals)
+T|maplewold-m4-dam-debt|regular|zone:5|1|9-10|0|-|Become a Regular at Cattailmere, the causeway croft
+T|maplewold-m4-dam-debt|adopt|-|3|9-10|0|regular:zone:5,lit:1|Adopt a third village (Cattailmere is the natural one). If someone else lit it, being a Regular there counts
+T|maplewold-m4-dam-debt|raise|tier:1|3|9-10|0|-|Three lamps lit in the Maplewold
+T|maplewold-m4-dam-debt|plant|bed:1|1|10-11|0|-|Grow wild rice and make the first Seed Bed hand-in (3) at the Cattailmere paddy
+T|maplewold-m4-dam-debt|raise|tier:3|1|10-11|1|-|Optional: raise any Maplewold road stop to its Wishing well (tier 3). It hums four notes
+T|maplewold-m4-dam-debt|seal|leaf|1|11|0|-|The Fens leaf
+
+C|maplewold-m5-three-chairs|NA|4|1|Three Chairs Short|ottilie-kettlewick|11-13|-|450|1376|-|1|-|-|-|Camp Lamps|🏕️|Ottilie Kettlewick has counted the chairs at Aurora Camp twice. Nine. She has counted the cooks, the keepers and the one sleepy guide. Six.\n\nShe would like the camp lamps hung, the wolf at the tree line persuaded elsewhere, and a supper cooked for whoever turns up.|[i]Dear friend,[/i]\n\nOttilie served the supper in two sittings, to be sure, and set a place at each for whoever was missing.\n\nThe old book lists nine at the camp table. Ottilie counted six. I have written six, and left room.\n\n[i]Wren[/i]|-
+T|maplewold-m5-three-chairs|find|Aurora Camp|1|11|0|-|Find Aurora Camp
+T|maplewold-m5-three-chairs|regular|zone:4|1|11-12|0|-|Become a Regular at a North village (the hot spring or the moss shrine)
+T|maplewold-m5-three-chairs|stage|item:beeswax:4,item:rope:3|1|11-12|0|-|Hang the camp lamps (4 Beeswax, 3 Rope)
+T|maplewold-m5-three-chairs|stage|coins:250|1|11-12|0|-|Oil for the winter (250 Petals)
+T|maplewold-m5-three-chairs|defeat|creature:bramble-wolf|1|12|0|deliver:meal:2,to:Aurora Camp:1|The cook's wolf: shoo it or charm it
+T|maplewold-m5-three-chairs|plant|bed:2|1|12-13|0|-|Second Seed Bed hand-in (5 wild rice) at the Cattailmere paddy
+T|maplewold-m5-three-chairs|stage|meal:3|1|13|0|-|Cook for Ottilie's first supper (3 home-cooked meals)
+T|maplewold-m5-three-chairs|seal|leaf|1|13|0|-|The North leaf
+
+C|maplewold-m6-one-stone|NA|6|1|One Stone a Year|-|12-15|-|525|2704|-|1|-|-|-|The Cairns|🪨|Warden Hobb Stiles keeps the tower at Granitegate, at the foot of the Climb. He counts walkers. This year he has counted none, which is 0%, and he says so.\n\nOld Garrow Stonecount still carries a stone up to Cairnback Pass every year. His knees would like company.|[i]Dear friend,[/i]\n\nFrom Granitegate's tower at night you can see the road you lit, lamp by lamp. Hobb counted them aloud and rounded up.\n\nThe old book says "a stone for every walker, every year". The newest stone is older than I am. There is a new one on top.\n\n[i]Wren[/i]|-
+T|maplewold-m6-one-stone|find|Cairnback Pass/Cairn Keeper's Hut|2|12-13|0|-|Find Cairnback Pass and the Cairn Keeper's Hut
+T|maplewold-m6-one-stone|regular|zone:6|1|12-13|0|-|Become a Regular at Granitegate, the watchtower village (Hobb's post)
+T|maplewold-m6-one-stone|escort|who:Garrow Stonecount,from:Cairn Keeper's Hut,to:Cairnback Pass|1|13|0|-|Walk old keeper Garrow from the Hut up to the Pass with this year's stone
+T|maplewold-m6-one-stone|stage|item:building-stone:6|1|13-14|0|-|Rebuild the cairns (6 Dressed Stone)
+T|maplewold-m6-one-stone|stage|item:flint:4,coins:300|1|13-14|0|-|Wedge the cairn tops (4 Flint, 300 Petals)
+T|maplewold-m6-one-stone|stage|fine:1|1|13-14|0|-|One stone of your own (1 uncommon or rare find)
+T|maplewold-m6-one-stone|plant|bed:3|1|14|0|-|Third Seed Bed hand-in (8 wild rice) at the Cattailmere paddy: the bed is full
+T|maplewold-m6-one-stone|raise|tier:2,hearth|1|14-15|0|-|Your Hearth stop has a Little stall (tier 2; a stop you founded counts)
+T|maplewold-m6-one-stone|raise|tier:4,hearth|1|15|1|-|Optional: a Long-table hall at your Hearth stop (tier 4)
+T|maplewold-m6-one-stone|seal|leaf|1|15|0|-|The Ridge leaf
+
+C|maplewold-m7-the-lighting|NA|0|1|The Lighting|-|15|-|600|1054|-|1|Lamplighter|native_plus:10|Native crops in your Maplewold gardens grow 10% faster.|The Lighting|🔏|[i]Dear friend,[/i]\n\nI have the handcart packed. I walk only on a lit road, so I am waiting for one that goes all the way.\n\nWhen most of the Maplewold's villages have a lamp and know your face, and its folk count you a friend, Hobb will fire the Cairnback beacon and I will come on foot.\n\n[i]Wren[/i]|[i]Dear friend,[/i]\n\nI walked in by your road and ate at {hearth}, under the plaque: "{plaque}". The [b]wild rice[/b] was on the table, so the Fens paddy is a paddy again.\n\nThe old book said the Maplewold's lamps "are lit each dusk". Crossed out. I have written: lit, by a friend, who came back.\n\nOne odd thing. The old book's last page has been cut out. I had never noticed.\n\nThe Cairnback Climb and the Northern Rim Pass are open. Cornrow Flats wants a granary, Hedgerow Downs a bridge.\n\n[i]Wren[/i]|-
+T|maplewold-m7-the-lighting|raise|lit:60|1|13-15|0|-|The road glows end to end: 60% of the Maplewold's villages lit, and you a Regular at each
+T|maplewold-m7-the-lighting|friend|-|2|any|0|-|Make a Friend among the Maplewold's townsfolk
+T|maplewold-m7-the-lighting|defeat|lair:great-white-owl|1|15|0|act:r_na_owl_hoot:3|The Great White Owl: beat it or charm it at its den
+T|maplewold-m7-the-lighting|deliver|meal:2,to:hearth|1|15|0|-|Bring a wild-rice dish and an apple dish to your Hearth stop for the supper (2 home-cooked meals)
+T|maplewold-m7-the-lighting|seal|standing:78|1|15|0|-|The Maplewold Seal: Expedition Standing 78%. Hobb fires the Cairnback beacon and Wren binds the section

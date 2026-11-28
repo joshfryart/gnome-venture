@@ -1,0 +1,257 @@
+<?php
+// 2026-11-28 Wren's Journey v2 (includes/journey_v2.php, data/journey_chapters.txt): journey_v2_open off = the old journey exactly; on = the
+// Maplewold chapters M1-M7, every step kind completes and latches, the alts, the puzzle step through ppal_on_solve, the Seal step, the
+// chapter XP (40% of the band), the Sugar Shack lock and a gnome who built the old Shack. Run by journey_v2.sh on a walk.sh install: php tests/journey_v2.php GAME
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+require $argv[1] . '/includes/bootstrap.php';
+require_once APP_ROOT . '/includes/journey.php';
+require_once APP_ROOT . '/includes/journey_v2.php';
+require_once APP_ROOT . '/includes/seals.php';
+require_once APP_ROOT . '/includes/stops.php';
+require_once APP_ROOT . '/includes/roads.php';
+require_once APP_ROOT . '/includes/puzzle_pals.php';
+require_once APP_ROOT . '/includes/calling_quests.php';
+require_once APP_ROOT . '/includes/gnome.php';
+$fails = 0;
+function ok(string $what, bool $cond, string $extra = ''): void { global $fails; echo ($cond ? 'ok   ' : 'FAIL ') . $what . ($cond ? '' : "  ($extra)") . "\n"; if (!$cond) $fails++; }
+function setg(string $k, string $v): void { set_setting($k, $v); setting('__reload__'); }
+$uid = (int)q_val("SELECT id FROM users WHERE username = 'sprout'");
+ok('player sprout exists', $uid > 0);
+$u = fn() => q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+$naId = (int)q_val("SELECT id FROM regions WHERE code = 'NA'");
+$clean = function () use ($uid) {
+    foreach (['user_quests', 'user_quest_steps', 'stop_log', 'npc_friends', 'landmark_clears', 'region_seals', 'region_standing_best', 'user_plant_knowledge', 'ppal_releases', 'ppal_trophies'] as $t) q("DELETE FROM $t WHERE user_id = ?", [$uid]);
+    q('DELETE FROM stop_adoptions WHERE user_id = ? OR founder_id = ?', [$uid, $uid]);
+};
+$clean();
+if (!q_val('SELECT 1 FROM region_visits WHERE user_id = ? AND region_id = ?', [$uid, $naId])) db_insert('region_visits', ['user_id' => $uid, 'region_id' => $naId, 'first_at' => now()]);
+q('UPDATE users SET guest = 0, region_id = ?, coins = 100000, level = 1, xp = 0 WHERE id = ?', [$naId, $uid]);
+$status = function (string $slug) use ($u) { foreach (journey_chapters() as $c) if ($c['slug'] === $slug) return [$c, journey_status($u(), $c)]; return [null, null]; };
+/** the step of a chapter whose label starts with $label: [task, now, goal, done, how] */
+$step = function (array $st, string $label) { foreach ($st['tasks'] as $t) if (str_starts_with((string)$t[0]['label'], $label)) return [$t[0], $t[1], $t[2], $t[3], $t[4]['how'] ?? '']; return null; };
+$village = fn(int $zone) => q_one("SELECT l.* FROM locations l JOIN zones z ON z.id = l.zone_id WHERE l.region_id = ? AND z.zone_num = ? AND l.kind = 'village' ORDER BY l.id LIMIT 1", [$naId, $zone]);
+$regular = function (array $v) use ($uid) { foreach (['a', 'b', 'c'] as $i => $k) db_insert('stop_log', ['user_id' => $uid, 'location_id' => (int)$v['id'], 'visit_key' => 'jv2-' . $k, 'day' => '2026-01-0' . ($i + 1), 'act' => 'jv2_act_' . $k, 'kind' => 'check', 'at' => now()]); };
+$at = fn(int $locId) => q('UPDATE users SET location_id = ? WHERE id = ?', [$locId, $uid]);
+
+echo "== journey_v2_open = 0: the old journey, exactly\n";
+ok('setting defaults to 0', setting('journey_v2_open') === '0');
+$oldSlugs = array_column(journey_chapters(), 'slug');
+ok('the 14 old chapters, the Sugar Shack first', count($oldSlugs) === 14 && $oldSlugs[0] === 'maplewold-sugar-shack', implode(',', $oldSlugs));
+ok('no v2 chapter is seeded while off', !q_val('SELECT 1 FROM quest_chapters WHERE engine = 1'));
+ok('the old prologue', journey_prologue() === JOURNEY_PROLOGUE);
+[$oldCh, $oldSt] = $status('maplewold-sugar-shack');
+ok('the old chapter has its 7 tasks, the old shape (4 parts, no v2 key)', count($oldSt['tasks']) === 7 && count($oldSt['tasks'][0]) === 4 && !isset($oldSt['v2']));
+[$okH, $msgH] = journey_hand_in($u(), (int)$oldCh['id']);
+ok('old chapter: stages still wait for the tasks', !$okH && str_contains($msgH, 'Get to know'), $msgH);
+ok('old XP rule: journey_xp_percent of the listed XP', journey_paid_xp($oldCh) === (int)round(150 * (int)setting('journey_xp_percent') / 100));
+ok('the Sugar Shack is closed until the old chapter is done', journey_lock($uid, 'spot', 'na-sugarshack') !== null);
+calling_event($uid, 'harvest', 'apple', 3);
+ok('events do nothing to v2 while off', !q_val('SELECT 1 FROM user_quest_steps WHERE user_id = ?', [$uid]));
+
+echo "== journey_v2_open = 1: the Maplewold chapters\n";
+setg('journey_v2_open', '1');
+$chs = journey_chapters();
+$v2 = array_values(array_filter($chs, 'journey_is_v2'));
+ok('7 v2 chapters, M1 to M7', count($v2) === 7 && $v2[0]['slug'] === 'maplewold-m1-first-lamp' && $v2[6]['slug'] === 'maplewold-m7-the-lighting', implode(',', array_column($v2, 'slug')));
+ok('the old Sugar Shack chapter is replaced (13 others stay)', !in_array('maplewold-sugar-shack', array_column($chs, 'slug'), true) && count($chs) === 20);
+setting('__reload__');
+ok('seeding is stamped and safe to repeat', setting('journey_v2_seeded') !== '' && (function () { journey_v2_seed(); return (int)q_val('SELECT COUNT(*) FROM quest_chapters WHERE engine = 1') === 7; })());
+ok('Wren\'s new prologue', str_contains(journey_prologue(), 'Waythread') && !str_contains(journey_prologue(), 'Tansy'));
+$xp = array_sum(array_map('journey_paid_xp', $v2));
+$band = xp_for_level(15);
+ok("chapter XP sums to 40% of the band (7,350 of $band)", $xp === 7350 && abs($xp - 0.4 * $band) < 0.01 * $band, (string)$xp);
+ok('XP rises with the level span (M1 least, M6 most)', journey_paid_xp($v2[0]) === min(array_map('journey_paid_xp', $v2)) && journey_paid_xp($v2[5]) === max(array_map('journey_paid_xp', $v2)));
+ok('Petals 150 to 600 rising by zone', array_map(fn($c) => (int)$c['reward_coins'], $v2) === [150, 225, 300, 375, 450, 525, 600]);
+ok('only M7 pays the area benefit and a title', array_map(fn($c) => (string)$c['benefit'], $v2) === ['', '', '', '', '', '', 'native_plus:10'] && $v2[6]['reward_title'] === 'Lamplighter');
+ok('every chapter ends in a seal step', (function () use ($v2) { foreach ($v2 as $c) { $ts = journey_tasks((int)$c['id']); if (end($ts)['kind'] !== 'seal') return false; } return true; })());
+ok('M1 has the jigsaw at step 2, Lv 1', journey_tasks((int)$v2[0]['id'])[1]['kind'] === 'puzzle' && journey_tasks((int)$v2[0]['id'])[1]['lv'] === '1');
+ok('M1 holds the Sugar Shack lock it took from the old chapter', str_contains((string)$v2[0]['locks'], 'spot:na-sugarshack'));
+ok('every adopt step has an alt', (function () use ($v2) { foreach ($v2 as $c) foreach (journey_tasks((int)$c['id']) as $t) if ($t['kind'] === 'adopt' && !journey_v2_alt($t)) return false; return true; })());
+
+echo "== M1: visit, puzzle (ppal_on_solve), grow, adopt, raise, escort, stage, leaf\n";
+[$m1, $st] = $status('maplewold-m1-first-lamp');
+ok('M1 starts (the Maplewold is reached)', $st['row'] !== null && isset($st['v2']));
+ok('visit is done', $step($st, 'Reach the Maplewold')[3]);
+setg('puzzles_open', '1'); setg('jigsaw_open', '1'); setg('ppal_open', '1');
+jigsaw_ensure(); ppal_ensure();
+$pic = (int)q_val("SELECT id FROM puzzle_pics WHERE slug = 'jig-maplewold'");
+ok('the Maplewold jigsaw exists', $pic > 0);
+ok('the puzzle step is open', !$step($status('maplewold-m1-first-lamp')[1], 'Finish the Maplewold jigsaw')[3]);
+ppal_on_solve($uid, $pic, 'easy', 'free');
+ok('an Easy solve does not count', !$step($status('maplewold-m1-first-lamp')[1], 'Finish the Maplewold jigsaw')[3]);
+ppal_on_solve($uid, $pic, 'advanced', 'free');
+$p = $step($status('maplewold-m1-first-lamp')[1], 'Finish the Maplewold jigsaw');
+ok('an Advanced solve through ppal_on_solve finishes it (latched)', $p[3] && q_val('SELECT done_at FROM user_quest_steps WHERE user_id = ? AND task_id = ?', [$uid, $p[0]['id']]));
+setg('ppal_open', '0');
+ok('it stays done when Puzzle Pals close', $step($status('maplewold-m1-first-lamp')[1], 'Finish the Maplewold jigsaw')[3]);
+setg('ppal_open', '1');
+foreach (q("SELECT plant_id FROM plant_regions WHERE region_id = ? AND tier = 'staple' LIMIT 2", [$naId])->fetchAll(PDO::FETCH_COLUMN) as $pid) db_insert('user_plant_knowledge', ['user_id' => $uid, 'plant_id' => $pid, 'knowledge' => 1]);
+ok('grow: 2 staples harvested', $step($status('maplewold-m1-first-lamp')[1], 'Sow Wren')[3]);
+$v1 = $village(1);
+ok('adopt: open before', !$step($status('maplewold-m1-first-lamp')[1], 'Do three things')[3]);
+db_insert('stop_adoptions', ['location_id' => (int)$v1['id'], 'user_id' => $uid, 'founder_id' => $uid, 'tier' => 0, 'pool' => '{}', 'adopted_at' => now()]);
+ok('adopt: a prairie hamlet adopted', $step($status('maplewold-m1-first-lamp')[1], 'Do three things')[3]);
+ok('raise: not at tier 0', !$step($status('maplewold-m1-first-lamp')[1], 'Build its Bench')[3]);
+q('UPDATE stop_adoptions SET tier = 1 WHERE location_id = ?', [(int)$v1['id']]);
+ok('raise: tier 1 done', $step($status('maplewold-m1-first-lamp')[1], 'Build its Bench')[3]);
+q('UPDATE stop_adoptions SET user_id = NULL, tier = 0 WHERE location_id = ?', [(int)$v1['id']]);
+$st = $status('maplewold-m1-first-lamp')[1];
+ok('latch: released and back at tier 0, adopt and raise stay done', $step($st, 'Do three things')[3] && $step($st, 'Build its Bench')[3]);
+q('UPDATE stop_adoptions SET user_id = ?, tier = 1 WHERE location_id = ?', [$uid, (int)$v1['id']]);
+$esc = $step($st, 'A lost lamb')[0];
+$off = q_one("SELECT l.* FROM locations l WHERE l.region_id = ? AND l.kind NOT IN ('market', 'hub', 'village') ORDER BY l.id LIMIT 1", [$naId]);
+$at((int)$v1['id']);
+$act = journey_v2_action($u(), $m1, $esc, null);
+ok('escort: no button on the road (find it off the road first)', $act && $act['button'] === '' && str_contains($act['text'], 'off the road'), json_encode($act));
+ok('...the button refuses too', !journey_v2_step_act($u(), (int)$esc['id'])[0]);
+$at((int)$off['id']);
+[$okE, $msgE] = journey_v2_step_act($u(), (int)$esc['id']);
+ok('escort: met off the road (' . $off['name'] . ')', $okE && str_contains($msgE, 'falls in'), $msgE);
+ok('...not done yet, walking with you', !$step($status('maplewold-m1-first-lamp')[1], 'A lost lamb')[3] && str_contains(journey_v2_action($u(), $m1, $esc, journey_v2_progress($uid, (int)$m1['id'])[(int)$esc['id']])['text'], 'walks with you'));
+$at((int)$v1['id']);
+[$okE2, $msgE2] = journey_v2_step_act($u(), (int)$esc['id']);
+ok('escort: walked into the hamlet, done', $okE2 && $step($status('maplewold-m1-first-lamp')[1], 'A lost lamb')[3], $msgE2);
+ok('the leaf waits for the stages', !$step($status('maplewold-m1-first-lamp')[1], 'The Prairie leaf')[3]);
+give_item($uid, item_id_by_slug('flint'), 3);
+[$okS, $msgS] = journey_hand_in($u(), (int)$m1['id']);
+ok('stage 1 handed in (v2 stages wait only for each other)', $okS, $msgS);
+q('UPDATE user_quests SET stage = 3 WHERE user_id = ? AND chapter_id = ?', [$uid, $m1['id']]);
+$st = $status('maplewold-m1-first-lamp')[1];
+ok('seal leaf: done once every step before it is', $step($st, 'The Prairie leaf')[3] && $st['complete'], json_encode(array_map(fn($t) => [$t[0]['kind'], $t[3]], $st['tasks'])));
+ok('the Sugar Shack is closed until M1 is done', journey_lock($uid, 'spot', 'na-sugarshack') !== null);
+$xp0 = (int)$u()['xp'];
+$hadGuide = (bool)q_val("SELECT 1 FROM user_guides WHERE user_id = ? AND guide_key = 'region:na'", [$uid]);
+[$okF] = journey_finish($u(), (int)$m1['id']);
+ok('M1 finishes: its XP in full (166), no region guide before the Seal', $okF && (int)$u()['xp'] - $xp0 === 166 && $hadGuide === (bool)q_val("SELECT 1 FROM user_guides WHERE user_id = ? AND guide_key = 'region:na'", [$uid]), (string)((int)$u()['xp'] - $xp0));
+ok('...and the Sugar Shack opens', journey_lock($uid, 'spot', 'na-sugarshack') === null);
+
+echo "== M2: find, regular, adopt alt, defeat (event), plant (event)\n";
+[$m2, $st] = $status('maplewold-m2-hand-it-back');
+$v2z = $village(2);
+ok('regular: not yet', !$step($st, 'Become a Regular')[3]);
+$regular($v2z);
+ok('regular: three things done at a Maplewood village', $step($status('maplewold-m2-hand-it-back')[1], 'Become a Regular')[3]);
+$stump = q_one("SELECT * FROM locations WHERE region_id = ? AND name = 'Thousand Rings Stump'", [$naId]);
+ok('find (named): the Stump not found yet', $stump && !$step($status('maplewold-m2-hand-it-back')[1], 'Find the Thousand')[3]);
+unlock_entries($uid, 'landmark:' . $stump['slug']);
+ok('find (named): its Almanac page found counts', place_known($uid, $stump) && $step($status('maplewold-m2-hand-it-back')[1], 'Find the Thousand')[3]);
+$ad = $step($status('maplewold-m2-hand-it-back')[1], 'Release your first stop');
+ok('adopt x2: one prairie hamlet is not enough', !$ad[3] && $ad[1] === 1 && $ad[2] === 2, json_encode([$ad[1], $ad[2], q('SELECT location_id, user_id, founder_id FROM stop_adoptions WHERE user_id = ? OR founder_id = ?', [$uid, $uid])->fetchAll()]));
+foreach (q("SELECT l.* FROM locations l JOIN zones z ON z.id = l.zone_id WHERE l.region_id = ? AND z.zone_num = 1 AND l.kind = 'village' AND l.id <> ? LIMIT 1", [$naId, (int)$v1['id']])->fetchAll() as $o) {
+    db_insert('stop_adoptions', ['location_id' => (int)$o['id'], 'user_id' => null, 'founder_id' => null, 'tier' => 1, 'pool' => '{}', 'adopted_at' => now()]);   // somebody else lit it
+    $regular($o);
+}
+$ad = $step($status('maplewold-m2-hand-it-back')[1], 'Release your first stop');
+ok('adopt alt: a Regular at two lit prairie hamlets (someone else lit one) finishes it the other way', $ad[3] && $ad[4] === 'alt', json_encode($ad));
+ok('raise tier:1 x2 (lit and you a Regular, whoever raised them)', $step($status('maplewold-m2-hand-it-back')[1], 'Light it')[3]);
+$rat = $step($status('maplewold-m2-hand-it-back')[1], 'Something is in the mill');
+ok('defeat: open, with a peaceful alt shown', !$rat[3] && str_contains(journey_v2_alt_text($m2, $rat[0]), 'peacefully'), journey_v2_alt_text($m2, $rat[0]));
+calling_event($uid, 'defeat', 'tunnel-mole', 1);
+ok('defeat: another creature does not count', !$step($status('maplewold-m2-hand-it-back')[1], 'Something is in the mill')[3]);
+calling_event($uid, 'defeat', 'barn-rat', 1);
+ok('defeat: a Barn Rat beaten or befriended (calling_event) finishes it', $step($status('maplewold-m2-hand-it-back')[1], 'Something is in the mill')[3]);
+calling_event($uid, 'harvest', 'hops', 2);
+ok('plant crop: 2 of 3 hops', !$step($status('maplewold-m2-hand-it-back')[1], 'Grow apples')[3] && $step($status('maplewold-m2-hand-it-back')[1], 'Grow apples')[1] === 2);
+calling_event($uid, 'harvest', 'apple', 1);
+ok('plant crop: apples or hops, 3 in all', $step($status('maplewold-m2-hand-it-back')[1], 'Grow apples')[3]);
+
+echo "== M3: deliver, raise hearth, flower, a place this world does not have\n";
+[$m3, $st] = $status('maplewold-m3-lost-lantern');
+ok('raise hearth tier 2: not yet (tier 1)', !$step($st, 'Open a Little stall')[3]);
+q('UPDATE stop_adoptions SET tier = 2 WHERE location_id = ?', [(int)$v1['id']]);
+ok('raise hearth tier 2: the stop you adopted', $step($status('maplewold-m3-lost-lantern')[1], 'Open a Little stall')[3]);
+$del = $step($st, 'Carry lamp oil')[0];
+$light = q_one("SELECT * FROM locations WHERE region_id = ? AND name = 'Lighthouse of the Lost Lantern'", [$naId]);
+q("DELETE FROM user_items WHERE user_id = ? AND item_id = ?", [$uid, item_id_by_slug('beeswax')]);
+$at((int)$light['id']);
+ok('deliver: no beeswax, no button', journey_v2_action($u(), $m3, $del, null)['button'] === '' && !journey_v2_step_act($u(), (int)$del['id'])[0]);
+give_item($uid, item_id_by_slug('beeswax'), 2);
+$at((int)$v1['id']);
+ok('deliver: beeswax but not at the lighthouse', journey_v2_action($u(), $m3, $del, null)['why'] === 'Go there first.');
+$at((int)$light['id']);
+[$okD, $msgD] = journey_v2_step_act($u(), (int)$del['id']);
+ok('deliver: handed over at the lighthouse, the wax is gone', $okD && $step($status('maplewold-m3-lost-lantern')[1], 'Carry lamp oil')[3]
+    && !(int)q_val('SELECT SUM(qty) FROM user_items WHERE user_id = ? AND item_id = ?', [$uid, item_id_by_slug('beeswax')]), $msgD);
+ok('...and cannot be done twice', !journey_v2_step_act($u(), (int)$del['id'])[0]);
+$gold = (int)q_val("SELECT id FROM plants WHERE slug = 'goldenrod'");
+if ($gold) { db_insert('user_plant_knowledge', ['user_id' => $uid, 'plant_id' => $gold, 'knowledge' => 1]); ok('plant flower: goldenrod grown', $step($status('maplewold-m3-lost-lantern')[1], 'Grow goldenrod')[3]); }
+else echo "skip goldenrod (no such plant in this world)\n";
+$ferry = $step($status('maplewold-m3-lost-lantern')[1], 'Walk the Tide Track');
+$hasFerry = (bool)q_val("SELECT 1 FROM locations WHERE region_id = ? AND name = 'Ferry Landing'", [$naId]);
+ok('find of a place this world lacks (world v2 off): counts as done, not latched', $hasFerry || ($ferry[3] && $ferry[4] === 'na' && !q_val('SELECT done_at FROM user_quest_steps WHERE user_id = ? AND task_id = ?', [$uid, $ferry[0]['id']])));
+
+echo "== M4: help errand (hook and alt), Seed Bed, optional step\n";
+[$m4, $st] = $status('maplewold-m4-dam-debt');
+ok('help errand: open', !$step($st, 'Settle the Dam Debt')[3]);
+journey_v2_errand_done($uid, 'na-dam-debt');
+ok('help errand: journey_v2_errand_done() latches it', $step($status('maplewold-m4-dam-debt')[1], 'Settle the Dam Debt')[3]);
+$bed = $step($st, 'Grow wild rice');
+ok('plant bed: no Seed Beds yet, so it counts as done (not latched)', $bed[3] && $bed[4] === 'na');
+ok('an optional step never blocks', (function () use ($status, $step) { $s = $status('maplewold-m4-dam-debt')[1]; $o = $step($s, 'Optional: raise'); return !$o[3] && (int)$o[0]['opt'] === 1; })());
+ok('help area: villagers\' errands in the area count', journey_v2_eval($u(), $m4, $st['row'], 'help', 'area', 1, 0, true)[1] === 1);
+
+echo "== M7: lit 60%, the Owl's peaceful alt (act on 3 game days), deliver to the Hearth, the Seal\n";
+[$m7, $st] = $status('maplewold-m7-the-lighting');
+$lit = journey_v2_eval($u(), $m7, $st['row'], 'raise', 'lit:60', 1, 0, true);
+$n = count(array_filter(journey_v2_villages($naId, []), fn($v) => !STANDING_N_ROAD_ONLY || on_road((int)$v['id'])));
+ok("raise lit:60 needs round(0.6 x $n) villages", $lit[1] === max(1, (int)round(0.6 * $n)), json_encode($lit));
+ok('...and counts the lit ones where you are a Regular', $lit[0] >= 2, json_encode($lit));
+$owl = $step($st, 'The Great White Owl');
+ok('defeat lair: open, the alt is the owl act', !$owl[3] && str_contains(journey_v2_alt_text($m7, $owl[0]), '3 different game days'), journey_v2_alt_text($m7, $owl[0]));
+foreach (['2026-02-01', '2026-02-01', '2026-02-02'] as $i => $d) db_insert('stop_log', ['user_id' => $uid, 'location_id' => (int)$v1['id'] + $i, 'visit_key' => 'owl' . $i, 'day' => $d, 'act' => 'r_na_owl_hoot', 'kind' => 'check', 'at' => now()]);
+ok('owl act on 2 game days: not yet', !$step($status('maplewold-m7-the-lighting')[1], 'The Great White Owl')[3]);
+db_insert('stop_log', ['user_id' => $uid, 'location_id' => (int)$v1['id'], 'visit_key' => 'owl9', 'day' => '2026-02-03', 'act' => 'r_na_owl_hoot', 'kind' => 'check', 'at' => now()]);
+$owl = $step($status('maplewold-m7-the-lighting')[1], 'The Great White Owl');
+ok('owl act on 3 game days: done the peaceful way', $owl[3] && $owl[4] === 'alt');
+$hd = $step($st, 'Bring a wild-rice dish')[0];
+$at((int)$v2z['id']);
+ok('deliver to:hearth: not at a stop of yours', journey_v2_action($u(), $m7, $hd, null)['why'] === 'Go there first.');
+ok('the Seal step is open at low Standing', !$step($status('maplewold-m7-the-lighting')[1], 'The Maplewold Seal')[3]);
+setg('seals_open', '1');
+q('DELETE FROM region_standing_best WHERE user_id = ?', [$uid]);
+foreach (array_keys(STANDING_ROWS) as $k) db_insert('region_standing_best', ['user_id' => $uid, 'region_id' => $naId, 'row_key' => $k, 'pts100' => STANDING_ROWS[$k][1] * 100, 'updated_at' => now()]);
+$seal = $step($status('maplewold-m7-the-lighting')[1], 'The Maplewold Seal');
+ok('seal standing: Standing at the threshold awards the Seal and finishes the step', $seal[3] && seal_held($uid, $naId));
+q('DELETE FROM region_seals WHERE user_id = ?', [$uid]);
+ok('...latched: it stays done after the Seal row is gone', $step($status('maplewold-m7-the-lighting')[1], 'The Maplewold Seal')[3]);
+ok('seal seals:CA/NWE: none held', journey_v2_seal_eval($uid, $naId, ['seals' => 'CA/NWE'], true) === [0, 2]);
+setg('seals_open', '0');
+
+echo "== the page\n";
+require_once APP_ROOT . '/includes/journey_view.php';
+ob_start(); journey_chapter_box($u(), $m3, journey_status($u(), $m3)); $html = ob_get_clean();
+ok('the chapter page shows done and open steps, and the v2 how-it-works', substr_count($html, '✅') >= 3 && str_contains($html, 'stays done'), substr(strip_tags($html), 0, 300));
+ob_start(); journey_chapter_box($u(), $m7, journey_status($u(), $m7)); $html7 = ob_get_clean();
+ok('...the alt of a step and the Hearth delivery text', str_contains($html7, 'done the other way') && str_contains($html7, 'a stop you adopted or founded'), substr(strip_tags($html7), 0, 400));
+setg('seals_open', '1');
+ob_start(); journey_chapter_box($u(), $m7, journey_status($u(), $m7)); $html7 = ob_get_clean();
+ok('...and the Standing card', str_contains($html7, 'Expedition Standing'));
+setg('seals_open', '0');
+ok('the M7 letter fills {hearth} and {plaque}', !str_contains(journey_v2_letter($u(), $m7), '{') && str_contains(journey_v2_letter($u(), $m7), (string)$v1['name']));
+
+echo "== the old journey again, once switched off\n";
+setg('journey_v2_open', '0');
+ok('switched off: the old 14 chapters, no v2 ones', array_column(journey_chapters(), 'slug') === $oldSlugs);
+[, $oldSt2] = $status('maplewold-sugar-shack');
+ok('the old chapter reads as before (old shape)', count($oldSt2['tasks'][0]) === 4 && !isset($oldSt2['v2']));
+ok('the Sugar Shack stays open for a gnome who finished M1', journey_lock($uid, 'spot', 'na-sugarshack') === null);
+ok('old prologue back', journey_prologue() === JOURNEY_PROLOGUE);
+ok('Standing Repair counts the old chapters only', journey_repair_progress($uid, $naId)[1] === 3);
+
+echo "== a gnome who built the old Sugar Shack\n";
+$clean();
+q('DELETE FROM user_quests WHERE user_id = ?', [$uid]);
+journey_row($uid, $oldCh);
+q('UPDATE user_quests SET stage = 3, done_at = ? WHERE user_id = ? AND chapter_id = ?', [now(), $uid, $oldCh['id']]);
+setg('journey_v2_open', '1');
+$st = $status('maplewold-m1-first-lamp')[1];
+ok('M1\'s three Sugar Shack stages count as built', $st['stages_done'] === 3 && !$st['next_stage']);
+ok('...the Shack stays open', journey_lock($uid, 'spot', 'na-sugarshack') === null);
+[$dn, $all] = journey_repair_progress($uid, $naId);
+ok("...and Standing's Repair row counts them ($dn of $all)", $dn === 3 && $all > 3);
+
+$clean();
+setg('journey_v2_open', '0');
+setg('puzzles_open', '0'); setg('jigsaw_open', '0'); setg('ppal_open', '0');
+echo $fails ? "$fails FAILED\n" : "all ok\n";
+exit($fails ? 1 : 0);
