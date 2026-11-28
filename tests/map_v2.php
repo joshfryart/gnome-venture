@@ -285,7 +285,7 @@ ok('the walking hat stays on the thread between the two stops (steps 0, half, al
 $wm = world_map_svg($probe);
 $nRoads = 0; foreach ($roadsDb as $rd) { $nd = array_map('intval', json_decode((string)$rd['nodes'], true)); $a = $codeOf($nd[0]); $b = $codeOf(end($nd)); if ($a !== $b && world2_route($a, $b)) $nRoads++; }
 ok('world map v2: map2-world.png, the 1000 x 560 view box, one region link per region, the hub, one road per thread, the ruler, no old side trails',
-    str_contains($wm, 'map2-world.png') && str_contains($wm, 'viewBox="0 0 1000 560"') && substr_count($wm, '<a class="region"') === 14 && str_contains($wm, 'town.php?hub=1')
+    str_contains($wm, 'map2-world.png') && str_contains($wm, 'viewBox="0 0 1000 560"') && substr_count($wm, '<a class="region"') === 14 && str_contains($wm, 'here.php?hub=1')
     && substr_count($wm, '<path class="road"') === $nRoads && str_contains($wm, 'class="w2ruler"') && !str_contains($wm, 'stroke-dasharray="2 3"') && str_contains($wm, 'class="mapzoom"'),
     'roads ' . substr_count($wm, '<path class="road"') . "/$nRoads");
 ok('world map v2: no inline style, no script (CSP)', !str_contains($wm, 'style="') && !str_contains($wm, '<script'));

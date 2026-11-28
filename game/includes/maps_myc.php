@@ -1206,7 +1206,7 @@ function myc_world_svg(array $u, ?int $sel = null): string
         }
         // the hub: a mushroom on the surface
         $hx = $W - 52;
-        $hub = '<a href="' . e(url('town.php?hub=1')) . '" aria-label="Mossbottom hub: reachable from anywhere"><title>Mossbottom: the hub, reachable from anywhere</title>'
+        $hub = '<a href="' . e(url(hub_entry_url())) . '" aria-label="Mossbottom hub: reachable from anywhere"><title>Mossbottom: the hub, reachable from anywhere</title>'
             . '<g transform="translate(' . myc_f($hx) . ' ' . myc_f($sy - 6) . ')"><ellipse rx="34" ry="30" cy="-12" class="mhit"/><path d="M-20 0q0-26 20-26t20 26z" fill="#d9573f"/><rect x="-6" y="-2" width="12" height="14" rx="4" fill="#f4e9d2"/>'
             . '<circle cx="-8" cy="-14" r="3" fill="#fff6e0"/><circle cx="6" cy="-19" r="3.4" fill="#fff6e0"/><circle cx="10" cy="-8" r="2.4" fill="#fff6e0"/>'
             . '<text y="' . 26 . '" text-anchor="middle" class="mlbl mlbl-hub">Mossbottom</text></g></a>';

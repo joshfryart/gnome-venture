@@ -474,7 +474,7 @@ function world_map_svg(array $u, ?int $sel = null): string
             . '<g class="lod3" transform="translate(20 -14)">' . $list . '</g>', 'folk') . '</a>';
     }
     // The hub
-    $svg .= '<a href="' . e(url('town.php?hub=1')) . '" aria-label="Mossbottom hub"><title>Mossbottom: the hub, reachable from anywhere</title>'
+    $svg .= '<a href="' . e(url(hub_entry_url())) . '" aria-label="Mossbottom hub"><title>Mossbottom: the hub, reachable from anywhere</title>'
         . map_mark($hx, $hy, '<text y="8" text-anchor="middle" font-size="28">🍄</text>' . map_text('Mossbottom', 46, 14)) . '</a>';
     // You, on top of everything
     $me = player_map_pos($u);
@@ -1089,4 +1089,12 @@ function hoop_map_html(array $exp, string $mark, bool $active): string
     $cur = explore_tier(max(1, $depth));
     $caption = '<p class="hoopcap" aria-live="polite" data-def="' . e('Step ' . $depth . ' · ' . $cur[0] . ' country. Tap a ring to see what it means.') . '">Step ' . $depth . ' · ' . e($cur[0]) . ' country.<span class="hoopcap-tip"> Tap a ring to see what it means.</span></p>';
     return $svg . $caption;
+}
+
+
+/** 2.8.100: where a link to Mossbottom goes: its picture (the Here page), or the town square list when the Here pictures are off. */
+function hub_entry_url(): string
+{
+    require_once __DIR__ . '/place_ui.php';
+    return here_hub_map_on() ? 'here.php?hub=1' : 'town.php?hub=1';
 }
