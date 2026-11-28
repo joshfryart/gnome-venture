@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.89
+- Version bump only: the style sheet and scripts are linked with `?v=<version>`, so a new number makes a host cache that kept an old `style.css` fetch the new one.
+
 ## 2.8.88
 - **Test-site sign-in page renamed** from `sso.php` to `mainlogin.php`: on one host a firewall reset every request to a file called `sso.php`. Nothing else changes.
 
