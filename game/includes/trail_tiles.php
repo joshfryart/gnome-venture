@@ -645,6 +645,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
     $sightAll = !$busy ? trail_sights_marks($u, $sc) : [];
     foreach ($sightAll as $sm) $sightMarks[$sm['x'] . ',' . $sm['y']] = $sm['left'] > 0;   // 2.7.01: a used-up Sight keeps a faded spyglass (false)
     $folkMap = !$busy ? trail_sights_folk_on_map($u, $exp, $sc, $sightAll, true) : [];
+    $sgTaps = $sightAll && $phase === 'section' && function_exists('sights_v2_on') && sights_v2_on() ? sights_v2_map_taps($sc, $sightAll) : [];   // 2.8.99 Sights v2: a tap on a Sight's picture walks there and opens its card
     $folkTiles = []; foreach ($folkMap as $fi => $fe) $folkTiles[$fe[0] . ',' . $fe[1]] = $fi;   // tap a villager: their card   // villagers out and about at a Sight now
     $gate = trail_gate($sc);
     $reach = tm_reach($map, $sc['x'], $sc['y'], $gate);
@@ -713,6 +714,7 @@ function trail_view_html(array $u, array $exp, array $sc, bool $busy, bool $figh
         $dis = !$tap;
         $fpop = isset($folkTiles[$x . ',' . $y]) && !$busy && $phase === 'section' ? ' data-pop="hubpop-tfolk-' . $folkTiles[$x . ',' . $y] . '"' : '';
         if ($fpop) $dis = false;   // the villager's tile opens their card even when it is not a tile to walk to
+        if (!$fpop && !$me && isset($sgTaps[$x . ',' . $y]) && ($label === '' || $dis)) { $btn .= '<button type="submit" class="' . $cls . ' sgtap" name="gosg" value="' . e($sgTaps[$x . ',' . $y]) . '" aria-label="' . e(trail_sight_label($sgTaps[$x . ',' . $y])[0]) . ': go and look"></button>'; continue; }
         $btn .= '<button type="submit" class="' . $cls . '" name="go" value="' . $x . ',' . $y . '"' . ($dis ? ' disabled' : '') . $fpop . ($label !== '' ? ' aria-label="' . e($label) . '"' : ($tap ? ' aria-label="Walk here"' : ' tabindex="-1"')) . '></button>';
     }
     $data = ' data-clamp="1" data-tile="' . TM_UNIT . '" data-cols="' . DM_VIEW . '" data-rows="' . DM_VIEW . '" data-x0="' . $win['x0'] . '" data-y0="' . $win['y0'] . '" data-px="' . $sc['x'] . '" data-py="' . $sc['y'] . '" data-mw="' . $w . '" data-mh="' . $h . '" data-open="' . $open . '"';

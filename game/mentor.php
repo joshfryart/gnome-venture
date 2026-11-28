@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 // v0.9.4: a calling mentor's lodge. Talk to them, take on a chapter, hand in what they ask for, finish it.
+// 2.8.99c: every calling mentor lives in the Mentors' Hall in Mossbottom, reachable from anywhere (calling_quests.php ensure_calling_mentors).
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/garden_logic.php';
 require_once __DIR__ . '/includes/calling_view.php';
@@ -16,7 +17,7 @@ foreach (CALLING_MENTORS as $key => $m) {
 $npc = $calling !== '' ? calling_mentor($calling) : null;
 if (!$npc) {
     flash($slug === '' ? 'Choose a calling first (My Gnome → Calling) and your mentor will be waiting.' : 'Nobody by that name teaches here.', 'err');
-    redirect($slug === '' ? 'gnome.php?tab=calling' : 'world.php');
+    redirect($slug === '' ? 'gnome.php?tab=calling' : calling_hall_url());   // 2.8.99c: an unknown mentor: the hall, where all six are
 }
 $nid = (int)$npc['id'];
 
@@ -27,9 +28,9 @@ if (is_post()) {
     $chRow = $ch ? calling_chapter($ch) : null;
     if ($do !== 'talk' && (!$chRow || $chRow['calling'] !== $calling || ($u['calling'] ?? '') !== $calling)) {
         [$ok, $msg] = [false, $npc['name'] . ' only teaches their own calling’s chapters, and only to gnomes of that calling.'];
-    } elseif ($do === 'trip') {   // the free trip here, only to take on a chapter not started yet (calling_mentor_trip_check has the rules)
+    } elseif ($do === 'trip') {   // an old free-trip form (2.6.34-2.8.98): nothing moves any more, the mentor is in Mossbottom, reachable from anywhere
         [$ok, $msg] = calling_mentor_trip($u, $ch);
-    } elseif ($do === 'trip_start') {   // 2.6.34: the free trip and taking the chapter on in one tap, from the calling page
+    } elseif ($do === 'trip_start') {   // an old "travel and take it on" form: no travel now, it just takes the chapter on
         [$ok, $msg] = calling_mentor_trip($u, $ch);
         if ($ok) {
             $u2 = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
@@ -37,7 +38,7 @@ if (is_post()) {
             $msg .= ' ' . $msg2; $ok = $ok2;
         }
     } elseif (!npc_here($u, $nid)) {
-        [$ok, $msg] = [false, $npc['name'] . ' isn’t here. Walk to ' . (calling_mentor_where($npc)) . '.'];
+        [$ok, $msg] = [false, $npc['name'] . ' isn’t here right now (' . calling_mentor_where($npc) . ').'];
     } else {
         [$ok, $msg] = match ($do) {
             'talk' => npc_talk($u, $nid),
@@ -62,7 +63,7 @@ $chapters = calling_chapters_for($calling);
 $name = CALLINGS[$calling][0] ?? $calling;
 page_header($npc['name']);
 ?>
-<p class="crumbs">📜 <a href="<?= e(url('gnome.php?tab=calling')) ?>">My calling</a> › Calling mentor › <b><?= e($npc['name']) ?></b></p>
+<p class="crumbs">📜 <a href="<?= e(url('gnome.php?tab=calling')) ?>">My calling</a> › <a href="<?= e(url(calling_hall_url())) ?>">🍄 <?= e(CALLING_MENTOR_HALL[2]) ?></a> › <b><?= e($npc['name']) ?></b></p>
 <div class="box npchead">
   <div class="jintro"><a href="<?= e(url('villagers.php?id=' . $nid)) ?>"><?= npc_portrait($npc, 'small') ?></a>
     <div>
@@ -70,10 +71,11 @@ page_header($npc['name']);
       <p class="muted"><?= e(strtolower(trim((string)$npc['personality'] . ' ' . (string)$npc['species']))) ?> · calling mentor of the <?= e($name) ?>s</p>
       <p><?= e((string)$npc['bio']) ?></p>
       <p class="help">📍 <?= e(calling_mentor_where($npc)) ?><?= $here ? ' · <b class="good">here now</b>' : '' ?> · 💛 <?= e($lvl['name'] ?? 'Stranger') ?></p>
+      <p class="help">🍄 All six calling mentors live in <a href="<?= e(url(calling_hall_url())) ?>"><?= e(CALLING_MENTOR_HALL[2]) ?></a> in <?= e(HUB_REGION) ?>, reachable from anywhere.</p>
       <?php if ($here): ?>
         <?php if ($f['last_talk'] === $today): ?><p class="help">You have already chatted today.</p>
         <?php else: ?><form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="talk"><input type="hidden" name="m" value="<?= e($slug) ?>"><button class="btn small">💬 Talk</button></form><?php endif; ?>
-      <?php else: ?><p class="help">You need to be in their town to talk or hand things in.</p><?php endif; ?>
+      <?php else: ?><p class="help"><?= e($npc['name']) ?> is not in <?= e(CALLING_MENTOR_HALL[2]) ?> right now.</p><?php endif; ?>
     </div>
   </div>
 </div>

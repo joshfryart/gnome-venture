@@ -227,21 +227,20 @@ ok('every task imported (no unknown kind or mode)', !$badKinds, implode(', ', $b
 ok('every hand-in and reward item exists', !$badItems, implode(', ', $badItems));
 ok('each calling has a tier II and a tier III chapter', count($callings) === 6 && !array_filter($callings, fn($t) => $t !== [2, 3]), json_encode($callings));
 $mfail = [];
+$hall = calling_mentor_hall();   // 2.8.99c: all six live in the Mentors' Hall in Mossbottom
 foreach (CALLING_MENTORS as $calling => $m) {
     $npc = calling_mentor($calling);
     $chs = q('SELECT DISTINCT mentor_slug FROM calling_chapters WHERE calling = ? AND slug <> ?', [$calling, 't-bloom'])->fetchAll(PDO::FETCH_COLUMN);
-    $spot = q_one('SELECT * FROM town_spots WHERE slug = ?', [$m[6]]);
     $sch = $npc ? q_one('SELECT * FROM npc_schedules WHERE npc_id = ?', [$npc['id']]) : null;
-    $link = $spot ? q_one("SELECT * FROM town_actions WHERE spot_id = ? AND kind = 'link'", [$spot['id']]) : null;
-    $town = (string)q_val('SELECT gnomish_name FROM regions WHERE code = ?', [$m[5]]);
-    if (!$npc || $chs !== [$m[1]] || !$spot || $spot['region'] !== $town || !$sch || (int)$sch['start_hour'] !== (int)$sch['end_hour'] || (int)$sch['spot_id'] !== (int)$spot['id'] || !$link || !str_contains((string)$link['link'], 'mentor.php')) $mfail[] = $calling;
+    $link = $hall ? q_one("SELECT * FROM town_actions WHERE spot_id = ? AND kind = 'link' AND link = ?", [$hall['id'], 'mentor.php?m=' . $m[1]]) : null;
+    if (!$npc || $chs !== [$m[1]] || !$hall || $hall['region'] !== HUB_REGION || !$sch || (int)$sch['start_hour'] !== (int)$sch['end_hour'] || (int)$sch['spot_id'] !== (int)$hall['id'] || !$link) $mfail[] = $calling;
 }
-ok('6 mentors: NPC, lodge in their town, all-day schedule, link, chapters point to them', !$mfail, implode(',', $mfail));
+ok('6 mentors: NPC, in the Mentors\' Hall in Mossbottom, all-day schedule, link, chapters point to them', !$mfail, implode(',', $mfail));
 $before = [(int)q_val('SELECT COUNT(*) FROM npcs'), (int)q_val('SELECT COUNT(*) FROM town_spots'), (int)q_val('SELECT COUNT(*) FROM npc_schedules'), (int)q_val('SELECT COUNT(*) FROM town_actions')];
 ok('ensure_calling_mentors is idempotent', ensure_calling_mentors() === 0 && $before === [(int)q_val('SELECT COUNT(*) FROM npcs'), (int)q_val('SELECT COUNT(*) FROM town_spots'), (int)q_val('SELECT COUNT(*) FROM npc_schedules'), (int)q_val('SELECT COUNT(*) FROM town_actions')]);
 require_once $argv[1] . '/includes/npc_life.php';
 $bur = calling_mentor('rootwarden');
-ok('mentor is at the lodge now (npc_now)', str_contains(npc_now($bur)['what'], 'Root Cellar'), npc_now($bur)['what']);
+ok('mentor is in the Mentors\' Hall now (npc_now)', str_contains(npc_now($bur)['what'], 'Mentors’ Hall in Mossbottom'), npc_now($bur)['what']);
 ok('ensure_npc_lives leaves mentors alone', (function () use ($bur) { ensure_npc_lives(); return (int)q_val('SELECT COUNT(*) FROM npc_schedules WHERE npc_id = ?', [$bur['id']]) === 1; })());
 require_once $argv[1] . '/includes/calling_view.php';
 require_once $argv[1] . '/includes/npc_life.php';

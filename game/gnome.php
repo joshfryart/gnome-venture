@@ -395,7 +395,7 @@ endif; ?>
       <?= $changeCost > 0 ? 'Changing your calling costs ' . $changeCost . ' Petals.' : 'You have one free change.' ?></p>
     <?php require_once __DIR__ . '/includes/calling_view.php'; echo calling_gnome_line($u);   // v0.9.4: mentor and chapter ?>
   <?php endif; ?>
-  <p class="help">Each calling has three tiers: 🎩 Apprentice (level <?= $callingLevel ?>), 🎗️ Journeyman (level <?= $t2 ?> and a chapter) and ⭐ Master (level <?= $t3 ?> and a chapter). Each chapter is a set of tasks for your calling’s mentor. Each tier keeps what the one before gave.</p>
+  <p class="help">Each calling has three tiers: 🎩 Apprentice (level <?= $callingLevel ?>), 🎗️ Journeyman (level <?= $t2 ?> and a chapter) and ⭐ Master (level <?= $t3 ?> and a chapter). Each chapter is a set of tasks for your calling’s mentor. Each tier keeps what the one before gave. All six mentors live in <a href="<?php require_once __DIR__ . '/includes/calling_quests.php'; echo e(url(calling_hall_url())); ?>">the Mentors’ Hall in Mossbottom</a>, reachable from anywhere.</p>
   <div class="callings">
     <?php $foldOpen = false; $list = CALLINGS;
     if ($u['calling'] && isset($list[$u['calling']])) $list = [$u['calling'] => $list[$u['calling']]] + $list;   // v0.9.1a: yours first

@@ -5,7 +5,7 @@
 # Keep camp lines, asks and margin notes to 140 characters or fewer.
 R|NA|na-sugarshack|sweet smoke|Pomeroy has set up a folding table beside the sugarshack, napkin first.
 R|CA|ca-tea|slow heat|Pomeroy is at the teahouse in Maizehollow, asking the cook what is in the pot.
-R|CB|ss-brewhouse|lime on the breeze|Pomeroy sits by the brewhouse, fanning himself with his journal.
+R|CB|ss-band|lime on the breeze|Pomeroy sits by the bandstand, fanning himself with his journal.
 R|SA|sa-tea|high green|Pomeroy is at the Rainroot teahouse, pacing himself against a hundred potatoes.
 R|NWE|nwe-tea|rainy-day comfort|Pomeroy has taken the dry corner of the Mistmoor teahouse and is eyeing the kettle.
 R|SE|ow-press|sunshine|Pomeroy waits by the olive press with a heel of bread and a great deal of patience.

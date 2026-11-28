@@ -7414,6 +7414,10 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .rmap a.rmpin.sel .rp { stroke: #7ee07e; stroke-width: 4; }
 .rmap a.rmpin { cursor: pointer; }
 .hubpop .trows { padding: 0; }
+/* 2.8.99c: Mossbottom's Mentors card: one row per calling mentor (portrait, name, calling), the gnome's own lit */
+.mentorrows .mentorrow { display: flex; gap: 10px; align-items: center; color: inherit; text-decoration: none; }
+.mentorrows .mentorrow .portrait.small { flex: none; }
+.mentorrows .trow.mine { background: rgba(212, 160, 23, .14); border-radius: var(--radius-sm); padding-left: 6px; padding-right: 6px; }
 
 /* v2.5.28: shop fronts: each shop's own card, and the Mossbottom stall list */
 .hubpop .shcard { text-align: center; }
@@ -8209,6 +8213,31 @@ details.sgq summary{cursor:pointer}
 .tmfolk-in svg{animation:tmfolkbob .3s steps(2,end) 6}
 @media (prefers-reduced-motion: reduce){.tmfolk-in,.tmfolk-in svg{animation:none}}
 .sgrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
+
+/* 2.8.99 Sights v2 (sights_v2_open): the simpler card, the result card, a tap on a Sight's picture */
+.sgv2 .sgline{margin:0 0 4px}
+.sgv2l{font-size:.9rem}
+.sgv2 .sgv2do{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin-top:8px}
+.sgv2 .sgv2do .btn{min-height:44px}
+.sgv2 .sgv2do .muted{flex:1 1 100%}
+.sgrest{font-weight:700;margin-top:8px}
+.sgres .sgstory{font-size:1rem;margin:0 0 8px}
+.sgchips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0}
+.sgchip{display:inline-flex;align-items:center;min-height:32px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);font-weight:700;font-size:.88rem}
+.sgchip.more{font-weight:400}
+.sglucky,.sghint,.sgalso{margin:4px 0}
+.sgres .actrow{display:flex;justify-content:center;margin:10px 0 0}
+.sgres .actrow .btn{min-height:44px;min-width:120px}
+.tilemap .tmt.sgtap{cursor:pointer}
+.tilemap .tmt.sgtap:hover,.tilemap .tmt.sgtap:focus-visible{background:rgba(245,207,106,.18);outline:2px solid #f5cf6a;outline-offset:-2px}
+/* 2.8.99: on a computer the Sights panel (and the v2 result card) sits under the Trail buttons instead of floating over the page; phones keep the pop-up */
+@media (min-width: 721px) {
+  dialog.picker.sginline[open]:not(:modal){position:static;inset:auto;width:auto;height:auto;max-height:none;margin:4px 0 10px;padding:0;display:block;z-index:auto}
+  dialog.picker.sginline[open]:not(:modal) .pickbox{width:auto;max-width:none;max-height:none;box-shadow:none;border:2px solid var(--line);border-radius:10px}
+  dialog.picker.sginline[open]:not(:modal) .hubcard{overflow:visible}
+  dialog.picker.sginline[open]:not(:modal) .sgcards{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+  dialog.picker.sginline.sgres[open]:not(:modal) .sgcards{grid-template-columns:1fr}
+}
 
 /* Pal Jobs: Garden crew panel, grouped by garden (next release) */
 .pjcrew .pjcrewgarden { margin: .7rem 0 .2rem; font-size: .95rem; opacity: .85; }

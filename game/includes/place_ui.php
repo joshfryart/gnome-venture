@@ -722,11 +722,18 @@ function place_switcher_html(array $node, string $active): string
     $items = [
         'world' => ['🌍 <span>World</span>', url('world.php')],
         'here' => ['📍 <span>' . e((string)$node['name']) . '</span>', url('town.php')],
-        'hub' => ['🍄 <span>Mossbottom</span>', url('town.php?hub=1')],
+        'hub' => ['🍄 <span>Mossbottom</span>', url(here_hub_map_on() ? 'here.php?hub=1' : 'town.php?hub=1')],   // 2.8.99b: Mossbottom opens on its picture, like standing in a main town
     ];
     $h = '<nav class="psw" aria-label="Where to">';
     foreach ($items as $k => [$lab, $href]) $h .= '<a class="' . ($k === $active ? 'on' : '') . '" href="' . e($href) . '"' . ($k === $active ? ' aria-current="page"' : '') . '>' . $lab . '</a>';
     return $h . '</nav>';
+}
+
+/** 2.8.99b: is Mossbottom's picture page (here.php?hub=1) open to this player? The same switch as every Here picture (gnav_on; admins preview). */
+function here_hub_map_on(): bool
+{
+    require_once __DIR__ . '/here_schema.php';
+    return gnav_on() || is_admin();
 }
 
 /** Place header: scene art (a file in assets/img/scenes/, temporarily red-outlined for review), kicker line, name, optional line and chips. */

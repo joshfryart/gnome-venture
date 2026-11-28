@@ -11,6 +11,15 @@
     var hs = t.closest('[data-pop]');
     if (hs && hs.closest('.hubscene, .gnavtools, .trailui, .tmgrid') && plain(ev)) {
       var d = document.getElementById(hs.getAttribute('data-pop'));
+      if (d && d.classList.contains('sginline') && sgWide()) {   /* 2.8.99: on a computer the Sights panel opens in the page, under the Trail buttons, not as a pop-up */
+        ev.preventDefault();
+        document.querySelectorAll('dialog.hubpop[open]').forEach(function (o) { if (o !== d) { if (o.close) o.close(); else o.removeAttribute('open'); } });
+        if (d.open && d.matches && d.matches(':modal')) d.close();
+        if (!d.open) { if (d.show) d.show(); else d.setAttribute('open', ''); }
+        back = hs; lazyLoad(d);
+        try { d.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+        return;
+      }
       if (d && window.gvOpenDlg) {
         ev.preventDefault();
         document.querySelectorAll('dialog.hubpop[open]').forEach(function (o) { if (o !== d) { if (o.close) o.close(); else o.removeAttribute('open'); } });   // one card at a time
@@ -42,6 +51,19 @@
   document.addEventListener('close', function (ev) {   // 'close' does not bubble: capture phase
     if (ev.target.classList && ev.target.classList.contains('hubpop') && back) { back.classList.remove('on'); try { back.focus(); } catch (e) {} back = null; }
   }, true);
+  /* 2.8.99 Sights v2: the Sights panel and the result card arrive open in the page (?sg=1, after a use). On a computer they stay there, under the Trail buttons;
+     on a phone they become a real pop-up (modal), after the gnome's walk has played. Without this script they still show, as before. */
+  function sgWide() { return !!(window.matchMedia && window.matchMedia('(min-width: 721px)').matches); }
+  function sgPromote() {
+    if (sgWide()) return;
+    if (document.querySelector('.tilemap.tmplay, .tilemap[data-walk]:not([data-played])')) return;   /* the walk is playing: gv:walked comes back here */
+    var d = document.querySelector('dialog.sgpromote[open]');
+    if (!d || !d.showModal || d.matches(':modal') || document.querySelector('dialog:modal')) return;
+    try { d.removeAttribute('open'); d.showModal(); } catch (e) { d.setAttribute('open', ''); }
+  }
+  document.addEventListener('DOMContentLoaded', sgPromote);
+  document.addEventListener('gv:swapped', sgPromote);
+  document.addEventListener('gv:walked', sgPromote);
   /* The encounter on a Trail walk is a popover that cannot be dismissed until it is settled: open it as a real modal on load and after an in-place page swap. */
   function trailPops() {
     document.querySelectorAll('dialog.trailpop').forEach(function (d) {

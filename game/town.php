@@ -111,6 +111,12 @@ if ($viewReq === 'reststop' && !$hub && $nodeNow['kind'] === 'market' && (functi
 }
 $town = town_for($u, $hub);
 $q = $hub ? 'hub=1&' : '';
+if (!empty($_GET['spot']) && !q_val('SELECT 1 FROM town_spots WHERE id = ? AND region = ? AND active = 1', [(int)$_GET['spot'], $town])) {   // 2.8.99c: the calling mentors moved to Mossbottom
+    require_once __DIR__ . '/includes/calling_quests.php';
+    $asked = q_one('SELECT id, slug, region, active FROM town_spots WHERE id = ?', [(int)$_GET['spot']]);
+    if ($asked && !(int)$asked['active'] && in_array((string)$asked['slug'], array_column(CALLING_MENTORS, 6), true)) redirect(calling_hall_url());   // an old region-town lodge link: the Mentors' Hall
+    if ($asked && (int)$asked['active'] && !$hub && (string)$asked['region'] === HUB_REGION) redirect('town.php?hub=1&spot=' . (int)$asked['id']);   // a Mossbottom spot (the hall) without hub=1
+}
 $spot = !empty($_GET['spot']) ? q_one('SELECT * FROM town_spots WHERE id = ? AND region = ? AND active = 1', [(int)$_GET['spot'], $town]) : null;
 if ($spot) town_mark_present($uid, (int)$spot['id']);
 if ($ajax && $spot && isset($_GET['frag'])) spot_card_reply($u, $hub, (int)$spot['id']);
@@ -229,6 +235,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
   <?= place_switcher_html($node, $hub ? 'hub' : 'here') ?>
   <?= place_header_html('stop-market.png', $town . ' town square', 'Main stop · Town square', $town, '', place_chips($u)) ?>
   <?php if (!$hub) { require_once __DIR__ . '/includes/destination.php'; echo dest_resume_html($u); }   // v1.0.4: carry on along the route ?>
+  <?php if ($hub && here_hub_map_on()): ?><p class="hubmaplink"><a class="btn" href="<?= e(url('here.php?hub=1')) ?>">🗺️ Mossbottom picture map</a></p><?php endif;   // 2.8.99b: the hub's Here picture ?>
   <?php if ($glance && ($fest = town_festival($town))): ?>
     <div class="festival"><span><?= $fest[1] ?></span><div><b>Today: the <?= e($fest[0]) ?>!</b> <?= e($fest[3]) ?><br><small>Everything in the square pays twice today, and there’s a festival stall on the Green.</small></div></div>
   <?php endif; ?>
