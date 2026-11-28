@@ -113,7 +113,7 @@ function mark_catalogue(): array
     foreach (stops_file_rows('stop_perks.txt') as $r) {
         if (count($r) < 14) continue;
         $c[$r[0]] = ['key' => $r[0], 'region' => $r[1], 'stop' => $r[2], 'type' => $r[4], 'bar' => $r[5], 'icon' => $r[6], 'name' => $r[7],
-            'effect' => $r[8], 'family' => $r[9], 'class' => $r[10], 'scope' => mark_scope_parse($r[11]), 'size' => (int)$r[12], 'impact' => (float)$r[13],
+            'effect' => $r[8], 'family' => $r[9], 'class' => $r[10], 'scope' => mark_scope_parse($r[11]), 'size' => (int)$r[12], 'impact' => (float)$r[13], 'hook' => $r[14] ?? 'site',
             'loc_id' => $bySlug[$r[3]] ?? ($byName[mark_name_key($r[2])] ?? 0)];
     }
     return $c;
