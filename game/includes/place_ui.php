@@ -24,7 +24,9 @@ function go_map_html(array $u, array $node, int $goId, string $destHtml = ''): s
 {
     $rid = (int)($node['region_id'] ?? 0);
     if (!$rid) return '';
-    if (myc_on() && region_art_path($rid) === '') $map = '<div class="mapwrap regionwrap mycwrap">' . myc_region_block($u, $rid, $goId) . '</div>';
+    $map = region_map_block($u, $rid, $goId, true);   // 2.8.93 Map v2 ('' unless this region is on the lit floor map)
+    if ($map !== '') $map = '<div class="mapwrap regionwrap">' . $map . '</div>';
+    elseif (myc_on() && region_art_path($rid) === '') $map = '<div class="mapwrap regionwrap mycwrap">' . myc_region_block($u, $rid, $goId) . '</div>';
     else {
         $svg = region_map_svg($u, $rid, $goId, true);
         $map = $svg === '' ? '' : '<div class="mapwrap regionwrap"><div class="rzoom"><div class="rzctl" hidden><button type="button" class="btn small" data-z="in" aria-label="Zoom in">＋</button><button type="button" class="btn small" data-z="out" aria-label="Zoom out">−</button><button type="button" class="btn small" data-z="fit" aria-label="Whole region">⤢</button></div>' . $svg . '</div></div>';

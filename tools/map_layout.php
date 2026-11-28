@@ -41,7 +41,7 @@ require_once $game . '/includes/region_layout.php';
 
 $out = [];
 foreach (q('SELECT code FROM regions ORDER BY id')->fetchAll(PDO::FETCH_COLUMN) as $code) {
-    $L = region_layout((string)$code);
+    $L = region_layout((string)$code, false);   // 2.8.93: always the v1 layout (the old art), whatever map_v2_open says
     if (!$L) continue;
     $t = $L['slots'][$L['town']];
     $stops = [];

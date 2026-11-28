@@ -12,6 +12,7 @@ require_once __DIR__ . '/items.php';   // v1.5.2: ph_img (placeholders)
 require_once __DIR__ . '/adventure.php';
 require_once __DIR__ . '/world.php';
 require_once __DIR__ . '/climate.php';   // v0.8.9
+require_once __DIR__ . '/map_v2.php';   // 2.8.93: Map v2 (setting map_v2_open, off by default)
 require_once __DIR__ . '/maps_myc.php';   // v1.6.0: mycelium maps (map_style: fallback style when a map picture is missing; classic keeps the functions below)
 
 // Region code => [x, y, land colour, blob radius] on a 1000 × 560 map, roughly where they sit on Earth.
@@ -50,6 +51,7 @@ function road_ctrl(array $a, array $b): array
  */
 function map_positions(): array
 {
+    if (map_v2_world_on()) return map_positions_v2();   // 2.8.93 Map v2
     static $pos = null;
     if ($pos !== null) return $pos;
     $pos = [];
@@ -260,6 +262,7 @@ function player_map_pos(array $u): ?array
         foreach ($GLOBALS['gv_road_curves'] ?? [] as $rc) {   // 2.8.53: on a road the hat follows the drawn curve, not the straight line between the two stops
             $tf = $rc['t'][(int)$exp['from_id']] ?? null; $tt = $rc['t'][(int)$exp['to_id']] ?? null;
             if ($tf === null || $tt === null) continue;
+            if (isset($rc['poly'])) return array_map('intval', array_map('round', map_poly_at($rc['poly'], $tf + ($tt - $tf) * $t)));   // 2.8.93 Map v2: along the painted thread
             [$qx, $qy] = map_bez($rc['a'], $rc['c'], $rc['b'], $tf + ($tt - $tf) * $t);
             return [(int)round($qx), (int)round($qy)];
         }
@@ -301,6 +304,7 @@ function map_text(string $t, int $y, int $size, array $o = []): string
 /** The underground world picture (assets/img/scenes/map-world.png, its tunnels drawn along the real roads), or '' if missing. */
 function world_art_path(): string
 {
+    if (map_v2_world_on()) return scene_path('map2', 'world');   // 2.8.93 Map v2
     require_once __DIR__ . '/scene.php';
     return scene_path('map', 'world');
 }
@@ -310,6 +314,7 @@ function region_art_path(int $regionId): string
 {
     require_once __DIR__ . '/scene.php';
     $code = (string)(q_one('SELECT code FROM regions WHERE id = ?', [$regionId])['code'] ?? '');
+    if ($code !== '' && map_v2_region_on($code)) return scene_path('map2', $code);   // 2.8.93 Map v2
     return $code === '' ? '' : scene_path('map', $code);
 }
 
@@ -320,6 +325,7 @@ function region_art_path(int $regionId): string
  */
 function world_map_svg(array $u, ?int $sel = null): string
 {
+    if (map_v2_world_on()) return world_map2_svg($u, $sel);   // 2.8.93 Map v2
     $art = world_art_path();   // the underground pixel-art world: the default world map whenever the picture is there
     if ($art === '' && myc_on()) return myc_world_svg($u, $sel);   // v1.6.0: mycelium style (map_style = classic keeps the drawing below)
     $regions = [];
@@ -507,6 +513,7 @@ function map_bez(array $a, array $c, array $b, float $t): array
  */
 function region_map_svg(array $u, int $regionId, int $selId = 0, bool $focus = false): string
 {
+    if (map_v2_on() && ($M = map2_model($u, $regionId, $selId, 0, 0))) return region_map2_svg($M);   // 2.8.93 Map v2: the lit floor map (callers that want the whole widget use region_map_block)
     require_once __DIR__ . '/region_layout.php';
     require_once __DIR__ . '/scene.php';
     $reg = q_one('SELECT * FROM regions WHERE id = ?', [$regionId]);

@@ -30,11 +30,24 @@ const RL_H = 270;
 const RL_R = ['town' => 16, 'stop' => 13, 'far' => 12, 'village' => 12, 'small' => 10];   // marker radius by type
 
 /** A region's layout, keyed by region code (upper case). The same every time for the same world. */
-function region_layout(string $code): ?array
+function region_layout(string $code, ?bool $v2 = null): ?array
 {
-    static $cache = [];
-    if (array_key_exists($code, $cache)) return $cache[$code];
-    return $cache[$code] = region_layout_build($code);
+    // 2.8.93 Map v2: null = follow the gate (map_v2_region_on: the spread layout when the region is on the lit floor map), false = always v1, true = v2
+    if ($v2 === null) { require_once __DIR__ . '/map_v2.php'; $v2 = map_v2_region_on($code); }
+    $cache = &$GLOBALS['gv_rl_cache'];
+    $cache ??= [];
+    $k = $code . ($v2 ? '|2' : '');
+    if (array_key_exists($k, $cache)) return $cache[$k];
+    $L = array_key_exists($code, $cache) ? $cache[$code] : ($cache[$code] = region_layout_build($code));   // v1, built once
+    if (!$v2 || !$L) return $cache[$k] = $L;
+    require_once __DIR__ . '/map_v2.php';
+    return $cache[$k] = rl_apply_spread($L, (array)rl_spread_for($code));
+}
+
+/** 2.8.93: forget the cached layouts (tests flip settings and data files within one request). */
+function region_layout_flush(): void
+{
+    $GLOBALS['gv_rl_cache'] = [];
 }
 
 const RL_HEADINGS = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE'];   // screen compass (y grows down), 45 degrees apart from east

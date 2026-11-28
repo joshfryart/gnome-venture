@@ -179,7 +179,8 @@ function here_routes_map(array $u, array $node, array $infos): string
     $cx = ($x0 + $x1) / 2; $cy = ($y0 + $y1) / 2;
     $vx = max(0.0, min($W - $w, $cx - $w / 2)); $vy = max(0.0, min($H - $h, $cy - $h / 2));
     if ($w > $W) { $w = (float)$W; $vx = 0.0; } if ($h > $H) { $h = (float)$H; $vy = 0.0; }
-    $art = scene_path('map', $code);
+    require_once __DIR__ . '/map_v2.php';
+    $art = map_art_path($code);   // 2.8.93: the lit floor picture when this region is on Map v2 (region_layout follows the same gate)
     $svg = '<svg class="rmap" viewBox="' . round($vx) . ' ' . round($vy) . ' ' . round($w) . ' ' . round($h) . '" role="group" aria-label="Map of the ways out of ' . e((string)$node['name']) . '">';
     $svg .= $art !== '' ? '<image class="mapart" href="' . e(url($art)) . '" x="0" y="0" width="' . $W . '" height="' . $H . '" preserveAspectRatio="none" image-rendering="pixelated"/>' : '<rect x="0" y="0" width="' . $W . '" height="' . $H . '" fill="#cfe6e0"/>';
     foreach ($L['roads'] as $rd) {   // the roads in view
