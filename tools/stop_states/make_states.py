@@ -17,17 +17,19 @@ writes 32 pictures to game/assets/img/scenes (or DIR), deterministic (fixed seed
   here-town-<code>-ruin.png / -work.png for the 14 region towns (not the hub), here-town-ruin.png / -work.png (generic
   fallback) and stop-market-ruin.png / -work.png (the town header; its 3 stall boxes are MARKET_HEADER_SPOTS).
   The fixed pictures (here-town-<code>.png, here-town.png, stop-market.png) are only read, never written.
-  ruin (Run low) = overcast at town_strength() (about .4 to .8, aims at ~15% visibly changed pixels), the 'shops' spots keep
-         colour + a lit lamp + an OPEN board, other windows dimmed, 60% of them shuttered, flags faded, roof patches, moss,
-         weeds, a crack, an empty cart. No holes, no rubble.
-  work (Mending) = the fixed picture with a stepped half still run low, scaffold on the teahouse, library and homes buildings, cart + crates +
-         shelf at the shop, more lamps, planks on the green.
+  ruin (Run low) = lamps-out dusk: ruin_rgb() (overcast + up to 30% darker) at RUIN_STRENGTH, a little lighter near the main
+         shop (TOWN_LEVELS, dithered steps); the main shop keeps its colour, every shop front gets a lit lamp and an OPEN
+         board; all other lights out, lit windows boarded, plank crosses on walls, cobwebs, 45% of the flags torn off and
+         the rest faded, weeds and dust on the paving, a fallen barrel and crate, roof patches, an empty cart. No holes.
+  work (Mending) = the same recolour at TOWN_WORK of the strength (mid brightness), every other building back to its fixed
+         colours and the rest still run low (per building, no half-plane), half the lights lit, half the torn flags rehung,
+         scaffold + tarp + ladder on up to 3 buildings, a cart of planks, crates and the shelf at the shop, work lamps, tools.
   Every position comes from the spot boxes in game/includes/data/here_layouts.json (town-<code>; the generic 'town' layout
   has no boxes, so 72 x 64 round each spot). The middle 40% of every spot box (centre()) is never painted over: props refuse
   it and it is restored from the recoloured picture at the end. Each twin is snapped to its fixed picture's palette
-  (town_palette(): the fixed colours, their overcast twins, the house prop colours) and asserted to stay inside it.
+  (town_palette(): the fixed colours, their run-low and mending recolours, the house prop colours) and asserted to stay inside it.
   Prints colours and the visibly changed share (RGB distance >= 36) per picture; --sheet writes a 2x contact sheet
-  (na, ea, mena x run low / mending / thriving).
+  (mena, ea, na x run low / mending / thriving), with the same at 1x (phone size) under it.
 """
 import argparse, json, math, os, random
 import numpy as np
@@ -815,7 +817,7 @@ def contact(rows, path, scale=2, labels=('RUINED', 'WORKING', 'FIXED')):
 LAYOUTS = os.path.join(REPO, 'game', 'includes', 'data', 'here_layouts.json')
 TOWN_CODES = ['ca', 'cb', 'sa', 'nwe', 'se', 'ee', 'mena', 'wca', 'esa', 'csa', 'ea', 'na', 'sea', 'oc']   # hub: never (decision 1)
 # stop-market.png (the town header) has no layout key: its three stalls, the middle one is the shop that stays open
-MARKET_HEADER_SPOTS = [('stall_l', 'board', (8, 60, 158, 205)), ('stall_m', 'shops', (166, 60, 318, 205)), ('stall_r', 'green', (326, 60, 474, 205))]
+MARKET_HEADER_SPOTS = [('stall_l', 'homes', (8, 60, 158, 205)), ('stall_m', 'shops', (166, 60, 318, 205)), ('stall_r', 'homes', (326, 60, 474, 205))]
 
 SPRITES.update({
     'patch': ["kkkkk", "kSTSk", "kTsTk", "kkkkk"],
@@ -949,29 +951,69 @@ def corner_cands(box, w, h, inside=True):
     return c if inside else c[2:4] + c[:2] + c[4:]
 
 
+SPRITES.update({
+    'boards_x': ["kk.......kk", "kwbk...kbwk", ".kwbk.kbwk.", "..kwbkbwk..", "...kwbwk...", "..kwbkbwk..", ".kwbk.kbwk.", "kwbk...kbwk", "kk.......kk"],
+    'web': ["ssssss", "s..s..", "s.s.s.", "ss..s.", "s.s...", "s....."],
+    'dust': ["...TT...", ".TSSsT..", "TSsssSST"],
+    'barrel_side': ["..kkkkkkkkk.", ".kSbbbkbbbSk", "kkSBbbkbbBSk", "kTkBbbkbbBSk", "kkSBbbkbbBSk", ".kSbbbkbbbSk", "..kkkkkkkkk."],
+    'cart_planks': [
+        "..kkkkkkkkkkkkkk......",
+        "..kWWWWWWWWWWWWk......",
+        ".kkkkkkkkkkkkkkkk.....",
+        ".kwwwwwwwwwwwwwwk.....",
+        "kkkkkkkkkkkkkkkkkk....",
+        "kWWWWWWWWWWWWWWWWk....",
+        "kbwwwbwwwwbwwwwwbk....",
+        "kBbbbBbbbbBbbbbbBkkkkk",
+        "kkkkkkkkkkkkkkkkkkWWWk",
+        "...kkk.......kkk..kkkk",
+        "..kSTSk.....kSTSk.....",
+        "..kTkTk.....kTkTk.....",
+        "...kkk.......kkk......",
+    ],
+})
+
+
+TOWN_LEVELS = (.55, .75, .9, 1.0, 1.0, 1.0)   # run-low strength by distance from the lit shop (steps of 33 px, Bayer-dithered edges)
+TOWN_WORK = .45                                  # mending recolour = this share of the run-low one
+
+
+def ruin_rgb(a, strength):
+    """Run-low colour: the overcast map (strength capped at 1.6), then dimmed (up to 30% darker): lamps-out dusk."""
+    s = min(1.6, strength)
+    o = overcast_rgb(a, s).astype(np.float32) * (1 - .3 * min(1.0, s))
+    return np.clip(np.rint(o), 0, 255).astype(np.uint8)
+
+
 def town_palette(fixed, strength=.6):
-    """The palette a twin may use: the fixed picture's colours, their overcast twins (ruin strength and 1.0) and the house prop palette."""
+    """The palette a twin may use (its 'palette family'): the fixed picture's colours, their run-low twins at the ruin
+    strength, half of it (mending) and 1.4 (faded flags), and the house prop palette."""
     cols = np.array(sorted({c[1][:3] for c in Image.fromarray(fixed).getcolors(1 << 20)}), np.uint8)[None]
-    allc = np.concatenate([cols[0], overcast_rgb(cols, strength)[0], overcast_rgb(cols, 1.0)[0], np.array(list(PAL.values()), np.uint8)])
-    return np.unique(allc, axis=0)
+    ss = [strength * f for f in TOWN_LEVELS] + [strength * f * TOWN_WORK for f in TOWN_LEVELS] + [1.4]
+    allc = [cols[0]] + [ruin_rgb(cols, s)[0] for s in ss] + [np.array(list(PAL.values()), np.uint8)]
+    return np.unique(np.concatenate(allc), axis=0)
 
 
 def snap(a, pal):
     """Every pixel to its nearest palette colour (hard, no dither)."""
     flat = a.reshape(-1, 3)
     u, inv = np.unique(flat, axis=0, return_inverse=True)
-    d = ((u[:, None, :].astype(np.int32) - pal[None].astype(np.int32)) ** 2).sum(axis=2)
-    return pal[d.argmin(axis=1)][inv.reshape(-1)].reshape(a.shape)
+    out = np.empty_like(u)
+    pf = pal.astype(np.float32)
+    for i in range(0, len(u), 256):
+        d = ((u[i:i + 256, None, :].astype(np.float32) - pf[None]) ** 2).sum(axis=2)
+        out[i:i + 256] = pal[d.argmin(axis=1)]
+    return out[inv.reshape(-1)].reshape(a.shape)
 
 
 def visible(a, b):
-    """Pixels that visibly differ: RGB distance >= 36 (a plain tone shift of the overcast is mostly below it)."""
+    """Pixels that visibly differ: RGB distance >= 36 (a slight tone shift stays below it)."""
     return np.sqrt(((a.astype(np.int32) - b.astype(np.int32)) ** 2).sum(axis=2)) >= 36
 
 
 def shop_keep(src, shops, ring=24, share=.02):
-    """The shop spots' own pixels: inside each shop box, minus colours that are common in a ring round it (sky, ground),
-    so the kept colour reads as a lit building, not as a rectangle."""
+    """The spots' own pixels: inside each box, minus colours that are common in a ring round it (sky, ground),
+    so a recolour follows the building, not its rectangle."""
     H, W = src.shape[:2]
     keep = np.zeros((H, W), bool)
     codes = (src[..., 0].astype(np.int32) << 16) | (src[..., 1].astype(np.int32) << 8) | src[..., 2]
@@ -984,117 +1026,233 @@ def shop_keep(src, shops, ring=24, share=.02):
     return keep
 
 
-def town_strength(src, keep, aim=.15):
-    """Overcast strength for a town ruin: the strongest of .4 .. 1.0 (steps of .025) whose recolour alone, snapped to the
-    twin palette, changes at most `aim` of the picture visibly (see visible()); props add a few % on top.
-    Lands at .4 to .6 for most towns; dusk towns (already grey) get more."""
-    best = .4
-    for s in np.arange(.4, 1.001, .025):
-        s = round(float(s), 3)
-        d = visible(snap(overcast(src, s, keep=keep, lit=small_lit(src) & keep, frame=False), town_palette(src, s)), src)
-        if d.mean() <= aim:
-            best = s
-    return best
+class Town:
+    """What both twins share: spots, shops, building masks, lights and flags of one fixed picture."""
+
+    def __init__(self, src, spots):
+        self.src, self.spots = src, spots
+        self.shops = [b for _, beh, b in spots if beh == 'shops']
+        # the shop that keeps its colour: the biggest shop front (the Maplewold has four); every shop front gets lamp + OPEN
+        self.main_shop = max(self.shops, key=lambda b: (b[2] - b[0]) * (b[3] - b[1])) if self.shops else None
+        self.keep = shop_keep(src, [self.main_shop] if self.main_shop else [])
+        self.ground = 208 if spots[0][0] == 'stall_l' else 120   # weeds, dust, tools only below this (stop-market: below the stalls)
+        self.buildings = sorted([b for _, beh, b in spots if beh in ('teahouse', 'library', 'homes')], key=lambda b: b[0])
+        H, W = src.shape[:2]                                    # light map: the further from a shop, the darker
+        yy, xx = np.mgrid[0:H, 0:W]
+        d = np.full((H, W), 1e9)
+        for x0, y0, x1, y1 in ([self.main_shop] if self.main_shop else [(W // 2, H // 2, W // 2 + 1, H // 2 + 1)]):
+            dx = np.maximum(0, np.maximum(x0 - xx, xx - x1)); dy = np.maximum(0, np.maximum(y0 - yy, yy - y1))
+            d = np.minimum(d, np.hypot(dx, dy))
+        bayer = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]]) / 16 - .5
+        band = 200 / len(TOWN_LEVELS)
+        d = d + np.tile(bayer, (H // 4 + 1, W // 4 + 1))[:H, :W] * band * .9          # a dithered step, not a hard ring
+        self.level = np.clip((d / band).astype(int), 0, len(TOWN_LEVELS) - 1)
+        self.own = [shop_keep(src, [b]) for b in self.buildings]
+        self.any_own = np.zeros(src.shape[:2], bool)
+        for m in self.own:
+            self.any_own |= m
+        lit = small_lit(src)
+        self.lights = [c for c in components(lit) if not self.keep[c[2]:c[4], c[1]:c[3]].any()]
+        self.lit = lit
+        band = min(b[1] for _, _, b in spots)
+        h = to_hsv(src)
+        f = (h[..., 1] >= 110) & (h[..., 2] >= 120)
+        f[max(0, band + 10):] = False
+        self.flags = []
+        for c in components(f):
+            n, x0, y0, x1, y1 = c
+            if 3 <= n <= 40 and x1 - x0 <= 10 and y1 - y0 <= 10 and not self.keep[y0:y1, x0:x1].any():
+                m = np.zeros(src.shape[:2], bool)
+                m[y0:y1, x0:x1] = f[y0:y1, x0:x1]
+                self.flags.append((c, m))
+        self.horizon = band
+
+    def lights_out(self, a, comps):
+        for n, x0, y0, x1, y1 in comps:
+            darken_lights(a, (max(0, x0 - 1), max(0, y0 - 1), x1 + 1, y1 + 1))
+
+    def recolour(self, strength):
+        """Run-low colours everywhere but the shops' own pixels (and their lights), stronger away from the shop."""
+        a = self.src.copy()
+        for i, f in enumerate(TOWN_LEVELS):
+            m = self.level == i
+            if m.any():
+                a[m] = ruin_rgb(self.src, strength * f)[m]
+        k = self.keep | (self.lit & self.keep)
+        a[k] = self.src[k]
+        return a
 
 
-def town_ruin(src, spots, seed, strength=.6):
-    """Run low: overcast at town_strength() (about .4 to .8), the shop spots keep colour, lamp lit and an OPEN board; other lights out, half the
-    lit windows shuttered, banners faded, patches on the roofs, moss and weeds (no rubble, no holes), an empty cart."""
+def board_window(a, x0, y0, x1, y1):
+    """A dark window boarded with a plank cross."""
+    x0, y0, x1, y1 = x0 - 1, y0 - 1, x1 + 1, y1 + 1
+    a[y0:y1, x0:x1] = PAL['T']
+    for d in (0, 1):
+        line(a, (x0, y0 + d), (x1 - 1, y1 - 1 - (1 - d)), PAL['b' if d else 'w'])
+        line(a, (x1 - 1, y0 + d), (x0, y1 - 1 - (1 - d)), PAL['b' if d else 'w'])
+    a[y0, x0:x1] = INK; a[y1 - 1, x0:x1] = INK; a[y0:y1, x0] = INK; a[y0:y1, x1 - 1] = INK
+
+
+RUIN_STRENGTH = 1.0   # one strength for every town: the state must read at a glance, so no per-town search
+
+
+def ground_cands(T, rng, n, y_lo=None):
+    y_lo = max(y_lo or 0, T.ground)
+    return [(rng.randint(20, 452), rng.randint(y_lo, 258)) for _ in range(n)]
+
+
+def town_ruin(T, seed, strength):
+    """Run low: dim and grey (ruin_rgb), shop lit with an OPEN board, every other light out, windows boarded, flags torn
+    or faded, cobwebs, dust, weeds on the paving, a fallen barrel and crate, roof patches, an empty cart. No holes."""
     rng = random.Random(seed)
-    shops = [b for _, beh, b in spots if beh == 'shops']
-    keep = shop_keep(src, shops)
-    lit = small_lit(src)
-    a = overcast(src, strength, keep=keep, lit=lit & keep, frame=False)            # only the shops keep their lights
-    band = min(b[1] for _, _, b in spots)                       # banners down: small bright flags above the buildings fade to grey
-    h = to_hsv(src)
-    flags = (h[..., 1] >= 110) & (h[..., 2] >= 120)
-    flags[max(0, band + 10):] = False
-    sky = np.zeros(src.shape[:2], bool)
-    for n, x0, y0, x1, y1 in components(flags):
-        if n <= 40 and x1 - x0 <= 10 and y1 - y0 <= 10:
-            sky[y0:y1, x0:x1] |= flags[y0:y1, x0:x1]
-    sky &= ~keep
-    a[sky] = overcast_rgb(src, 1.0)[sky]
-    P = Props(a, spots)
-    for k, beh, b in spots:
-        if beh == 'shops':
-            continue
+    src = T.src
+    a = T.recolour(strength)
+    T.lights_out(a, T.lights)
+    P = Props(a, T.spots)
+    gone = []
+    for i, (c, m) in enumerate(T.flags):                        # bunting: 45% of the flags torn off, the rest faded
+        n, x0, y0, x1, y1 = c
+        if rng.random() < .45:
+            mm = m.copy()
+            mm[y0:y1 + 1, x0:x1] |= src[y0:y1 + 1, x0:x1].sum(axis=2) < 200   # the flag's ink edge too
+            heal_synth(a, mm, rng, reach=20, share=.2)
+            gone.append(i)
+        else:
+            a[m] = ruin_rgb(src, 1.4)[m]
+    for b in T.buildings:                                       # lit windows boarded (not in the centre)
         x0, y0, x1, y1 = b
-        wins = [c for c in components(lit[y0:y1, x0:x1]) if c[0] >= 4 and 2 <= c[3] - c[1] <= 12 and 2 <= c[4] - c[2] <= 12]
-        for n, wx0, wy0, wx1, wy1 in wins:
-            if rng.random() < .6 and not P.no[y0 + wy0 - 1:y0 + wy1 + 1, x0 + wx0 - 1:x0 + wx1 + 1].any():
-                shutter(a, x0 + wx0, y0 + wy0, x0 + wx1, y0 + wy1)
-    base = a.copy()                                             # recolour + shutters: what the box centres keep
-    for k, beh, b in spots:
-        if beh == 'shops':
-            continue
+        for n, wx0, wy0, wx1, wy1 in T.lights:
+            if x0 <= wx0 and wx1 <= x1 and y0 <= wy0 and wy1 <= y1 and n >= 4 and wx1 - wx0 >= 3 and wy1 - wy0 >= 3:
+                if not P.no[wy0 - 1:wy1 + 1, wx0 - 1:wx1 + 1].any() and rng.random() < .7:
+                    board_window(a, wx0, wy0, wx1, wy1)
+    base = a.copy()
+    for b, own in zip(T.buildings, T.own):
         x0, y0, x1, y1 = b
-        for _ in range(2):                                      # patches on the roof
-            for _try in range(12):
-                x = rng.randint(x0 + 3, max(x0 + 4, x1 - 9))
-                y = roof_line(a, x, y0, y1)
-                if y is not None and P.put(rng.choice(['patch', 'patch_w']), x, y + 2):
+        w, h = x1 - x0, y1 - y0
+        put = 0
+        for _try in range(40):                                  # plank crosses on the walls
+            x = rng.randint(x0 + 2, max(x0 + 3, x1 - 13))
+            y = rng.randint(y0 + int(h * .35), max(y0 + int(h * .35) + 1, y1 - 12))
+            if own[y:y + 9, x:x + 11].mean() > .8 and P.put('boards_x', x, y):
+                put += 1
+                if put == 3:
                     break
+        P.put('web', x0 + 1, y0 + int(h * .15)) if own[y0 + int(h * .15):y0 + int(h * .15) + 6, x0 + 1:x0 + 7].mean() > .5 else None
+        if own[y0 + int(h * .15):y0 + int(h * .15) + 6, x1 - 7:x1 - 1].mean() > .5:
+            P.put('web', x1 - 7, y0 + int(h * .15), flip=True)
+        for _try in range(12):                                  # a patch on the roof
+            x = rng.randint(x0 + 3, max(x0 + 4, x1 - 9))
+            y = roof_line(a, x, y0, y1)
+            if y is not None and P.put(rng.choice(['patch', 'patch_w']), x, y + 2):
+                break
         skip = lambda x, y: P.no[min(y, 269), min(x, 479)] or P.no[max(15, min(y - 4, 269)), min(x + 4, 479)]
-        overgrow(a, b, rng, moss=3, ivy=0, rubble=0, cracks=1, weeds=3, skip=skip)
-    for b in shops:                                             # the shop: lamp on, OPEN board, warm door glow
+        overgrow(a, b, rng, moss=3, ivy=0, rubble=0, cracks=1, weeds=2, skip=skip)
+    for x, y in ground_cands(T, rng, 90):                       # weeds and dust on the paving
+        nm = 'weeds' if rng.random() < .7 else 'dust'
+        w, h = sprite_size(nm)
+        if not T.any_own[y:y + h, x:x + w].any():
+            P.put(nm, x, y)
+    for nm in ('barrel_side', 'crate'):                         # something fell and nobody picked it up
+        w, h = sprite_size(nm)
+        for x, y in ground_cands(T, rng, 80, T.ground + 20):
+            if not T.any_own[y:y + h, x:x + w].any() and P.put(nm, x, y):
+                break
+    for b in T.shops:                                           # the shop: lamp on, OPEN board
         w, h = sprite_size('work_lantern')
         P.lamp(corner_cands(b, w, h)[4:6] + corner_cands(b, w, h)[:2])
         P.first('open_sign', corner_cands(b, *sprite_size('open_sign')))
-    g = [b for _, beh, b in spots if beh == 'green'] or [spots[0][2]]
+    g = [b for _, beh, b in T.spots if beh == 'green'] or [T.spots[0][2]]
     cw, ch = sprite_size('cart')
-    P.first('cart', corner_cands(g[0], cw, ch) + corner_cands(spots[-1][2], cw, ch), flip=rng.random() < .5)
-    a[P.no] = base[P.no]                                        # no wear or prop over a spot's centre, ever
-    return a
+    P.first('cart', corner_cands(g[0], cw, ch) + corner_cands(T.spots[-1][2], cw, ch), flip=rng.random() < .5)
+    a[P.no] = base[P.no]                                        # nothing over a spot's centre, ever
+    return a, gone
 
 
-def town_work(src, ruined, spots, seed):
-    """Mending: the fixed picture with a stepped half still run low, scaffold on the two widest buildings, a cart being
-    unloaded and crates at the shop, the shelf out, more lamps lit."""
+def tarp(a, x0, y0, x1, y1):
+    """A cloth hung over the top of a scaffold: blue with fold lines, ragged hem."""
+    a[y0:y1, x0:x1] = PAL['u']
+    for x in range(x0 + 2, x1, 4):
+        a[y0:y1, x] = (44, 104, 132)
+    a[y0, x0:x1] = INK; a[y0:y1, x0] = INK; a[y0:y1, x1 - 1] = INK
+    for x in range(x0, x1):
+        a[y1 - (x % 3 == 0), x] = INK
+
+
+def town_work(T, ruined, gone, seed, strength):
+    """Mending: mid colours (half the ruin recolour), every other building back in full colour (per building, no
+    half-plane), the rest still run low with its boards; half the lights lit; the torn flags half rehung; scaffold with a
+    tarp on 2 to 3 buildings, a cart of planks at the shop, ladder, sawhorse, bucket, work lamps."""
     rng = random.Random(seed + 1)
-    a = src.copy()
-    m = stepped_mask(a.shape, (0, 0, 480, 270), (1, .7), 360, 8)
-    a[m] = ruined[m]
+    src = T.src
+    a = T.recolour(strength * TOWN_WORK)
+    for i, c in enumerate(T.lights):                            # half the lamps lit
+        n, x0, y0, x1, y1 = c
+        sl = (slice(max(0, y0 - 1), y1 + 1), slice(max(0, x0 - 1), x1 + 1))
+        a[sl] = src[sl] if i % 2 == 0 else ruined[sl]
+    mended = []
+    for i, (b, own) in enumerate(zip(T.buildings, T.own)):     # per building: mended (fixed) or not yet (run low)
+        if i % 2 == 0:
+            a[own] = src[own]; mended.append(True)
+        else:
+            a[own] = ruined[own]; mended.append(False)
+    for i, (c, m) in enumerate(T.flags):                        # flags: half the torn ones rehung, the faded ones bright
+        if i in gone and gone.index(i) % 2:
+            heal_synth(a, m, rng, reach=20, share=.2)
+        else:
+            a[m] = src[m]
     base = a.copy()
-    P = Props(a, spots)
-    shops = [b for _, beh, b in spots if beh == 'shops']
-    others = sorted([(b[2] - b[0], k, b) for k, beh, b in spots if beh in ('teahouse', 'library', 'homes')], reverse=True)   # buildings only (special spots can be ponds, trees)
-    for _, k, b in others[:3]:                                  # scaffold on an outer third of the box (left, else right), clear of its centre, only against a wall
+    P = Props(a, T.spots)
+    order = [b for b, md in zip(T.buildings, mended) if not md] + [b for b, md in zip(T.buildings, mended) if md]
+    n_sc = 0
+    for b in order:                                             # scaffold + tarp on an outer third, clear of the centre
+        if n_sc == 3:
+            break
         x0, y0, x1, y1 = b
         w = int((x1 - x0) * .3) - 10
         if w < 12:
             continue
         top = y0 + int((y1 - y0) * .2)
         lift = max(12, (y1 - top) // 3)
-        own = shop_keep(src, [b])                               # the building's own pixels (not sky / ground)
+        own = T.own[T.buildings.index(b)]
         for sx0 in (max(20, x0 + 3), x1 - 6 - w):
             if P.free(sx0 - 3, top - 1, w + 9, y1 - top) and own[top:y1, sx0:sx0 + w].mean() >= .5:
                 scaffold(a, (sx0, top, sx0 + w, y1 - 2), bay=max(10, w // 2), lift=lift)
+                tarp(a, sx0 + 2, top + 1, sx0 + w - 1, top + int((y1 - top) * .45))
                 P.mark(sx0 - 3, top - 1, w + 9, y1 - top)
+                n_sc += 1
+                lad = (x1 - 6 - w + w // 2) if sx0 < (x0 + x1) // 2 else (x0 + 4)
+                if P.free(lad, top + 8, 9, y1 - top - 8):
+                    ladder(a, lad, top + 8, y1 - 2); P.mark(lad, top + 8, 9, y1 - top - 8)
                 break
-    for b in shops[:1]:
-        cw, ch = sprite_size('cart')
-        at = P.first('cart', corner_cands(b, cw, ch, inside=False) + corner_cands(b, cw, ch))
+    for b in T.shops:                                           # every shop front mended first
+        m = shop_keep(src, [b])
+        base[m] = src[m]; a[m] = src[m]
+    for b in [T.main_shop] if T.main_shop else []:              # a cart of planks being unloaded at the shop
+        cw, ch = sprite_size('cart_planks')
+        at = P.first('cart_planks', corner_cands(b, cw, ch, inside=False) + corner_cands(b, cw, ch))
         if at:
             P.put('crate', at[0] + cw, at[1] + ch - 10) or P.put('crate', at[0] - 11, at[1] + ch - 10)
-            P.put('sack', at[0] + 4, at[1] - 8)
         sw, sh = sprite_size('shelf')
         s = P.first('shelf', corner_cands(b, sw, sh + 4))
         if s:
             stamp(a, 'apples', s[0] + 3, s[1] - 3); stamp(a, 'apples', s[0] + 11, s[1] - 3)
-            P.put('crate', s[0] + 2, s[1] + 8) if P.free(s[0] + 2, s[1] + 8, 10, 10) else None
         P.first('crate', corner_cands(b, 10, 10)[1:])
     lit_n = 0
-    for k, beh, b in sorted(spots, key=lambda t: t[2][0]):      # the shop and two more buildings get a lamp
-        if beh in ('shops',) or (beh not in ('wild', 'green') and lit_n < 2):
-            w, h = sprite_size('work_lantern')
-            if P.lamp(corner_cands(b, w, h)[4:6] + corner_cands(b, w, h)[:2]) and beh != 'shops':
-                lit_n += 1
-    sx, sy = sprite_size('planks')
-    for k, beh, b in spots:
-        if beh == 'green':
-            P.first('planks', corner_cands(b, sx, sy)); P.first('sawhorse', corner_cands(b, 12, 6))
-    a[P.no] = base[P.no]                                        # no prop over a spot's centre, ever
+    for b in T.shops + T.buildings:                             # work lamps: the shop and two more
+        w, h = sprite_size('work_lantern')
+        if (P.lamp(corner_cands(b, w, h)[4:6] + corner_cands(b, w, h)[:2])) and b not in T.shops:
+            lit_n += 1
+        if lit_n == 2:
+            break
+    for nm in ('planks', 'sawhorse', 'bucket', 'rope_coil'):   # tools on the ground
+        w, h = sprite_size(nm)
+        for x, y in ground_cands(T, rng, 80, T.ground + 10):
+            if not T.any_own[y:y + h, x:x + w].any() and P.put(nm, x, y):
+                break
+    for x, y in ground_cands(T, rng, 50):                       # a few weeds left
+        if not T.any_own[y:y + 4, x:x + 6].any():
+            P.put('weeds', x, y)
+    a[P.no] = base[P.no]                                        # nothing over a spot's centre, ever
     return a
 
 
@@ -1106,34 +1264,52 @@ def town_jobs():
     return j
 
 
-def town_main(out, sheet, check_only=False):
+def town_sheet(rows, path):
+    """Contact sheet: 3 towns x 3 states at 2x, then the same at 1x (phone size) under it."""
+    labels = ('RUN LOW', 'MENDING', 'THRIVING')
+    t2, t1 = path + '.2x.png', path + '.1x.png'
+    contact(rows, t2, 2, labels)
+    contact(rows, t1, 1, labels)
+    a2, a1 = np.array(Image.open(t2)), np.array(Image.open(t1))
+    out = np.zeros((a2.shape[0] + a1.shape[0], a2.shape[1], 3), np.uint8)
+    out[:] = INK
+    out[:a2.shape[0]] = a2
+    out[a2.shape[0]:, :a1.shape[1]] = a1
+    Image.fromarray(out).save(path)
+    os.remove(t2); os.remove(t1)
+
+
+def town_main(out, sheet, check_only=False, only=None):
     os.makedirs(out, exist_ok=True)
     rows, report = [], []
     for srcf, key, rf, wf in town_jobs():
+        if only and key not in only:
+            continue
         im = Image.open(os.path.join(SCENES, srcf))
         src = np.array(im.convert('RGB'))
-        spots = town_spots(key)
+        T = Town(src, town_spots(key))
         seed = sum(map(ord, key))
-        st = town_strength(src, shop_keep(src, [b for _, beh, b in spots if beh == 'shops']))
+        st = RUIN_STRENGTH
         pal = town_palette(src, st)
-        r = snap(town_ruin(src, spots, seed, st), pal)
-        w = snap(town_work(src, r, spots, seed), pal)
+        r0, gone = town_ruin(T, seed, st)
+        r = snap(r0, pal)
+        w = snap(town_work(T, r, gone, seed, st), pal)
         line_ = [srcf, st]
+        pal_set = {tuple(c) for c in pal.tolist()}
         for arr, name in ((r, rf), (w, wf)):
             assert arr.shape == (270, 480, 3), name
             used = np.unique(arr.reshape(-1, 3), axis=0)
-            pal_set = {tuple(c) for c in pal.tolist()}
             assert all(tuple(c) in pal_set for c in used.tolist()), name + ': colour outside the twin palette'
             share = float(visible(arr, src).mean())
             line_.append((name, len(used), round(100 * share, 1)))
             if not check_only:
                 Image.fromarray(arr).convert('RGBA').save(os.path.join(out, name))
         report.append(line_)
-        if key in ('town-na', 'town-ea', 'town-mena'):
+        if key in ('town-mena', 'town-ea', 'town-na'):
             rows.append((key[5:], [Image.fromarray(r), Image.fromarray(w), Image.fromarray(src)]))
-    if sheet:
-        contact(rows, sheet, labels=('RUN LOW', 'MENDING', 'THRIVING'))
-    print(f'{"fixed":24} {"overcast":8} {"twin":28} colours  visible diff % (RGB distance >= 36)')
+    if sheet and rows:
+        town_sheet(rows, sheet)
+    print(f'{"fixed":24} {"ruin st":8} {"twin":28} colours  visible diff % (RGB distance >= 36)')
     for l in report:
         for name, nc, sh in l[2:]:
             print(f'{l[0]:24} {l[1]:8} {name:28} {nc:7}  {sh:5}')
@@ -1146,10 +1322,11 @@ def main():
     ap.add_argument('--out', default=None)
     ap.add_argument('--look', default='grassland_maplewold')
     ap.add_argument('--kinds', default='mill,shrine,ferry')
-    ap.add_argument('--sheet', default=None, help='town: contact sheet path (3 towns x 3 states, 2x)')
+    ap.add_argument('--sheet', default=None, help='town: contact sheet path (3 towns x 3 states, 2x + 1x)')
+    ap.add_argument('--only', default=None, help='town: comma list of layout keys (town-ca,town,stop-market) to make')
     o = ap.parse_args()
     if o.recipe == 'town':
-        town_main(o.out or SCENES, o.sheet)
+        town_main(o.out or SCENES, o.sheet, only=o.only.split(',') if o.only else None)
         return
     o.out = o.out or os.path.join(os.getcwd(), 'stops')
     os.makedirs(o.out, exist_ok=True)
