@@ -9,6 +9,9 @@ declare(strict_types=1);
 /** Default recommended level per region code, in the order a gnome is meant to wander. */
 const REGION_LEVELS = ['NA' => 1, 'CA' => 4, 'NWE' => 6, 'CB' => 8, 'SE' => 10, 'SA' => 12, 'EE' => 14,
     'MENA' => 17, 'EA' => 20, 'CSA' => 23, 'SEA' => 26, 'WCA' => 29, 'ESA' => 32, 'OC' => 35];
+/** World v2 (master doc 2.1, setting world_v2_open): the band floor of each region's tier. Applied by world_v2_levels() (world_v2.php), never lowering a level. */
+const REGION_LEVELS_V2 = ['NA' => 1, 'CA' => 15, 'NWE' => 15, 'CB' => 25, 'SA' => 25, 'SE' => 25, 'EE' => 25,
+    'MENA' => 35, 'CSA' => 35, 'WCA' => 35, 'ESA' => 35, 'EA' => 45, 'SEA' => 45, 'OC' => 45];
 
 /** The region new gnomes start in (admin setting, by code). */
 function start_region_id(): int
@@ -119,7 +122,7 @@ function next_region_suggestion(array $u): ?array
     $byCode = [];
     foreach (q('SELECT * FROM regions')->fetchAll() as $r) $byCode[$r['code']] = $r;
     $best = null;
-    foreach (ROAD_PAIRS as [$a, $b]) {
+    foreach (road_pairs() as [$a, $b]) {
         foreach ([[$a, $b], [$b, $a]] as [$from, $to]) {
             if (!isset($byCode[$from], $byCode[$to])) continue;
             if (!in_array((int)$byCode[$from]['id'], $been, true) || in_array((int)$byCode[$to]['id'], $been, true)) continue;

@@ -18,6 +18,7 @@ const LAIR_LEVEL_1115 = ['Temple of the Tiger Moth' => 27, 'Dragonlizard Den' =>
  */
 
 require_once __DIR__ . '/world.php';
+require_once __DIR__ . '/world_v2.php';   // 2026-11-28: the two v2 roads and signposted paths (only while world_v2_open is on)
 
 /** Neighbouring regions, by code. Each pair is one road. */
 const ROAD_PAIRS = [
@@ -25,6 +26,14 @@ const ROAD_PAIRS = [
     ['NWE', 'SE'], ['NWE', 'EE'], ['SE', 'MENA'], ['EE', 'CSA'], ['MENA', 'WCA'], ['MENA', 'CSA'],
     ['WCA', 'ESA'], ['ESA', 'CSA'], ['CSA', 'EA'], ['CSA', 'SEA'], ['EA', 'SEA'], ['SEA', 'OC'],
 ];
+/** World v2 (master doc 2.2, setting world_v2_open): two more roads, laid by world_v2_lay_road() (world_v2.php) after the others, so the old road ids stay. */
+const ROAD_PAIRS_V2 = [['CB', 'WCA'], ['SA', 'ESA']];
+
+/** The roads of this world: ROAD_PAIRS, and ROAD_PAIRS_V2 once world_v2_open is on. */
+function road_pairs(): array
+{
+    return setting('world_v2_open') === '1' ? array_merge(ROAD_PAIRS, ROAD_PAIRS_V2) : ROAD_PAIRS;
+}
 // Roads that stop at their last village instead of reaching the far town (2.6.32: Clovercove is the end of the Maplewold road to Blossomreach).
 const ROAD_DEAD_ENDS = [['NA', 'EA']];
 const ROAD_STEPS = 3;   // spaces on each stretch of road
@@ -196,13 +205,15 @@ function visible_routes(array $u, int $locId): array
     require_once __DIR__ . '/adventure.php';
     $out = [];
     foreach (routes_from($locId) as $r) {
-        if (($r['kind'] ?? 'road') === 'side' && !on_road((int)$r['to']['id']) && !place_known((int)$u['id'], $r['to'])) continue;
+        $sign = setting('world_v2_open') === '1' && world_v2_signposted_from($r, $locId);   // world v2: a path out of the region is signposted
+        if (($r['kind'] ?? 'road') === 'side' && !on_road((int)$r['to']['id']) && !place_known((int)$u['id'], $r['to']) && !$sign) continue;
         [$r['walk_min'], $r['quick']] = route_walk_minutes($u, $r);   // v0.9.7: minutes for this gnome, and whether it is a quick walk
         $r['gate'] = '';   // 2.8.85: the Warden's words when a Seal door closes this road (the card still shows; the walk is refused with this text)
         if (setting('seals_open') === '1' && !empty($r['to']['region_id'])) {
             $fromRegion = (int)q_val('SELECT region_id FROM locations WHERE id = ?', [$locId]);
             if ($fromRegion && $fromRegion !== (int)$r['to']['region_id']) { require_once __DIR__ . '/seals.php'; $r['gate'] = seal_warden_message((int)$u['id'], $fromRegion, (int)$r['to']['region_id']); }
         }
+        if ($sign && $r['gate'] === '') $r['gate'] = world_v2_door_refusal((int)$u['id'], q_one('SELECT * FROM locations WHERE id = ?', [$locId]) ?: [], $r['to']);
         $out[] = $r;
     }
     return $out;

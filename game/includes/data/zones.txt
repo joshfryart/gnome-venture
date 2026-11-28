@@ -55,3 +55,7 @@ OC|1|island|Lagoon Ring Atolls|easy|3
 OC|2|coast|Kelpwhisker Coast|medium|3
 OC|3|forest|Fernmist Gullies|medium|2
 OC|4|desert|The Red Heart|hard|3
+# 2026-11-28 world v2 (master doc 2.3): two new Maplewold zones, made only when the setting world_v2_open is on (includes/world_v2.php),
+# never by the importer. Kept last so every older village keeps its place in its landscape (village_land_rank). Villages: data/world_v2_places.txt.
+NA|5|wetland|Beaverdam Fens|medium|1|world_v2
+NA|6|mountain|Cairnback Ridge|medium|1|world_v2

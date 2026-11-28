@@ -266,6 +266,7 @@ function explore_discover(array $u, array $exp, int $pct = 100): ?string
     foreach (q("SELECT a_id, b_id FROM routes WHERE kind = 'road' AND (a_id = ? OR b_id = ?)", [$from['id'], $from['id']])->fetchAll() as $r) {
         $near[] = (int)$r['a_id'] === (int)$from['id'] ? (int)$r['b_id'] : (int)$r['a_id'];
     }
+    if (setting('world_v2_open') === '1') { require_once __DIR__ . '/world_v2.php'; $near = world_v2_discover_near($uid, $near); }   // world v2: the paths beyond Cattailmere and Granitegate
     $in = implode(',', array_map('intval', array_unique($near)));
     $candidates = [];
     foreach (q("SELECT l.* FROM locations l JOIN routes r ON r.b_id = l.id AND r.kind = 'side' WHERE l.region_id = ? AND r.a_id IN ($in) ORDER BY l.id", [$from['region_id']])->fetchAll() as $l) {

@@ -137,7 +137,7 @@ function import_adventure(array $regions, array $regionIds, array $regionById, a
     $zoneInfo = [];          // zoneId => ['region_id','region_code','region_gnomish','zone_num','landscape','name','difficulty','villages']
 
     foreach ($zoneRows as $row) {
-        if (count($row) < 6) continue;
+        if (count($row) < 6 || ($row[6] ?? '') === 'world_v2') continue;   // 2026-11-28: world v2 zones are made by world_v2.php, only when world_v2_open is on
         [$regCode, $zoneNum, $landscape, $zoneName, $difficulty, $villageCount] = $row;
         $zoneNum = (int)$zoneNum;
         $villageCount = max(1, min(5, (int)$villageCount));

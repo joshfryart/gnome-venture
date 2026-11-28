@@ -175,9 +175,10 @@ function route_danger(array $u, array $route): array
     if (($route['kind'] ?? '') === 'road' || (($route['kind'] ?? '') === 'side' && !(int)$route['fixed'])) {   // v0.7.24: roads (and gentle side paths)
         return [$gentle, $gentle, true];
     }
-    // v0.7.85: fixed-route levels are stored as absolute values (roads.php), so use them as they are; never above 40
-    $min = min(40, max(1, (int)$route['min_level']));
-    return [$min, min(40, max($min, (int)$route['max_level'])), false];
+    // v0.7.85: fixed-route levels are stored as absolute values (roads.php), so use them as they are; never above 40 (world v2: 57, a band-top lair's path)
+    $cap = setting('world_v2_open') === '1' ? 57 : 40;
+    $min = min($cap, max(1, (int)$route['min_level']));
+    return [$min, min($cap, max($min, (int)$route['max_level'])), false];
 }
 
 /**
@@ -223,7 +224,9 @@ function start_expedition(array $u, int $routeId): array
     if (($route['kind'] ?? 'road') === 'side') {   // v0.7.24: side paths only lead to places you've found
         require_once __DIR__ . '/roads.php';
         $dest = q_one('SELECT * FROM locations WHERE id = ?', [$to]);
-        if (!$dest || (!on_road($to) && !place_known((int)$u['id'], $dest))) return [false, 'You don’t know the way there yet. Explore off the road to find it.'];
+        $sign = $dest && world_v2_signposted_from(['to' => $dest] + $route, (int)$here['id']);   // world v2: a signposted path out of the region, behind its own door
+        if (!$dest || (!on_road($to) && !place_known((int)$u['id'], $dest) && !$sign)) return [false, 'You don’t know the way there yet. Explore off the road to find it.'];
+        if ($sign && ($door = world_v2_door_refusal((int)$u['id'], $here, $dest)) !== '') return [false, $door];
     }
     if (setting('seals_open') === '1') {   // 2.8.85: a Seal door on the border (the way back is never closed: seals.php)
         $toRegion = (int)q_val('SELECT region_id FROM locations WHERE id = ?', [$to]);
