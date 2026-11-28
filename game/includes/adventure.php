@@ -188,10 +188,10 @@ function route_danger(array $u, array $route): array
 function route_walk_minutes(array $u, array $route): array
 {
     $mins = (int)$route['minutes'];
-    if ($mins > 0 && !empty($u['id'])) {   // 2.6.33: Spring in Step perk
-        require_once __DIR__ . '/player_perks.php';
-        $sp = player_perk_pct((int)$u['id'], 'spring_step', 'perk_spring_step');
+    if ($mins > 0 && !empty($u['id'])) {   // 2.6.33: Spring in Step perk; F05 lasting marks, the larger of the two
+        [$sp, $mk] = mark_vs_old((int)$u['id'], 'walk', mark_ctx_route($u, $route), 'spring_step', 'perk_spring_step');
         if ($sp > 0) $mins = max(1, (int)round($mins * (100 - $sp) / 100));
+        $mins = mark_less($mins, $mk, 1);
     }
     $pct = (int)setting('low_road_time_pct');
     if ($mins <= 0 || $pct >= 100) return [$mins, false];
@@ -262,6 +262,7 @@ function start_expedition(array $u, int $routeId): array
         if ($rkMin > 0) rk_charge_travel((int)$u['id'], $rkSecs, $rkMin);
     }
     $gc = gnome_combat($u, true);
+    $gc['max_hp'] += mark_fx((int)$u['id'], 'hp', mark_ctx_walk((int)$here['id'], $to, (int)$route['id']));   // F20 lasting marks: on this road
     [$min, $max, $scaled] = route_danger($u, $route);
     [$mins, $quickWalk] = route_walk_minutes($u, $route);   // v0.9.7: a road far below you is a quick walk
     if (setting('climate_on') === '1') {   // v0.8.9: some climates make walks into the region slower
@@ -463,10 +464,10 @@ function give_find(array $u, array $scene): string
         $rich = max(0, climate_fx((int)$scene['region_id'])['finds'] ?? 0);
     }
     // Gathering comes first: what the landscape offers, if the gnome carries the right tool.
-    $hint = '';
+    $hint = ($mc = mark_coins_line(mark_coins_on($uid, 'coin_on_a_road_walk', mark_ctx_here($uid)))) !== '' ? $mc . '. ' : '';   // A4 lasting marks
     if (random_int(1, 100) <= 60 && ($g = gather_on_walk($u, (string)$scene['land']))) {
-        if (!str_starts_with($g, '👀')) return $g;
-        $hint = $g . ' ';
+        if (!str_starts_with($g, '👀')) return $hint . $g;
+        $hint .= $g . ' ';
     }
     $r = random_int(1, 100);
     if ($r <= 35 && ($msg = give_local_seed($u, $scene))) {
@@ -1292,7 +1293,9 @@ function rest_heal(array &$exp): void
     $pct = max(0, min(50, (int)setting('walk_rest_heal_percent')));
     $max = (int)$exp['max_hp'];
     if ($pct <= 0 || (int)$exp['hp'] >= $max || (int)$exp['hp'] <= 0) return;
-    $n = min($max - (int)$exp['hp'], max(1, (int)round($max * $pct / 100)));
+    $n = max(1, (int)round($max * $pct / 100));
+    if (mark_hooks_on()) $n = mark_heal((int)$exp['user_id'], $n, mark_ctx_walk((int)$exp['from_id'], (int)$exp['to_id'], (int)$exp['route_id']) + ['group' => 'trail']);   // F09 lasting marks: resting on a trail
+    $n = min($max - (int)$exp['hp'], $n);
     $exp['hp'] = (int)$exp['hp'] + $n;
     $log = json_decode((string)$exp['log'], true) ?: [];
     if ($log) {

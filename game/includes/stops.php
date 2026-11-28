@@ -18,6 +18,7 @@ require_once __DIR__ . '/events.php';   // apply_event_effect (energy, buffs)
 
 require_once __DIR__ . '/stop_living.php';
 require_once __DIR__ . '/stop_marks.php';   // lasting marks, behind stop_marks_open
+require_once __DIR__ . '/stop_mark_hooks.php';
 
 const STOP_DP_WORDS = ['dawn' => 'at dawn', 'day' => 'by day', 'dusk' => 'at dusk', 'night' => 'at night'];
 const STOP_WEATHER_WORDS = ['sun' => 'sunny', 'cloud' => 'cloudy', 'rain' => 'rainy', 'storm' => 'stormy', 'frost' => 'frosty', 'heat' => 'hot', 'wind' => 'windy', 'fog' => 'foggy', 'snow' => 'snowy'];
@@ -704,6 +705,7 @@ function stop_rewards(array $u, array $loc, string $spec, float $f = 1.0, string
         switch ($k) {
             case 'c':
                 $n = (int)round(((int)$p[0] + (int)($p[1] ?? 0) * $lvl) * $pct * $f);
+                if (($act = mark_act_ctx()) && ($act['at'] ?? 0) === (int)$loc['id']) $n += mark_more($n, mark_fx($uid, 'stopcoin', $act));   // F15 lasting marks: coins from a stop act
                 if ($n > 0) { q('UPDATE users SET coins = coins + ? WHERE id = ?', [$n, $uid]); $lines[] = '+' . $n . ' ' . setting('currency_name'); }
                 break;
             case 'xp':
@@ -859,6 +861,8 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
     $icon = (string)$a['icon'];
     $note = '';
     $msg = '';
+    $mkAct = mark_hooks_on() ? mark_ctx_loc((int)$loc['id']) + ['kind' => $kind, 'type' => stop_type_of($loc), 'group' => $energy > 0 ? ['energy'] : []] : [];   // lasting marks: this act
+    mark_act_ctx($mkAct);
     db()->beginTransaction();
     try {
         q('UPDATE users SET id = id WHERE id = ?', [$uid]);   // v1.0.0: one of this gnome's rest-stop actions at a time (their lock), so the once-a-day check below can't be raced
@@ -881,6 +885,7 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
                 if (!isset($opts[$i]) || !isset(GNOME_STATS[$opts[$i][0]])) throw new UserError('Pick how to go about it.');
                 [$stat, $dc, $label] = [$opts[$i][0], (int)$opts[$i][1], $opts[$i][2]];
                 [$ok] = stop_check($fresh, $stat, $dc);
+                if (!$ok && mark_roll(mark_fx($uid, 'check', $mkAct))) $ok = true;   // F16 lasting marks: a kinder check
                 $lines = stop_rewards($fresh, $loc, $ok ? $win : $lose, 1.0, $seed);
                 $msg = $icon . ' ' . ($ok ? ($lineWin !== '' ? $lineWin : 'It goes well.') : ($lineLose !== '' ? $lineLose : 'It doesn’t go your way.'));
                 $note = $stat . ($ok ? ' ok' : ' miss');
@@ -996,7 +1001,8 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
                 if ($cost > 0 && q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$cost, $uid, $cost])->rowCount() !== 1) throw new UserError('You need ' . $cost . ' ' . $cur . '.');
                 if ($cost > 0) $lines[] = '−' . $cost . ' ' . $cur;
                 $lines = array_merge($lines, stop_rewards($fresh, $loc, $win, 1.0, $seed));
-                $healed = hp_heal_pct($fresh, (int)($p['heal'] ?? (preg_match('/soak|room_rest|spring/', $slug) ? 100 : hp_pct('hp_rest_percent', 50))));   // v2.3.5: baths and soaks heal fully, other rests by half
+                if (($mkEn = mark_fx($uid, 'restenergy', $mkAct)) > 0) { apply_event_effect(q_one('SELECT * FROM users WHERE id = ?', [$uid]), 'energy:' . $mkEn); $lines[] = '+' . $mkEn . ' energy (a lasting mark)'; }   // F22 lasting marks
+                $healed = hp_heal_pct($fresh, mark_heal($uid, (int)($p['heal'] ?? (preg_match('/soak|room_rest|spring/', $slug) ? 100 : hp_pct('hp_rest_percent', 50))), $mkAct));   // v2.3.5: baths and soaks heal fully, other rests by half; + F09 lasting marks
                 if ($healed > 0) $lines[] = '+' . $healed . ' ❤️';
                 $msg = $icon . ' ' . ($lineWin !== '' ? $lineWin : 'You rest a while.');
                 break;
@@ -1075,7 +1081,11 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
     } catch (Throwable $e) {
         if (db()->inTransaction()) db()->rollBack();   // v1.0.0: never leave the transaction open
         throw $e;
+    } finally {
+        mark_act_ctx(null, true);
     }
+    $mkCoins = mark_coins_on($uid, 'first_act_of_a_kind_at_the_stop', $mkAct) + ($kind === 'rest' ? mark_coins_on($uid, 'first_rest_act_at_the_stop', $mkAct) : 0);   // A4 lasting marks
+    if ($mkCoins > 0) $lines[] = mark_coins_line($mkCoins);
     if ($folk) {   // a little chat tag so the villager appears in the text sometimes
         $msg = trim($msg);
     }

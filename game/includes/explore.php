@@ -220,6 +220,7 @@ function explore_deeper(array $u, array &$exp, int $delta = 1): void
     $wild = min((int)setting('explore_wild_from'), (int)setting('explore_deep_from'));   // v0.7.74: wild country from this step (bosses and full-strength creatures); v0.7.75: deep wilds too
     $discoverChance = $depth <= 2 ? 12 : ($depth <= 5 ? 16 : 14);
     $discoverChance = (int)round($discoverChance * (100 + calling_perk($u, 'spot_pct')) / 100);   // v0.9.1: Wayfinders spot hidden places more often
+    if (mark_hooks_on()) $discoverChance += mark_more($discoverChance, mark_fx((int)$u['id'], 'spot', ['land' => $land] + mark_ctx_walk((int)$exp['from_id'], (int)$exp['to_id'], (int)$exp['route_id'])));   // F19 lasting marks
     if ($roll > 40 && $roll <= 62) {
         if ($ev = road_event_pick(exp_scene($exp), 'wild')) {   // v1.9.3: not the same scene again soon; v1.9.4: from road_events.txt, by land, region and weather
             $exp['encounter'] = json_encode(['type' => 'choice', 'ev' => $ev['id']]);
