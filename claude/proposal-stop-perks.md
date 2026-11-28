@@ -551,3 +551,9 @@ Checked against the code and Josh's fixed rules (marks latch for good, no expiry
 4. Pace: 5 to 8 visit-days a bar, about two months for the Maplewold roads.
 5. Marks toward Standing and Seals, or a separate layer?
 6. Market, herb and orchard stops have only 7 to 14% Repairs acts: is the answer-act cover enough, or should their lean move to Repairs?
+
+## Implementation status (stop marks foundation, behind `stop_marks_open`, default 0)
+- Code: `game/includes/stop_marks.php` (hook API in its header comment: `stop_marks_active`, `mark_pct`, `mark_place`, `mark_daily_available`, `mark_daily_use`, `mark_daycoin`, `mark_flag`; caps of 4 and P2 as constants), tables `stop_marks`, `stop_mark_use` (in `stops100_schema`), 13 settings (`stop_marks_open`, `perk_old_retired`, `mark_*`). Test `tests/stop_marks.sh`.
+- Data: `data/stop_perks.txt` (540 rows, `claude/tools_export_stop_perks.py [--db game.sqlite]`; unmatched today: Cattailmere, Granitegate, matched by name once they exist) and `data/stop_act_bars.txt` (`claude/tools_export_stop_act_bars.py`, the 60 suggested overrides applied).
+- `stop_is_place()` replaces `kind === 'village'` at: `stops.php` `stop_do`, `stop_living.php` `stop_perk_data` / `stop_perk_body`, `stop_pass.php` `stop_stamp`, `local.php` `local_do`, `place_ui.php` `stop_slim_card_html` (stamp), `here_view.php` `here_do_fronts`, `here_do_reply`, `here_stall_fronts`, `here_view` (stamp), `here_extra_do`, `town.php` (haven page header and panel). Kept village-only: adoption, land, stop folk sprites, `stop_assign_all`. The town's stop page is `town.php?view=reststop` (link on its Stop tab).
+- Not yet wired: the 23 family hooks and 28 daily triggers (call sites still read `player_perk_pct`), Admin perk pickers, the world-map / flag views. Stop types: the world's own (`stop_assign_all`) differ from the catalogue for most villages (Maplewold: 9 of 10); only the town and havens take the catalogue / 7.5 type.
