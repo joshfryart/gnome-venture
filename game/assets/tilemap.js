@@ -196,6 +196,7 @@
     for (var i = 0; i < this.feet.length; i++) this.feet[i].setAttribute('class', 'tmft on');
     if (this.chip) this.chip.hidden = true;
     if (cur === this) cur = null;
+    try { document.dispatchEvent(new Event('gv:walked')); } catch (e) {}   /* 2.8.99: a Sights v2 card waits for the walk (assets/hubscene.js) */
   };
 
   function scan() {
@@ -205,7 +206,7 @@
     if (!box) return;
     box.setAttribute('data-played', '1');
     if (cur) cur.end();
-    if (reduce() || !window.requestAnimationFrame) return;
+    if (reduce() || !window.requestAnimationFrame) { try { document.dispatchEvent(new Event('gv:walked')); } catch (e) {} return; }   /* no walk to play: whatever waits for it goes now */
     var w = new Walk(box);
     if (w.steps < 1 || !w.me) { w.end(); return; }
     cur = w;

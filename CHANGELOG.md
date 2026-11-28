@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.8.99
+- **Sights v2, switched off behind `sights_v2_open` (Admin, Settings, Hollow group; default Off).** The first three steps of the Sights rework (`claude/proposal-sights-rework.md`). With it on:
+  - **A simpler Sight card.** Name, one line, "Gives:" in plain words (at most three of: food, seeds, things, Petals, a boost, know-how, a tip), an errand line only when the Sight is your next step, a villager line only when one is there now, one Almanac line, and one button with the verb and the noun ("Pick the clover patch"). No more "10 min", "step 4 of 7 · done" or villager timetables on the card. A used Sight says "Resting. Back in 6 sleeps."; one waiting for its time says "Comes out at dusk." with no button.
+  - **Tap a Sight's picture on the map:** the gnome walks there (the usual walk) and its card opens. The row under the map keeps one Sights button (next to a ready Sight it becomes that Sight's button); the per-Sight verb buttons are gone.
+  - **A Sight never fails.** A check never blocks and never costs energy: a miss pays the same rewards at half and shows the old miss line; a pick of three still has three buttons and every one pays (the right one is the lucky one, full); a tool Sight without the tool pays half with a tip ("A tide bucket would get more here."); time, season and weather Sights still wait for their time. No cap of Sights per walk.
+  - **A result card:** the story line, up to three gift chips, a lucky line, a new Almanac page line, when it is back, and one "Lovely" button.
+  - **Balance:** a sim of all 219 rows (`tests/sights_v2_sim.php`) says energy-1 Sights pay 15.8 Petal-value per energy with v2 against 13.1 now (one Gather is about 15); the 91 checked Sights pay about 1.6 times what they did on average (at most 2 times, for a 1-in-3 pick); no Sight goes over two Gathers because of it.
+  - With it off, Sights work exactly as before.
+- **On a computer, the "Sights here" panel sits under the Trail buttons** instead of floating over the page (screens 721 px wide and up, Sights v2 on or off). Phones keep the pop-up.
+
 ## 2.8.98
 - **Map v2: a Puzzle Pal waiting at a place shows its own picture.** It was a small 🧩 text mark. It is now the pal's picture in a ring by rarity (grey common, blue uncommon, gold dashed rare), about 20 units across (the size of the place dot), drawn over the place's dot on region maps (stops and places off the road); the hover title names the pal. Same marker the older map uses (`ppal_marker_svg`).
 
