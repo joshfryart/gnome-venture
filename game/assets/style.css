@@ -7414,6 +7414,10 @@ dialog.trailpop.wanderpop .pickbox { width: min(400px, 94vw); }
 .rmap a.rmpin.sel .rp { stroke: #7ee07e; stroke-width: 4; }
 .rmap a.rmpin { cursor: pointer; }
 .hubpop .trows { padding: 0; }
+/* 2.8.99c: Mossbottom's Mentors card: one row per calling mentor (portrait, name, calling), the gnome's own lit */
+.mentorrows .mentorrow { display: flex; gap: 10px; align-items: center; color: inherit; text-decoration: none; }
+.mentorrows .mentorrow .portrait.small { flex: none; }
+.mentorrows .trow.mine { background: rgba(212, 160, 23, .14); border-radius: var(--radius-sm); padding-left: 6px; padding-right: 6px; }
 
 /* v2.5.28: shop fronts: each shop's own card, and the Mossbottom stall list */
 .hubpop .shcard { text-align: center; }

@@ -421,6 +421,7 @@ function hub_scene(string $key, array $hotspots, array $sprites, array $opts): s
     $open = (string)($opts['open'] ?? '');
     $navCards = [];
     foreach (['routes', 'world'] as $nk) if (!empty($opts['nav'][$nk]['card'])) $navCards[] = ['id' => $nk, 'label' => (string)$opts['nav'][$nk]['title'], 'card' => $opts['nav'][$nk]['card']];
+    foreach ($opts['nav']['extra'] ?? [] as $x) if (!empty($x['card']) && empty($x['form'])) $navCards[] = ['id' => (string)$x['id'], 'label' => (string)($x['title'] ?? $x['label']), 'card' => $x['card']];   // 2.8.99c: a round button with its own card (Mossbottom's Mentors)
     foreach (array_merge($hotspots, $sprites, $navCards) as $h) {
         if (($h['card'] ?? '') === '') continue;
         $id = hub_id((string)$h['id']);

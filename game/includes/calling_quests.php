@@ -20,6 +20,7 @@ declare(strict_types=1);
  */
 
 require_once __DIR__ . '/gnome.php';
+require_once __DIR__ . '/world.php';   // HUB_REGION, can_reach (2.8.99c: the mentors live in Mossbottom)
 
 const CALLING_EVENT_KINDS = ['harvest', 'water', 'gather', 'cook', 'craft', 'defeat', 'befriend', 'page', 'arrive', 'walk', 'depth',
     'wonder', 'haven', 'travel', 'eat', 'sell', 'talk', 'gift', 'tend', 'seed_saved', 'townact', 'serve'];
@@ -92,13 +93,17 @@ function calling_add_serve_tasks(array $tasks): void
     }
 }
 
-/** The six mentors: calling => [name, npc slug, species, personality, bio, region code, lodge slug, lodge icon, lodge name, lodge description]. */
+/**
+ * The six mentors: calling => [name, npc slug, species, personality, bio, region code, lodge slug, lodge icon, lodge name, lodge description].
+ * 2.8.99c: they all live in Mossbottom now, in the Mentors' Hall (CALLING_MENTOR_HALL); the region code is where they came from (the Almanac and
+ * the old lodge rows), the lodge is their corner of the hall. The old lodge spots in the region towns are kept, switched off, so old links resolve.
+ */
 const CALLING_MENTORS = [
-    'rootwarden' => ['Burdock Deepdelve', 'burdock-deepdelve', 'Mole', 'Warm', 'A broad, patient mole who judges every garden by the smell of its soil. Keeps the Root Cellar for the Rootwardens of Birchbramble Steppe.',
+    'rootwarden' => ['Burdock Deepdelve', 'burdock-deepdelve', 'Mole', 'Warm', 'A broad, patient mole who judges every garden by the smell of its soil. Keeps the Root Cellar corner of the Mentors’ Hall in Mossbottom for the Rootwardens, and still smells of Birchbramble Steppe.',
         'EE', 'bb-rootcellar', '🕳️', 'The Root Cellar', 'A cool cellar under the market, shelves of jars, barrels of black earth, and a mole who is always sniffing something. Rootwardens come here to learn their trade.'],
     'bloomcaller' => ['Zinnia Fuzzbottom', 'zinnia-fuzzbottom', 'Bumblebee', 'Cheerful', 'A round, busy bumblebee who has never met a flower she did not like. Runs the Marigold Stall and mentors Bloomcallers.',
         'CA', 'ma-marigold', '🌼', 'The Marigold Stall', 'Buckets of orange marigolds, ribbons, and a faint hum. Bloomcallers come to share flowers and learn their craft.'],
-    'thornblade' => ['Captain Bracken Spurwing', 'bracken-spurwing', 'Stag beetle', 'Proud', 'A gleaming stag beetle who keeps watch over Mistmoor from the Old Watchtower and trains Thornblades.',
+    'thornblade' => ['Captain Bracken Spurwing', 'bracken-spurwing', 'Stag beetle', 'Proud', 'A gleaming stag beetle who came down from Mistmoor’s Old Watchtower to the Mentors’ Hall in Mossbottom, and trains Thornblades there.',
         'NWE', 'mm-watch', '🗼', 'The Old Watchtower', 'A crooked stone tower with a wide view of the mist. Thornblades report here for training and orders.'],
     'seedkeeper' => ['Sorrel Inkcap', 'sorrel-inkcap', 'Snail', 'Shy', 'A quiet snail librarian with ink-stained eyestalks. Keeps the Seed Library and mentors Seedkeepers, slowly and thoroughly.',
         'SE', 'ow-seedlib', '📚', 'The Seed Library', 'Drawers upon drawers of labelled seeds, and a ladder that goes up further than you can see. Seedkeepers study here.'],
@@ -108,43 +113,77 @@ const CALLING_MENTORS = [
         'CB', 'ss-brewhouse', '🍲', 'The Brewhouse', 'Copper kettles, hanging herbs and the smell of something good. Brewroots come to cook and compare recipes.'],
 ];
 
+/** 2.8.99c: the one place every calling mentor lives: [spot slug, icon, name, description]. A 'special' town spot in Mossbottom (HUB_REGION). */
+const CALLING_MENTOR_HALL = ['hub-mentors', '🎓', 'The Mentors’ Hall', 'A long, warm hall under the mushroom caps, reachable from anywhere. Each calling mentor keeps a corner: Burdock’s Root Cellar barrels, Zinnia’s Marigold Stall, the Captain’s Old Watchtower stair, Sorrel’s Seed Library drawers, Tumble’s Trailmarker’s Hut and Juniper’s Brewhouse kettles. Come and learn your calling.'];
+
+/** Bios as 0.9.4 wrote them => as they read now the mentors live in Mossbottom (an admin-edited bio is left alone). */
+const CALLING_MENTOR_OLD_BIOS = [
+    'burdock-deepdelve' => 'A broad, patient mole who judges every garden by the smell of its soil. Keeps the Root Cellar for the Rootwardens of Birchbramble Steppe.',
+    'bracken-spurwing' => 'A gleaming stag beetle who keeps watch over Mistmoor from the Old Watchtower and trains Thornblades.',
+];
+
 /**
- * v0.9.4: the six calling mentors, each with an NPC, a lodge in the town square (a "special" place with a link to mentor.php) and an
- * all-day schedule there. Safe to run again: every piece is only made if it is missing. Returns how many pieces were made.
+ * v0.9.4: the six calling mentors, each with an NPC, a place with a link to mentor.php and an all-day schedule there.
+ * 2.8.99c: that place is the Mentors' Hall in Mossbottom for all six (the owner: "all mentors for classes must be in Mossbottom"). Mossbottom is
+ * reachable from anywhere (can_reach), so npc_here() finds them from any town or stop: talk, take on, hand in and finish work from wherever the gnome is.
+ * An install from before: each mentor's schedule, home and favourite spot move to the hall and their old region-town lodge is switched off (the row
+ * stays, so town.php?spot=<old id> still resolves: town.php sends it to the hall). Chapters, progress, friendships and titles are never touched.
+ * Safe to run again: every piece is only made or moved if it is not already so. Returns how many pieces were made or moved.
  */
 function ensure_calling_mentors(): int
 {
     $made = 0;
+    $hubLoc = (int)q_val("SELECT id FROM locations WHERE kind = 'hub' ORDER BY id LIMIT 1");
+    if (!$hubLoc) return 0;   // no Mossbottom yet (the world is seeded first): the next run makes them
+    [$hslug, $hicon, $hname, $hdesc] = CALLING_MENTOR_HALL;
+    $hall = (int)q_val('SELECT id FROM town_spots WHERE slug = ?', [$hslug]);
+    if (!$hall) {
+        $hall = (int)db_insert('town_spots', ['slug' => $hslug, 'region' => HUB_REGION, 'kind' => 'special', 'icon' => $hicon, 'name' => $hname, 'description' => $hdesc,
+            'hours' => '', 'months' => '', 'sort_order' => 8, 'active' => 1]);
+        $made++;
+    }
+    $n = 0;
     foreach (CALLING_MENTORS as $calling => [$name, $nslug, $species, $pers, $bio, $code, $sslug, $icon, $sname, $sdesc]) {
-        $region = q_one('SELECT * FROM regions WHERE code = ?', [$code]);
-        if (!$region) continue;
-        $town = (string)$region['gnomish_name'];
-        $spotId = (int)q_val('SELECT id FROM town_spots WHERE slug = ?', [$sslug]);
-        if (!$spotId) {
-            $spotId = db_insert('town_spots', ['slug' => $sslug, 'region' => $town, 'kind' => 'special', 'icon' => $icon, 'name' => $sname, 'description' => $sdesc,
-                'hours' => '', 'months' => '', 'sort_order' => 8, 'active' => 1]);
+        $n++;
+        if (!q_val('SELECT 1 FROM town_actions WHERE slug = ?', [$hslug . '-' . $nslug])) {
+            db_insert('town_actions', ['spot_id' => $hall, 'slug' => $hslug . '-' . $nslug, 'label' => $icon . ' ' . $name . ' (' . (CALLINGS[$calling][0] ?? $calling) . ' chapters)',
+                'kind' => 'link', 'link' => 'mentor.php?m=' . $nslug, 'daily' => 0, 'sort_order' => $n, 'active' => 1]);
             $made++;
         }
-        if (!q_val('SELECT 1 FROM town_actions WHERE slug = ?', [$sslug . '-link-mentor'])) {
-            db_insert('town_actions', ['spot_id' => $spotId, 'slug' => $sslug . '-link-mentor', 'label' => '📜 Talk to ' . $name . ' (' . (CALLINGS[$calling][0] ?? $calling) . ' chapters)',
-                'kind' => 'link', 'link' => 'mentor.php?m=' . $nslug, 'daily' => 0, 'sort_order' => 1, 'active' => 1]);
-            $made++;
-        }
-        $loc = (int)q_val("SELECT id FROM locations WHERE region = ? AND kind = 'market' ORDER BY id LIMIT 1", [$town]);
+        $made += q('UPDATE town_spots SET active = 0 WHERE slug = ? AND active = 1', [$sslug])->rowCount();   // the old lodge in the region town: off, row kept
         $nid = (int)q_val('SELECT id FROM npcs WHERE slug = ?', [$nslug]);
         if (!$nid) {
             $nid = db_insert('npcs', ['name' => $name, 'slug' => $nslug, 'species' => $species, 'personality' => $pers, 'bio' => $bio, 'mood' => 70,
-                'home_location_id' => $loc ?: null, 'fav_spot_id' => $spotId, 'active' => 1]);
+                'home_location_id' => $hubLoc, 'fav_spot_id' => $hall, 'active' => 1]);
             $made++;
         }
         if (!q_val('SELECT 1 FROM npc_schedules WHERE npc_id = ?', [$nid])) {
-            db_insert('npc_schedules', ['npc_id' => $nid, 'location_id' => $loc ?: null, 'shop_id' => null, 'spot_id' => $spotId, 'activity' => 'visiting',
+            db_insert('npc_schedules', ['npc_id' => $nid, 'location_id' => $hubLoc, 'shop_id' => null, 'spot_id' => $hall, 'activity' => 'visiting',
                 'days' => 'all', 'start_hour' => 0, 'end_hour' => 0]);   // equal hours = all 24
             $made++;
         }
-        if (!q_val('SELECT fav_spot_id FROM npcs WHERE id = ?', [$nid])) q('UPDATE npcs SET fav_spot_id = ? WHERE id = ?', [$spotId, $nid]);   // so ensure_npc_lives leaves them alone
+        $made += q('UPDATE npc_schedules SET location_id = ?, spot_id = ?, shop_id = NULL WHERE npc_id = ? AND (location_id IS NULL OR location_id <> ? OR spot_id IS NULL OR spot_id <> ? OR shop_id IS NOT NULL)', [$hubLoc, $hall, $nid, $hubLoc, $hall])->rowCount();
+        $made += q('UPDATE npcs SET home_location_id = ?, fav_spot_id = ? WHERE id = ? AND (home_location_id IS NULL OR home_location_id <> ? OR fav_spot_id IS NULL OR fav_spot_id <> ?)', [$hubLoc, $hall, $nid, $hubLoc, $hall])->rowCount();   // fav spot set: ensure_npc_lives leaves them alone
+        if (isset(CALLING_MENTOR_OLD_BIOS[$nslug])) $made += q('UPDATE npcs SET bio = ? WHERE id = ? AND bio = ?', [$bio, $nid, CALLING_MENTOR_OLD_BIOS[$nslug]])->rowCount();
     }
     return $made;
+}
+
+/** 2.8.99c: the Mentors' Hall spot row (made on first need if an install has not run the boot step yet), or null. */
+function calling_mentor_hall(): ?array
+{
+    static $row = false;
+    if ($row !== false) return $row;
+    $row = q_one('SELECT * FROM town_spots WHERE slug = ? AND active = 1', [CALLING_MENTOR_HALL[0]]) ?: null;
+    if (!$row) { ensure_calling_mentors(); $row = q_one('SELECT * FROM town_spots WHERE slug = ? AND active = 1', [CALLING_MENTOR_HALL[0]]) ?: null; }
+    return $row;
+}
+
+/** 2.8.99c: the Mentors' Hall page (its town card in Mossbottom): every old lodge link and an unknown mentor lead here. */
+function calling_hall_url(): string
+{
+    $h = calling_mentor_hall();
+    return $h ? 'town.php?hub=1&spot=' . (int)$h['id'] : 'town.php?hub=1';
 }
 
 /** A calling's mentor NPC row (or null if not made yet). */
@@ -455,63 +494,47 @@ function calling_start(array $u, int $chapterId): array
 }
 
 /**
- * where a calling's mentor keeps their lodge. ['region' => regions row, 'loc' => the town's market stop (where a fast
- * travel lands, and where npc_here() finds them), 'lodge' => the lodge's name] or null.
+ * where a calling's mentor keeps their corner. ['region' => ['id' => 0, 'gnomish_name' => 'Mossbottom'], 'loc' => the hub location (where npc_here()
+ * finds them), 'lodge' => the Mentors' Hall's name, 'corner' => their old lodge's name] or null. 2.8.99c: every mentor is in Mossbottom (was: their region town).
  */
 function calling_mentor_place(string $calling): ?array
 {
     $m = CALLING_MENTORS[$calling] ?? null;
     if (!$m) return null;
-    $region = q_one('SELECT * FROM regions WHERE code = ?', [$m[5]]);
-    if (!$region) return null;
-    $loc = q_one("SELECT * FROM locations WHERE region_id = ? AND kind = 'market' ORDER BY id LIMIT 1", [$region['id']]);
-    return $loc ? ['region' => $region, 'loc' => $loc, 'lodge' => $m[8]] : null;
+    $loc = q_one("SELECT * FROM locations WHERE kind = 'hub' ORDER BY id LIMIT 1");
+    return $loc ? ['region' => ['id' => 0, 'gnomish_name' => HUB_REGION], 'loc' => $loc, 'lodge' => CALLING_MENTOR_HALL[2], 'corner' => $m[8]] : null;
 }
 
 /**
- * can this gnome take the free trip to their mentor for this chapter? '' = yes (show the button), otherwise why not.
- * Only for a chapter that is offered and not yet taken (state 'available'), only to a town the gnome could fast-travel to anyway
- * (can_fast_travel: home, a garden there, or been there), never while a walk, a trip into the wilds, a delve, a lair, a trek
- * or a tending shift holds them (travel_blocked), never for guests, and not when they are already with the mentor.
- * $st is calling_status() when the caller has it already.
+ * The free trip to the mentor (2.6.34) is gone with 2.8.99c: the mentors live in Mossbottom, reachable from anywhere, so a gnome is always "with"
+ * their mentor. Kept so an old page or form still gets a plain answer: never '' (no trip button is ever drawn), but why none is needed.
  */
 function calling_mentor_trip_check(array $u, array $ch, ?array $st = null): string
 {
-    require_once __DIR__ . '/world.php';
     if (is_guest($u)) return 'Guests can’t take on calling chapters.';
     $st ??= calling_status($u, $ch);
     if ($st['state'] !== 'available') return $st['state'] === 'active' ? 'You’ve already taken this chapter on.' : ($st['why'] !== '' ? $st['why'] : 'This chapter isn’t on offer.');
     $npc = calling_mentor((string)$ch['calling']);
-    $place = calling_mentor_place((string)$ch['calling']);
-    if (!$npc || !$place) return 'Nobody is teaching this chapter yet.';
+    if (!$npc || !calling_mentor_place((string)$ch['calling'])) return 'Nobody is teaching this chapter yet.';
     require_once __DIR__ . '/friends.php';
     if (npc_here($u, (int)$npc['id'])) return 'You’re already with ' . $npc['name'] . '.';
-    if (!can_fast_travel($u, (int)$place['region']['id'])) return 'You haven’t been to ' . $place['region']['gnomish_name'] . ' yet. Walk the roads there once, then the trip is free.';
-    return travel_blocked($u);
+    return $npc['name'] . ' is in ' . CALLING_MENTOR_HALL[2] . ' in ' . HUB_REGION . ', reachable from anywhere. No trip needed.';
 }
 
 /**
- * the free trip to the mentor, to take a chapter on. No Petals, no energy, no time. Lands on the mentor's town market,
- * like a fast travel: location, location_id and arrived_at, the region visit (already there: can_fast_travel needs it) and the
- * place's Almanac page, as arrive() does. On purpose it fires no 'travel', 'arrive' or 'walk' calling event (and so
- * no Hollow jar event for them): the trip is free and can be taken again, so it must never count as walking or travelling for a task
- * or the jar. (It is only offered while the chapter is untaken, so no calling task could be listening anyway.) The Almanac page sends
- * its usual one-time 'page' event if it is new, as on any first arrival. No XP and no seed find (those belong to paid travel).
+ * An old "free trip" form (2.6.34-2.8.98). Nothing moves: the gnome stays where they are, since the mentor is reachable from anywhere. [true, note]
+ * when the mentor can be met right now (so an old "travel and take it on" form goes on to take the chapter on), else [false, why].
  */
 function calling_mentor_trip(array $u, int $chapterId): array
 {
-    $uid = (int)$u['id'];
-    $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
+    $u = q_one('SELECT * FROM users WHERE id = ?', [(int)$u['id']]);
     $ch = calling_chapter($chapterId);
     if (!$u || !$ch) return [false, 'There’s no such chapter.'];
-    if (($why = calling_mentor_trip_check($u, $ch)) !== '') return [false, $why];
+    if (is_guest($u)) return [false, 'Guests can’t take on calling chapters.'];
     $npc = calling_mentor((string)$ch['calling']);
-    $place = calling_mentor_place((string)$ch['calling']);
-    $loc = $place['loc'];
-    q('UPDATE users SET location = ?, location_id = ?, arrived_at = ? WHERE id = ?', [(string)($loc['region'] ?: $place['region']['gnomish_name']), (int)$loc['id'], now(), $uid]);
-    record_region_visit($uid, (int)$place['region']['id']);
-    unlock_entries($uid, 'village:' . $loc['slug']);
-    return [true, '🧭 You travel to ' . $place['region']['gnomish_name'] . ' for free. ' . $npc['name'] . ' is waiting at ' . $place['lodge'] . '.'];
+    require_once __DIR__ . '/friends.php';
+    if ($npc && npc_here($u, (int)$npc['id'])) return [true, '🍄 No trip needed: ' . $npc['name'] . ' teaches in ' . CALLING_MENTOR_HALL[2] . ' in ' . HUB_REGION . ', reachable from anywhere.'];
+    return [false, calling_mentor_trip_check($u, $ch)];
 }
 
 /** Hand in the next give task (once every other task is done). */

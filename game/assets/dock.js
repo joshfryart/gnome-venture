@@ -413,7 +413,7 @@
       return o;
     }
     if (a.remote && a.remote.hereMenu) {   // the Here picture's round buttons (Routes, World, Perks, Fast travel, GPS, Wander) move into this piece; the page's own row is hidden in the dock layout
-      var HM = { 'hs-routes': 'explore', 'hs-world': 'globe', 'hs-perks': 'sights', 'hs-ft': 'trail', 'hs-gps': 'tag' };
+      var HM = { 'hs-routes': 'explore', 'hs-world': 'globe', 'hs-perks': 'sights', 'hs-ft': 'trail', 'hs-gps': 'tag', 'hs-mentors': 'journey' };   // 2.8.99c: Mossbottom's Mentors button
       var bs = [].slice.call(document.querySelectorAll('ul.hubnavbar li a, ul.hubnavbar li button'));
       o.menu = bs.map(function (e) {
         var li = e.closest('li'), nm = (li && li.textContent || e.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim();

@@ -53,8 +53,7 @@ function calling_state_badge(string $state): string
  * Next version: the block at the top of a chapter that is on offer but not taken yet (a player read "Visit Tumble Waymarsh to take it on"
  * at the bottom of the card and wondered why "Reach 5 steps off the road" stayed at 0). Says plainly that it is not started and where to
  * go, that event tasks count only once it is taken while state tasks show progress already, and offers the next step: the Take-it-on
- * button when the mentor is here, else the free trip to the mentor when calling_mentor_trip_check() allows it, else why not (a place
- * not walked to yet gets the hint only, so no undiscovered town is given away).
+ * button when the mentor is here (2.8.99c: always, from anywhere: the mentors live in Mossbottom), else why not.
  */
 function calling_start_block(array $u, array $ch, array $st, ?array $npc, bool $here): string
 {
@@ -66,24 +65,15 @@ function calling_start_block(array $u, array $ch, array $st, ?array $npc, bool $
     if ($here) {
         $h .= '<p>' . e($name) . ' is here.</p><form method="post" action="' . e(url('mentor.php')) . '"><input type="hidden" name="do" value="start">' . $hid
             . '<button class="btn gold">📜 Take on this chapter</button></form>';
-    } else {
-        $why = calling_mentor_trip_check($u, $ch, $st);
-        if ($why === '') {
-            $h .= '<form method="post" action="' . e(url('mentor.php')) . '"><input type="hidden" name="do" value="trip">' . $hid
-                . '<button class="btn gold">🧭 Travel to ' . e($name) . ' (free)</button></form>'
-                . '<form method="post" action="' . e(url('mentor.php')) . '"><input type="hidden" name="do" value="trip_start">' . $hid
-                . '<button class="btn gold">📜 Travel and take on this chapter</button></form>'
-                . '<small class="muted">Free.</small>';
-        } else {
-            $h .= '<p class="help">📍 ' . e($why) . '</p>';
-        }
+    } else {   // 2.8.99c: no free trip any more (the mentors are in Mossbottom, reachable from anywhere): only why not, e.g. a guest
+        $h .= '<p class="help">📍 ' . e(calling_mentor_trip_check($u, $ch, $st)) . '</p>';
     }
     $h .= '<p class="help">⏳ = counts after you start.</p>';
     return $h . '</div>';
 }
 
 /**
- * One chapter on the mentor's page. $here = the mentor is in the gnome's town right now (buttons work only then).
+ * One chapter on the mentor's page. $here = the gnome can meet the mentor right now (buttons work only then; 2.8.99c: from anywhere, they live in Mossbottom).
  */
 function calling_chapter_box(array $u, array $ch, array $st, ?array $npc, bool $here): void
 {
@@ -124,7 +114,7 @@ function calling_chapter_box(array $u, array $ch, array $st, ?array $npc, bool $
           <?php if ($st['state'] === 'available'): ?>
             <?php if ($here): ?>
               <form method="post" action="<?= e(url('mentor.php')) ?>"><?= $field('start') ?><button class="btn gold">📜 Take on this chapter</button></form>
-            <?php else: ?><p class="help">📍 Not started: visit <?= e((string)($npc['name'] ?? 'your mentor')) ?> to start.</p><?php endif; ?>
+            <?php else: ?><p class="help">📍 Not started: visit <?= e((string)($npc['name'] ?? 'your mentor')) ?> in <?= e(HUB_REGION) ?> to start.</p><?php endif; ?>
           <?php elseif ($st['state'] === 'active' && $st['complete']): ?>
             <?php if ($here): ?>
               <form method="post" action="<?= e(url('mentor.php')) ?>"><?= $field('finish') ?><button class="btn gold">📜 Finish the chapter</button></form>

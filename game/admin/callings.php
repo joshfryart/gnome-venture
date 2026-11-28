@@ -11,7 +11,7 @@ if (is_post()) {
     if ((string)($_POST['do'] ?? '') === 'import') {
         $n = ensure_calling_quests();
         admin_log('import', 'calling_quests', (string)$n);
-        flash($n > 0 ? 'Imported ' . $n . ' new calling chapter' . ($n === 1 ? '' : 's') . '. (Mentors and lodges checked too.)' : 'Nothing new to import: every chapter in the file is already in the game. (Mentors and lodges checked.)');
+        flash($n > 0 ? 'Imported ' . $n . ' new calling chapter' . ($n === 1 ? '' : 's') . '. (Mentors and the Mentors’ Hall checked too.)' : 'Nothing new to import: every chapter in the file is already in the game. (Mentors and lodges checked.)');
     }
     redirect('admin/callings.php');
 }
@@ -23,7 +23,7 @@ page_header('Calling chapters', true);
 ?>
 <?php admin_crumbs('callings.php');   // v1.6.3 ?>
 <h1>📜 Calling chapters</h1>
-<p class="help">The chapters come from <code>includes/data/calling_quests.txt</code> and are imported once; ones already in the game are never overwritten. Mentors: <?= count(CALLING_MENTORS) ?> (<?= (int)q_val('SELECT COUNT(*) FROM npcs WHERE slug IN (' . implode(',', array_map(fn($m) => db()->quote($m[1]), CALLING_MENTORS)) . ')') ?> in the game).</p>
+<p class="help">The chapters come from <code>includes/data/calling_quests.txt</code> and are imported once; ones already in the game are never overwritten. Mentors: <?= count(CALLING_MENTORS) ?> (<?= (int)q_val('SELECT COUNT(*) FROM npcs WHERE slug IN (' . implode(',', array_map(fn($m) => db()->quote($m[1]), CALLING_MENTORS)) . ')') ?> in the game), all in the Mentors’ Hall in Mossbottom.</p>
 <form method="post"><?= csrf_field() ?><input type="hidden" name="do" value="import"><button class="btn">Import calling quests</button></form>
 <?php foreach ($chapters as $c): $tasks = calling_tasks((int)$c['id'], true); ?>
   <div class="box">

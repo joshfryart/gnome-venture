@@ -349,7 +349,8 @@ function dock_page_spec(string $page): array
         case 'tailor.php':
             return ['L' => dock_action('Satchel', '🎒', $u('inventory.php'))];   // wearables live in the Satchel; no single safe main action, so R stays Home
         case 'mentor.php':
-            return ['watch' => true, 'L' => dock_action('World', '🌍', $u('world.php')), 'R' => dock_remote('Talk', '💬', ['doForm' => 'talk'])];
+            require_once __DIR__ . '/calling_quests.php';   // 2.8.99c: back to the Mentors' Hall in Mossbottom (was World)
+            return ['watch' => true, 'L' => dock_action('Hall', 'journey', $u(calling_hall_url())), 'R' => dock_remote('Talk', '💬', ['doForm' => 'talk'])];
         case 'profile.php':
             return ['L' => dock_action('Villagers', 'villagers', $u('villagers.php')), 'R' => dock_remote('Visit', 'garden', ['sel' => 'main a[href*="visit.php"]'])];
         case 'report.php':
