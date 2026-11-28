@@ -51,4 +51,8 @@ Do each step on the private test site first (`docs/TEST-SITE-SETUP.md`), play it
 
 ## Test results at this commit
 
-See the integration report for this build (all CI suites, the fresh-install walk, `php -l` over every changed file).
+Run locally on 2026-11-28 (PHP 8.3, SQLite, `tests/ci_suites.sh` over the 167 CI suites plus the 9 new ones, 4 shards):
+- 176 suites, 166 ok. The 10 that failed were rerun one at a time on this build and on the commit before the Hollow work (`fdb0498c`): 9 fail the same way on both (`beds`, `security190` trek pages, `puzzles`, `puzzles_daily`, `jigsaw` hub cards, `pf_golive`, `pfboard_v1_page`, `pfv1_charm`, `toast_cover`: pre-existing, not from this work); `pfboard` failed once and passed on rerun (flaky).
+- All new suites pass: `seals_standing`, `stop_marks`, `stop_marks_hooks1`, `stop_marks_hooks2`, `world_v2`, `creatures_v2`, `journey_v2`, `quest_data`, `sso_lockdown`, and `puzzle_pals` (with `puzzle_pals_map.php`).
+- Fresh-install walk (`tests/walk.sh`) passes with every new setting at its default (all 0, `seal_threshold` 78, no `world_v2_done`).
+- `php -l` clean on every PHP file changed since `0ebd9483^`; `tools/check_versions.sh` OK at 2.8.86.
