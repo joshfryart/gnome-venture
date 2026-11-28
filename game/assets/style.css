@@ -9089,3 +9089,5 @@ label.check input[type=checkbox] { width: 24px; height: 24px; flex: none; }
 .mk-name { font-size: 0.9em; }
 .pkperk.mk-off { opacity: .6; filter: grayscale(1); }
 .mk-plaque { margin: 4px 0; font-style: italic; }
+.mk-flags { display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 4px 0; }
+.mk-flag { cursor: help; }

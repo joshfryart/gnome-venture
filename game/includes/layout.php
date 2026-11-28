@@ -215,6 +215,7 @@ if ($u && !$admin && !$onboarding && !in_array($page, ['adventure.php', 'world.p
   <div class="flash <?= e($f['type']) ?>" role="<?= $f['type'] === 'err' ? 'alert' : 'status' ?>"><?= e($f['msg']) ?></div>
 <?php endforeach; ?>
 <?php endif;
+    if ($u && !$admin && !$onboarding && setting('stop_marks_open') === '1') { require_once __DIR__ . '/stop_mark_hooks.php'; echo mark_flags_html((int)$u['id'], $page); }   // A5/A6 lasting marks held for this page
     if (!$admin && !$onboarding && $tourStep > 0) echo tour_box($tourStep, $tourAsk, $tourArrived);
 }
 
