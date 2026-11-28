@@ -24,7 +24,9 @@ function go_map_html(array $u, array $node, int $goId, string $destHtml = ''): s
 {
     $rid = (int)($node['region_id'] ?? 0);
     if (!$rid) return '';
-    if (myc_on() && region_art_path($rid) === '') $map = '<div class="mapwrap regionwrap mycwrap">' . myc_region_block($u, $rid, $goId) . '</div>';
+    $map = region_map_block($u, $rid, $goId, true);   // 2.8.93 Map v2 ('' unless this region is on the lit floor map)
+    if ($map !== '') $map = '<div class="mapwrap regionwrap">' . $map . '</div>';
+    elseif (myc_on() && region_art_path($rid) === '') $map = '<div class="mapwrap regionwrap mycwrap">' . myc_region_block($u, $rid, $goId) . '</div>';
     else {
         $svg = region_map_svg($u, $rid, $goId, true);
         $map = $svg === '' ? '' : '<div class="mapwrap regionwrap"><div class="rzoom"><div class="rzctl" hidden><button type="button" class="btn small" data-z="in" aria-label="Zoom in">＋</button><button type="button" class="btn small" data-z="out" aria-label="Zoom out">−</button><button type="button" class="btn small" data-z="fit" aria-label="Whole region">⤢</button></div>' . $svg . '</div></div>';
@@ -71,6 +73,7 @@ function go_panel_html(array $u, array $node, string $here, callable $badge, arr
               <?php if (gclock_on()): ?><span class="pchip" title="Game time: <?= (int)gclock_time_cost('travel') ?> min per section">🕐 <?= e(gclock_span_text(gclock_time_cost('travel') * max(1, function_exists('trail_sections') ? trail_sections($r) : (int)$r['steps']))) ?></span><?php endif; ?>
               <?php require_once __DIR__ . '/road_kinds.php'; if ($rkc = rk_of((int)$r['id'])): ?><span class="pchip pchip--kind" title="<?= e(rk_text($rkc['kind'], $rkc['tier'])) ?>"><?= e(rk_label($rkc)) ?></span><?php endif; /* 2.7.00 road kinds */ ?>
               <?php if (!empty($r['quick'])): ?><span class="pchip">💨 <?= e(nice_time((int)$r['walk_min'] * 60)) ?></span><?php endif; ?>
+              <?php if (!empty($r['gate'])): ?><span class="pchip pchip--gate" title="<?= e($r['gate']) ?>">🛡️ Seal door</span><?php endif; /* 2.8.85: the Warden says what is missing when you try */ ?>
               <?= go_level_chip($lvl, $dMin, $dMax) ?>
             </span>
             <span class="rcard__go" aria-hidden="true">Go ›</span>
@@ -303,7 +306,7 @@ function stop_slim_card_html(array $u, array $node, bool $hub, string $msg = '',
     require_once __DIR__ . '/stop_pass.php';
     require_once __DIR__ . '/stop_adopt.php';
     $uid = (int)$u['id'];
-    if (($node['kind'] ?? '') === 'village') stop_stamp($uid, $node);   // v2.5.54: being here is the visit
+    if (stop_is_place($node)) stop_stamp($uid, $node);   // v2.5.54: being here is the visit
     $stamps = count(stop_stamps_of($uid));
     $total = count(stop_road_stops());
     $here = (bool)q_val('SELECT 1 FROM stop_stamps WHERE user_id = ? AND location_id = ?', [$uid, (int)$node['id']]);

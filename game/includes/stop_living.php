@@ -34,6 +34,7 @@ function stop_days_between(string $from, string $to): int
 /** A meter now, 0 to 99 (a full one is spent into a perk at once). */
 function stop_meter_get(int $uid, int $locId, string $name): int
 {
+    if (stop_marks_active($uid)) return mark_bar_get($uid, $locId, $name);   // lasting marks: no decay, a full bar is 100 for good (stop_marks.php)
     [$n, $d] = stop_prog_get($uid, $locId, 'meter:' . $name);
     $since = (string)($d['d'] ?? '');
     $age = $since !== '' ? stop_days_between($since, gclock_my_date()) : 0;
@@ -59,7 +60,8 @@ function stop_meter_add(int $uid, int $locId, string $name, int $amt): array
 /** @return array<string,string> perks running for this player at this stop: meter name => last day */
 function stop_perks(int $uid, int $locId): array
 {
-    if ($uid < 1) return [];
+    require_once __DIR__ . '/player_perks.php';
+    if ($uid < 1 || player_perks_retired()) return [];   // the old "was full here" rows go with the old perks
     $out = [];
     $today = gclock_my_date();
     foreach (q("SELECT k, data FROM stop_prog WHERE user_id = ? AND location_id = ? AND k LIKE 'perk:%'", [$uid, $locId])->fetchAll() as $r) {
@@ -112,6 +114,7 @@ function stop_needs_ok(string $needs, int $uid, int $locId): bool
 {
     foreach (array_filter(array_map('trim', explode('/', $needs))) as $p) {
         if (preg_match('/^meter:([a-z]+)(<|>=)(\d+)$/', $p, $m)) {
+            if ($m[2] === '<' && stop_marks_active($uid)) { if (isset(mark_latched($uid, $locId)[$m[1]])) return false; continue; }   // lasting marks: an answer act shows while its bar is not full
             $v = stop_meter_get($uid, $locId, $m[1]);
             if ($m[2] === '<' ? !($v < (int)$m[3]) : !($v >= (int)$m[3])) return false;
         } elseif (preg_match('/^fam>=([a-z]+)$/', $p, $m)) {
@@ -136,13 +139,14 @@ function stop_act_moves(array $a): array
     return [];
 }
 
-/** After a done act: move its meters, return lines to show. A festival day doubles the gain. */
-function stop_living_after(array $u, array $loc, array $a): array
+/** After a done act: move its meters, return lines to show. A festival day doubles the gain. $note = the act's outcome (stop_do; a "miss" is a lost one). */
+function stop_living_after(array $u, array $loc, array $a, string $note = ''): array
 {
     $uid = (int)$u['id'];
     $lid = (int)$loc['id'];
     $lines = [];
     $fest = !empty(stop_happenings()[(string)(stop_now($loc)['hp'] ?? '')]['cal']);
+    if (stop_marks_active($uid)) return mark_after($u, $loc, $a, $note, $fest);   // lasting marks: points per game day, a full bar latches
     foreach (stop_act_moves($a) as [$m, $amt]) {
         if ($amt > 0 && $fest) $amt *= 2;
         [$v, $filled] = stop_meter_add($uid, $lid, $m, $amt);
@@ -224,20 +228,23 @@ function stop_cal_next(array $loc, int $count = 3, int $days = 21): array
 
 // ---------------------------------------------------------------- threads
 
-/** @return array<string,array> data/stop_threads.txt: id | icon | name | stop types | regions | reward | beat1 ;; beat2 ... (a beat is "title ~ story") */
+/** @return array<string,array> data/stop_threads.txt (and stop_threads_v2.txt while journey_v2_open is on): id | icon | name | stop types | regions | reward | beat1 ;; beat2 ... (a beat is "title ~ story") | trigger | extra */
 function stop_threads(): array
 {
-    static $t = null;
-    if ($t === null) {
+    static $all = [];
+    $v2 = (int)(setting('journey_v2_open') === '1');   // 2026-11-28: the Journey v2 threads (stop_threads_v2.txt) only while that setting is on
+    if (!isset($all[$v2])) {
         $t = [];
-        foreach (stops_file_rows('stop_threads.txt') as $r) {
+        foreach (array_merge(stops_file_rows('stop_threads.txt'), $v2 ? stops_file_rows('stop_threads_v2.txt') : []) as $r) {
             if (count($r) < 7) continue;
             $beats = [];
             foreach (array_filter(array_map('trim', explode(';;', $r[6]))) as $b) { [$ti, $tx] = array_pad(array_map('trim', explode('~', $b, 2)), 2, ''); $beats[] = ['title' => $ti, 'text' => $tx]; }
-            if ($beats) $t[$r[0]] = ['id' => $r[0], 'icon' => $r[1], 'name' => $r[2], 'types' => $r[3], 'regions' => array_values(array_filter(array_map('trim', explode(',', $r[4])))), 'reward' => $r[5], 'beats' => $beats];
+            if ($beats) $t[$r[0]] = ['id' => $r[0], 'icon' => $r[1], 'name' => $r[2], 'types' => $r[3], 'regions' => array_values(array_filter(array_map('trim', explode(',', $r[4])))), 'reward' => $r[5], 'beats' => $beats,
+                'trigger' => $r[7] ?? '', 'extra' => $r[8] ?? ''];
         }
+        $all[$v2] = $t;
     }
-    return $t;
+    return $all[$v2];
 }
 
 /** The thread offered to this player here today (one beat a day, Regulars and up): the act row to show, or null. */
@@ -291,12 +298,19 @@ function stop_thread_do(array $u, array $loc, string $threadId): array
 /** The meters as small bars (for the Do tab). */
 function stop_meters_html(int $uid, int $locId): string
 {
+    if (stop_marks_active($uid)) return mark_bars_html($uid, $locId) . stop_old_perks_html($uid, $locId);
     $h = '<ul class="st-meters">';
     foreach (STOP_METERS as $k => [$ico, $lab]) {
         $v = stop_meter_get($uid, $locId, $k);
         $h .= '<li><label>' . $ico . ' ' . e($lab) . ' <meter min="0" max="100" low="30" high="70" optimum="100" value="' . $v . '">' . $v . '%</meter></label></li>';
     }
-    $h .= '</ul>';
+    return $h . '</ul>' . stop_old_perks_html($uid, $locId);
+}
+
+/** The 7-day perks a full meter gave here before lasting marks, while they run. */
+function stop_old_perks_html(int $uid, int $locId): string
+{
+    $h = '';
     foreach (stop_perks($uid, $locId) as $m => $until) {
         $h .= '<p class="st-perk">🌟 <b>' . e(STOP_METERS[$m][1]) . ' was full here</b> · your perk works everywhere until ' . e(date('j M', strtotime($until))) . '</p>';
     }
@@ -317,7 +331,8 @@ function stop_board_html(array $u, array $loc): string
         $h .= '</ul>';
     } else $h .= '<p class="muted">Nothing planned yet.</p>';
     $need = [];
-    foreach (STOP_METERS as $k => [$ico, $lab, $says]) if (stop_meter_get($uid, $lid, $k) < 40) $need[] = '<li>' . $ico . ' ' . e($lab) . ' ' . e($says) . '</li>';
+    $marks = stop_marks_active($uid);
+    foreach (STOP_METERS as $k => [$ico, $lab, $says]) if ($marks ? stop_meter_get($uid, $lid, $k) < 100 : stop_meter_get($uid, $lid, $k) < 40) $need[] = '<li>' . $ico . ' ' . e($lab) . ' ' . e($says) . '</li>';
     $h .= '<h4>Needs help</h4>' . ($need ? '<ul>' . implode('', $need) . '</ul>' : '<p class="muted">Everything is in good shape.</p>');
     $rows = q('SELECT l.act, l.day, u.gnome_name, u.username FROM stop_log l JOIN users u ON u.id = l.user_id WHERE l.location_id = ? ORDER BY l.id DESC LIMIT 5', [$lid])->fetchAll();
     $h .= '<h4>Done lately</h4>';
@@ -336,12 +351,12 @@ function stop_board_html(array $u, array $loc): string
 /** What the perk list shows for a place: [perks (meter => last day), meters with a value (meter => 0..99)]. */
 function stop_perk_data(array $u, array $node): array
 {
-    if (($node['kind'] ?? '') !== 'village') return [[], []];
+    if (!stop_is_place($node)) return [[], []];
     $uid = (int)$u['id'];
     $lid = (int)$node['id'];
     $meters = [];
     foreach (STOP_METERS as $k => $m) if (($v = stop_meter_get($uid, $lid, $k)) > 0) $meters[$k] = $v;
-    return [stop_perks($uid, $lid), $meters];
+    return [stop_marks_active($uid) ? array_map(fn($r) => '', mark_latched($uid, $lid)) : stop_perks($uid, $lid), $meters];   // lasting marks: the full bars here (no end date)
 }
 
 const STOP_METER_ICO = ['repairs' => 'hammer', 'larder' => 'jar', 'cheer' => 'party'];   // v2.5.76: pixel icon per meter (assets/img/ico/ico-<name>.png)
@@ -357,12 +372,13 @@ function stop_pix(string $name, string $fallback, string $cls = ''): string
 /** The inside of the perk popover: scene banner, perk tickets, meter ring tiles and the acts that fill the picked meter. '' when there is nothing to show. Radio + label tiles: no script needed. */
 function stop_perk_body(array $u, array $node): string
 {
-    if (($node['kind'] ?? '') !== 'village') return '';   // v2.5.78: at every stop, even before a meter has moved
+    if (!stop_is_place($node)) return '';   // v2.5.78: at every stop, even before a meter has moved
     [$perks, $meters] = stop_perk_data($u, $node);
+    $marks = stop_marks_active((int)$u['id']);
     $acts = [];   // meter => [[act row, amount], ...]: the acts on offer here now that raise it
     foreach (stop_pool($node, null, (int)$u['id'])['offer'] as $a) {
         if (empty($a['slug']) || empty($a['name'])) continue;
-        foreach (stop_act_moves($a) as [$m, $amt]) if ($amt > 0) $acts[$m][] = [$a, $amt];
+        foreach ($marks ? mark_act_moves($a, stop_type_of($node)) : stop_act_moves($a) as [$m, $amt]) if ($amt > 0) $acts[$m][] = [$a, $amt];
     }
     $first = array_key_first($meters) ?? array_key_first(STOP_METERS);
     $doneToday = stop_done_today((int)$u['id'], (int)$node['id']);   // 2.8.64: each activity once a game day
@@ -374,7 +390,8 @@ function stop_perk_body(array $u, array $node): string
         . '<div class="pkbt"><b>' . e((string)$node['name']) . '</b><span class="pkmedals">';
     for ($i = 0; $i < count(STOP_METERS); $i++) $h .= stop_pix($i < $n ? 'medal-gold' : 'medal-silver', '🏅', $i < $n ? 'on' : 'off');
     $h .= '</span></div></div><h4>Perks</h4>';
-    if ($perks) {
+    if ($marks) $h .= mark_stop_perks_html((int)$u['id'], (int)$node['id']);
+    elseif ($perks) {
         foreach ($perks as $m => $until) {
             $left = max(1, min(STOP_PERK_DAYS, stop_days_between($today, $until) + 1));
             $pips = '';
@@ -385,7 +402,8 @@ function stop_perk_body(array $u, array $node): string
         }
     } else $h .= '<div class="pkempty">' . stop_pix('medal-silver', '🏅', 'off') . '<span>No perks yet. Fill a bar to earn one.</span></div>';
     require_once __DIR__ . '/player_perks.php';
-    $h .= player_perks_html((int)$u['id']);   // 2.6.33: your running perks, account-wide
+    if ($marks) $h .= mark_card_html((int)$u['id']);   // lasting marks, account-wide
+    if (!$marks || player_perks_active((int)$u['id'])) $h .= player_perks_html((int)$u['id']);   // 2.6.33: your running perks, account-wide (with marks on: only while old ones run)
     $h .= '<h4>Meters</h4><div class="pkc">';
     foreach (STOP_METERS as $k => $m) $h .= '<input type="radio" class="pkr" name="' . $id . '" id="' . $id . $k . '"' . ($k === $first ? ' checked' : '') . '>';
     $h .= '<div class="pktiles">';
@@ -405,12 +423,12 @@ function stop_perk_body(array $u, array $node): string
             foreach ($acts[$k] as [$a, $amt]) {
                 $art = stop_act_art((string)($a['kind'] ?? ''), (string)$a['slug']);
                 $h .= '<div class="pkact">' . ($art !== '' ? '<img class="pkthumb" src="' . e(url($art)) . '" alt="" loading="lazy">' : '<span class="pkthumb">' . e((string)($a['icon'] ?? '')) . '</span>')
-                    . '<span class="pkan">' . e((string)$a['name']) . (in_array((string)$a['slug'], $doneToday, true) ? ' <small class="muted">✔ done today</small>' : '') . '</span><em>+' . $amt . '%</em></div>';
+                    . '<span class="pkan">' . e((string)$a['name']) . (in_array((string)$a['slug'], $doneToday, true) ? ' <small class="muted">✔ done today</small>' : '') . '</span><em>+' . $amt . ($marks ? '' : '%') . '</em></div>';
             }
         } else $h .= '<p class="muted">Nothing on offer here today. Check back tomorrow.</p>';
         $h .= '</div>';
     }
-    return $h . '</div><p class="pkfoot">' . stop_pix('hourglass', '⏳') . '<small>Full bar = a perk. Meters fade slowly, about a month to empty.</small></p>';
+    return $h . '</div><p class="pkfoot">' . stop_pix('hourglass', '⏳') . '<small>' . ($marks ? 'A full bar is a lasting mark: its perk is yours for good. Bars never fade.' : 'Full bar = a perk. Meters fade slowly, about a month to empty.') . '</small></p>';
 }
 
 /** The round Perks button for the row under the picture (next to World) as a hub_navbar "extra" entry, or null when there is nothing to show. */

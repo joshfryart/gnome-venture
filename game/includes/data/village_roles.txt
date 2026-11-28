@@ -1,0 +1,4 @@
+# Villages off the road that belong to the main line of Wren's Journey (master doc 17). Every road stop is main line by rule.
+# Every other off-road village is a side quest. Area code | village name | role
+NA | Cattailmere | main
+NA | Granitegate | main

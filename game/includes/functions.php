@@ -392,6 +392,8 @@ function settings_schema(): array
         'registration_open'  => ['label' => 'Sign-ups: allow new sign-ups', 'type' => 'bool', 'default' => '1'],
         'maintenance_mode'   => ['label' => 'Maintenance: only admins can use the site', 'type' => 'bool', 'default' => '0'],
         'maintenance_message'=> ['label' => 'Maintenance: message', 'type' => 'text', 'default' => 'The garden gates are closed for tending. Back soon!'],
+        'sso_secret'         => ['label' => 'Test site sign-in: SSO secret shared with the private test site (blank = off; 32+ characters; shown once by the test site installer)', 'type' => 'secret', 'default' => ''],
+        'sso_targets'        => ['label' => 'Test site sign-in: SSO targets, the test site hosts admins may sign in to (comma separated, the first is the default)', 'type' => 'text', 'default' => 'test.gnomeventure.ca'],
         'currency_name'      => ['label' => 'Currency: name', 'type' => 'text', 'default' => 'Petals'],
         'starting_coins'     => ['label' => 'Start: currency', 'type' => 'int', 'default' => '500', 'min' => 0, 'max' => 1000000],
         'starting_plot_size' => ['label' => 'Start: plot size (squares per side)', 'type' => 'int', 'default' => '4', 'min' => 2, 'max' => 20],
@@ -614,6 +616,19 @@ function settings_schema(): array
         'perk_spring_step'   => ['label' => 'Perks: Spring in Step, % less walking time', 'type' => 'int', 'default' => '15', 'min' => 0, 'max' => 90],
         'perk_bright_mood'   => ['label' => 'Perks: Bright Mood, % more XP', 'type' => 'int', 'default' => '10', 'min' => 0, 'max' => 200],
         'perk_silver_tongue' => ['label' => 'Perks: Silver Tongue, % off shop prices', 'type' => 'int', 'default' => '5', 'min' => 0, 'max' => 50],
+        'stop_marks_open'    => ['label' => 'Lasting marks: a full stop bar latches for good and gives that stop\'s own perk (540 perks, data/stop_perks.txt); bars never fade; the market towns and havens are rest stops too; no new 7-day perks (running ones end on their date). Off = meters and 7-day perks as before', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
+        'perk_old_retired'   => ['label' => 'Lasting marks: retire the old 7-day perks now (they stop working and their rows are no longer shown; only with lasting marks on)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
+        'mark_pts_0'         => ['label' => 'Lasting marks: bar points for an act that costs 0 energy (B)', 'type' => 'int', 'default' => '6', 'min' => 0, 'max' => 100],
+        'mark_pts_1'         => ['label' => 'Lasting marks: bar points for an act that costs 1 energy', 'type' => 'int', 'default' => '9', 'min' => 0, 'max' => 100],
+        'mark_pts_2'         => ['label' => 'Lasting marks: bar points for an act that costs 2 energy', 'type' => 'int', 'default' => '12', 'min' => 0, 'max' => 100],
+        'mark_pts_3'         => ['label' => 'Lasting marks: bar points for an act that costs 3 or more energy', 'type' => 'int', 'default' => '15', 'min' => 0, 'max' => 100],
+        'mark_repeat_pct'    => ['label' => 'Lasting marks: % of the points for the 2nd act of the same bar at a stop in one game day (3rd and later: 1 point)', 'type' => 'int', 'default' => '50', 'min' => 0, 'max' => 100],
+        'mark_lose_pct'      => ['label' => 'Lasting marks: % of the points for a lost act', 'type' => 'int', 'default' => '50', 'min' => 0, 'max' => 100],
+        'mark_answer_pct'    => ['label' => 'Lasting marks: % of the points for the four answer acts (mend the board, patch the path, stock the shelf, string the lanterns)', 'type' => 'int', 'default' => '150', 'min' => 100, 'max' => 400],
+        'mark_variety'       => ['label' => 'Lasting marks: bonus points for the first act of its kind at a stop in a game day', 'type' => 'int', 'default' => '2', 'min' => 0, 'max' => 50],
+        'mark_round'         => ['label' => 'Lasting marks: bonus points to the lowest unfilled bar the first time all three bars of a stop are fed in a game day', 'type' => 'int', 'default' => '5', 'min' => 0, 'max' => 50],
+        'mark_fest_mult'     => ['label' => 'Lasting marks: points multiplier on a stop\'s festival day', 'type' => 'int', 'default' => '2', 'min' => 1, 'max' => 5],
+        'mark_decay'         => ['label' => 'Lasting marks: points an unfilled bar loses each game day (0 = never; a full bar never moves)', 'type' => 'int', 'default' => '0', 'min' => 0, 'max' => 20],
         'calling_level'      => ['label' => 'Calling: gnome level to choose a calling', 'type' => 'int', 'default' => '5', 'min' => 1, 'max' => 100],
         'calling_change_cost' => ['label' => 'Calling: Petals for the first change (doubles each time)', 'type' => 'int', 'default' => '500', 'min' => 0, 'max' => 1000000],   // v0.9.1a
         'calling_tier2_level' => ['label' => 'Calling: gnome level for calling tier II (Journeyman)', 'type' => 'int', 'default' => '15', 'min' => 1, 'max' => 100],   // v0.9.1
@@ -783,6 +798,11 @@ function settings_schema(): array
         'friend_loved_xp'    => ['label' => 'Townsfolk: XP for a loved gift', 'type' => 'int', 'default' => '10', 'min' => 0, 'max' => 1000],   // v0.9.1
 
         'travel_needs_visit' => ['label' => 'Travel: only fast-travel to regions a gnome has already walked to', 'type' => 'bool', 'default' => '1'],
+        'seals_open' => ['label' => 'Seals and Expedition Standing: area Seals at the Standing threshold, Warden gates on the tier 3 to 5 doors (road walks and fast travel), the Standing card on Wren\'s Journey. Off = no gates, no Seals, as before. Gnomes keep every region they have already been to (2.8.85)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
+        'world_v2_open' => ['label' => 'World v2: region levels in bands (Maplewold 1-15 up to 45-55), the roads Sunsprinkle-Greatcanopy and Rainroot-Thornacre, the Beaverdam Fens and Cairnback Ridge with Cattailmere and Granitegate, the Fen Path, Cairnback Climb, Northern Rim Pass and Tide Track. Switching it on changes the world once and for good (levels never go down). Off = the world as before (2026-11-28)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
+        'journey_v2_open' => ['label' => 'Wren\'s Journey v2: the Maplewold chapters M1-M7 of data/journey_chapters.txt (new step kinds: adopt, raise, regular, plant, deliver, escort, defeat, help, puzzle, seal; steps latch and have a second way to finish), Wren\'s new prologue. They replace the old Sugar Shack chapter; a gnome who built it keeps it. Off = Wren\'s Journey as before (2026-11-28)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
+        'map_v2_open' => ['label' => 'Map v2: the lit floor region maps and the delve-down world map. Places off the road are spread over the cavern floor, each joined to its stop by a thick root; a list opens from the bottom of the map. Needs World v2 on (the new maps are drawn for that world); a region whose new picture or positions are missing keeps its old map. Off = the maps as before (2.8.93)', 'type' => 'select', 'default' => '0', 'options' => ['0' => 'Off', '1' => 'On']],
+        'seal_threshold' => ['label' => 'Seals: Expedition Standing (percent) that earns an area\'s Seal (2.8.85)', 'type' => 'int', 'default' => '78', 'min' => 1, 'max' => 100],
         'gotm_thanks'        => ['label' => 'Garden of the Month: Petals for every other entry', 'type' => 'int', 'default' => '50', 'min' => 0, 'max' => 1000000],
     ] + social100_settings() + market100_settings() + garden100_settings() + mentors120_settings() + social169_settings() + nudge_settings() + trek_settings() + dm_settings() + hp_settings() + gclock_settings() + ico_settings() + here_settings() + dock_settings() + sights6_settings();   // v1.2.0: mentors. v1.6.8: reminder emails. v1.8.0: Treks
 }

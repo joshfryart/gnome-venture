@@ -74,6 +74,7 @@ jobs:
             roadlife roads roads097 roadtext scenes social tools town trade gourmand
             comm cook delvemap flowers gather099 gather150 images mentors120 modr pantry pjobs prog security190
             sinks097 social100 stops100 satchel stopthemes stopkinds popart roadkinds folkoverlay trekshell updrollback villagers worms yard puzzles puzzles_upload puzzles_tourney puzzles_daily jigsaw jigsaw_tourney catfish puzzle_pals landing css_lint redirects home_slim tea herb_crops sights_items hovel_room tour here heredo item_review_a item_review_b item_review_b2 item_review_c item_review_d compost_parts hollow_sizing trophies sight_parts
+            seals_standing stop_marks stop_marks_hooks1 stop_marks_hooks2 world_v2 map_v2 creatures_v2 journey_v2 quest_data sso_lockdown stat_parts first_week_latch
           PORT_BASE: '8800'
           SHARD: ${{ matrix.shard }}
           SHARDS: '4'

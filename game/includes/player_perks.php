@@ -18,11 +18,18 @@ const PLAYER_PERKS = [   // key => [meter, icon, name, text]
     'silver_tongue' => ['cheer', '🗣️', 'Silver Tongue', 'Shops charge 5% less'],
 ];
 
+/** Lasting marks (stop_marks.php) replace these perks: none is granted while stop_marks_open is on, running ones end on their date,
+ *  and perk_old_retired (with marks on) ends them all at once (proposal-stop-perks.md section 8). */
+function player_perks_retired(): bool
+{
+    return setting('stop_marks_open') === '1' && setting('perk_old_retired') === '1';
+}
+
 /** perk key => last day (Y-m-d), running now. */
 function player_perks_active(int $uid, bool $refresh = false): array
 {
     static $cache = [];
-    if ($uid < 1) return [];
+    if ($uid < 1 || player_perks_retired()) return [];
     $today = gclock_my_date();
     if ($refresh || !isset($cache[$uid]) || $cache[$uid][0] !== $today) {
         $out = [];

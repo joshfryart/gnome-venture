@@ -1344,6 +1344,15 @@ dialog.picker::backdrop { background: rgba(42, 26, 16, .4); overflow: hidden; ov
 .jtasks .jwhy { flex-basis: 100%; color: var(--ink-2); }
 .jneeds .chip { font-size: 13px; padding: 1px 8px; }
 .jneeds .chip.good { background: var(--brand-soft); } .jneeds .chip.bad { background: var(--danger-soft); }
+/* 2.8.85: Expedition Standing card (seals.php) */
+.jstanding { margin: 8px 0; }
+.jstanding h4 { margin: 0 0 6px; }
+.jstanding h4 small { color: var(--muted); font-weight: 400; }
+.jstanding .jstbar { width: 100%; height: 10px; accent-color: var(--brand); }
+.jstanding .jsttbl { font-size: 13px; margin: 6px 0; }
+.jstanding .jsttbl td { padding: 4px 8px; }
+.jstanding .jsttbl tr.full td { color: var(--muted); }
+.pchip--gate { background: var(--danger-soft); }
 
 /* ---- Crafting ---- */
 
@@ -9069,3 +9078,76 @@ details.craftall.craftall--pop > summary, details.craftall.craftall--pop .crafta
 }
 label.check { min-height: 44px; align-items: center; }
 label.check input[type=checkbox] { width: 24px; height: 24px; flex: none; }
+/* Lasting marks (stop_marks.php): a full bar's stamp, the pips per stop on the Perks card, a perk still to earn, the plaque lines */
+.mk-bars .mk-full { display: flex; align-items: center; gap: 6px; font-size: 0.9em; }
+.mk-stamp { padding: 1px 8px; border: 2px solid var(--st-ink, currentColor); border-radius: 4px; transform: rotate(-3deg); letter-spacing: .05em; }
+.mk-list { list-style: none; margin: 0 0 8px; padding: 0; }
+.mk-list li { margin: 4px 0; }
+.mk-pips { display: inline-flex; gap: 3px; vertical-align: middle; }
+.mk-pip { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--ol, currentColor); }
+.mk-pip.on { background: var(--accent); }
+.mk-name { font-size: 0.9em; }
+.pkperk.mk-off { opacity: .6; filter: grayscale(1); }
+.mk-plaque { margin: 4px 0; font-style: italic; }
+.mk-flags { display: flex; flex-wrap: wrap; gap: 4px 10px; margin: 4px 0; }
+.mk-flag { cursor: help; }
+.statlist .sbd { font-size: .8em; white-space: nowrap; }   /* 2.8.90: "(12 +3)" next to a boosted stat */
+.statsel .sbreak { margin: 4px 0; }
+
+/* 2.8.93 Map v2: the lit floor region map widget (includes/map_v2.php region_map_block, assets/mapv2.js). Without JavaScript the map is a 16:9 picture
+   with the list under it; with it (.mv2.on) the map pans and zooms inside a tall viewport and the list is a sheet over its bottom edge. */
+.mv2 { max-width: 760px; margin: 0 auto; }
+.mv2-vp { position: relative; }
+.mv2-vp:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.mv2-svg { display: block; width: 100%; height: auto; background: #0e0f09; }
+.mv2-svg .mv2-dim { display: none; }
+.mv2-svg.sel .mv2-dim { display: inline; }
+.mv2-svg.sel .mv2-p:not(.on), .mv2-svg.sel .mv2-root:not(.on) { opacity: .45; }
+.mv2-svg .mv2-root.on .rl { stroke-width: 5.2; }
+.mv2-svg .mv2-root.found.on .rl { stroke: #ffe38a; }
+.mv2-svg.far .mv2-p:not(.on) .plate { display: none; }
+.mv2-svg .mv2-p.at .ms > circle:nth-of-type(2) { stroke: #ffe38a; stroke-width: 3; }
+.mv2-svg a:focus-visible .hit { stroke: var(--focus); stroke-width: 3; stroke-dasharray: 6 4; vector-effect: non-scaling-stroke; fill-opacity: .25; }
+.mv2-ctl { display: flex; gap: 6px; justify-content: flex-end; }
+.mv2-ctl .btn { min-width: var(--tap); min-height: var(--tap); }
+.mv2-sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 0 0 var(--radius) var(--radius); color: var(--ink); }
+.mv2-hd { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; padding: 8px 14px; background: transparent; border: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.mv2-hd b { display: block; font-size: 15px; }
+.mv2-hd small { display: block; color: var(--muted); font-size: 13px; }
+.mv2-ch { margin-left: auto; font-size: 13px; font-weight: 600; }
+.mv2-rows { padding: 0 14px 8px; }
+.mv2-grp { list-style: none; margin: 0; padding: 0; }
+.mv2-row { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 0; border-top: 1px solid var(--line); }
+.mv2-row:first-child { border-top: 0; }
+.mv2-row.at { box-shadow: inset 3px 0 0 #e8a317; padding-left: 8px; }
+.mv2-rt { flex: 1; min-width: 0; }
+.mv2-rt b { display: block; }
+.mv2-rt small { display: block; color: var(--muted); font-size: 12.5px; }
+.mv2-ico { width: 28px; height: 28px; flex: none; background: #0e0f09; border-radius: 50%; }
+.mv2-dot::after { content: ""; display: block; width: 12px; height: 12px; margin: 8px; border-radius: 50%; background: #f4ead0; }
+.mv2-dot.town::after { background: #f0c85a; }
+.mv2-go { min-height: var(--tap); min-width: var(--tap); display: inline-flex; align-items: center; justify-content: center; }
+.mv2-stops { margin: 10px 0 0; }
+.mv2-stops h4 { margin: 0 0 4px; }
+.mv2-stopl { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 48px; padding: 6px 2px; border-top: 1px solid var(--line); color: var(--ink); text-decoration: none; }
+.mv2-stopl:first-of-type { border-top: 0; }
+.mv2-stopl[aria-current="true"] { font-weight: 700; }
+.mv2-legend .mv2-ico { width: 18px; height: 18px; vertical-align: middle; }
+.mv2-key { display: inline-block; width: 22px; height: 4px; border-radius: 2px; vertical-align: middle; background: #f0c85a; box-shadow: 0 0 0 2px #14110a; }
+.mv2-key.un { background: repeating-linear-gradient(90deg, #a39f8f 0 3px, transparent 3px 8px); }
+/* with JavaScript: a tall viewport the map pans in, controls top right, the list a sheet over the bottom */
+.mv2.on .mv2-vp { height: min(520px, 68vh); overflow: hidden; touch-action: none; border-radius: var(--radius); background: #0e0f09; cursor: grab; }
+.mv2.on .mv2-vp.drag { cursor: grabbing; }
+.mv2.on .mv2-svg { width: 100%; height: 100%; max-width: none; border-radius: 0; box-shadow: none; user-select: none; -webkit-user-select: none; }
+.mv2.on .mv2-ctl { position: absolute; top: 8px; right: 8px; flex-direction: column; z-index: 3; }
+.mv2.on .mv2-ctl .btn { width: var(--tap); height: var(--tap); padding: 0; background: rgba(14, 15, 9, .88); color: #ece8da; border-color: #3a3d30; }
+.mv2.on .mv2-sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; background: rgba(20, 22, 14, .96); color: #ece8da; border: 0; border-top: 1px solid #3a3d30; border-radius: 14px 14px 0 0; }
+.mv2.on .mv2-hd small, .mv2.on .mv2-rt small { color: #b5b09f; }
+.mv2.on .mv2-ch { color: #f0c85a; }
+.mv2.on .mv2-row, .mv2.on .mv2-stops .mv2-row { border-color: #3a3d30; }
+.mv2.on .mv2-rows { max-height: 0; overflow: auto; padding-bottom: 0; transition: max-height .3s ease; }
+.mv2.on .mv2-sheet.open .mv2-rows { max-height: min(240px, 34vh); padding-bottom: 10px; }
+.mv2.on .mv2-sheet .chip { background: transparent; color: #b5b09f; border-color: #3a3d30; }
+@media (min-width: 721px) { .mv2.on .mv2-vp { height: auto; aspect-ratio: 16 / 9; max-width: 760px; margin: 0 auto; } }
+@media (prefers-reduced-motion: reduce) { .mv2-rows, .mv2-sheet, .mv2.on .mv2-rows { transition: none; } }
+.worldmap.v2 .w2ruler text { paint-order: normal; }

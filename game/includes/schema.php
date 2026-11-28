@@ -1263,6 +1263,23 @@ function schema_statements(string $driver): array
         first_at DATETIME NOT NULL,
         UNIQUE (user_id, region_id)
     )$END";
+    // 2.8.85: area Seals (seals.php; master doc section 4): one row per gnome and area, for good
+    $t[] = "CREATE TABLE IF NOT EXISTS region_seals (
+        id $PK,
+        user_id $ID NOT NULL,
+        region_id $ID NOT NULL,
+        earned_at DATETIME NOT NULL,
+        UNIQUE (user_id, region_id)
+    )$END";
+    // 2.8.85: Expedition Standing high-water marks: the best points (x100) a gnome reached on each row of an area's Standing table
+    $t[] = "CREATE TABLE IF NOT EXISTS region_standing_best (
+        user_id $ID NOT NULL,
+        region_id $ID NOT NULL,
+        row_key VARCHAR(16) NOT NULL,
+        pts100 INT NOT NULL DEFAULT 0,
+        updated_at DATETIME NOT NULL,
+        PRIMARY KEY (user_id, region_id, row_key)
+    )$END";
 
     // ---------- Adventuring ----------
     $t[] = "CREATE TABLE IF NOT EXISTS routes (
@@ -1606,5 +1623,7 @@ function schema_statements(string $driver): array
     [$s6t, $s6i, $s6c] = sights6_schema($PK, $ID, $END);
     require_once __DIR__ . '/quick_slot.php';   // nav dock: users.quick_item_id (the Quick slot)
     [$qkt, $qki, $qkc] = quick_schema($PK, $ID, $END);
-    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt, $hrt, $gct, $hst, $pfdt, $wrt, $teat, $s6t, $qkt), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi, $hri, $gci, $hsi, $teai, $s6i, $qki), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc, $hrc, $gcc, $hsc, $teac, $s6c, $qkc)];
+    require_once __DIR__ . '/journey_v2.php';   // 2026-11-28 journey v2: user_quest_steps, chapter and task columns
+    [$jvt, $jvi, $jvc] = journey_v2_schema($PK, $ID, $END);
+    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt, $hrt, $gct, $hst, $pfdt, $wrt, $teat, $s6t, $qkt, $jvt), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi, $hri, $gci, $hsi, $teai, $s6i, $qki, $jvi), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc, $hrc, $gcc, $hsc, $teac, $s6c, $qkc, $jvc)];
 }

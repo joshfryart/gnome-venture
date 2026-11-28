@@ -31,7 +31,7 @@ foreach ($all as $rid => $r) {
         if ($si > 0 && !$bendy) { $prev = trail_map_authored(trail_authored_section((int)$rid, $si - 1))[0]; if ($m['entry'][1] !== $prev['spots']['9'][1]) $bad[] = "$rid#$si entry row != previous exit row"; }
     }
 }
-ok('all 246 routes are authored: 665 sections (41 Maplewold hand-tuned + 624 others; v2.6.39)', count($all) === 246 && $secs === 665, count($all) . ' routes, ' . $secs . ' sections');
+ok('all 268 routes are authored: 731 sections (41 Maplewold hand-tuned + 690 others; 2.8.94 added World v2 routes 474-495 and a 5th section to four lairs)', count($all) === 268 && $secs === 731, count($all) . ' routes, ' . $secs . ' sections');
 ok('every section (old ones: 7 rows; bendy ones: 30 x 18 with their -r picture), one width per route, entry on the left edge, exit on the right, exit reachable, tokens reachable, entry row = previous exit row', !$bad, implode('; ', $bad));
 ok('every section has its baked ground picture', !$badFiles, implode(', ', $badFiles));
 // Fixed fights: exactly one E per delve/lair route, on its LAST section, kind from the route list ((delve) = miniboss, (lair) = boss); none anywhere else.

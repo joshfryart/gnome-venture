@@ -38,6 +38,11 @@ if (is_post()) {
         } elseif ($def['type'] === 'select') {   // v0.9.0
             if (!array_key_exists($raw, $def['options'])) { $errors[] = 'Pick a valid ' . $def['label'] . '.'; continue; }
             $new[$k] = (string)$raw;
+        } elseif ($def['type'] === 'secret') {   // test site SSO: never drawn on the page; blank keeps the saved value, the Clear box empties it
+            if (!empty($_POST['s_clear'][$k])) { $new[$k] = ''; continue; }
+            if ($raw === '') continue;
+            if (strlen($raw) < 32 || strlen($raw) > 200 || preg_match('/\s/', $raw)) { $errors[] = $def['label'] . ' must be 32 to 200 characters with no spaces.'; continue; }
+            $new[$k] = $raw;
         } elseif ($def['type'] === 'int') {
             if (!preg_match('/^-?\d{1,10}$/', $raw)) { $errors[] = $def['label'] . ' must be a whole number.'; continue; }
             $n = (int)$raw;
@@ -56,7 +61,7 @@ if (is_post()) {
         $changes = [];
         foreach ($new as $k => $v) {
             if (setting($k) !== $v) {
-                $changes[$k] = [setting($k), $v];
+                $changes[$k] = ($schema[$k]['type'] ?? '') === 'secret' ? [setting($k) === '' ? '(blank)' : '(set)', $v === '' ? '(blank)' : '(changed)'] : [setting($k), $v];   // a secret never goes into the admin log
                 set_setting($k, $v);
             }
         }
@@ -76,7 +81,7 @@ page_header('Game settings', true);
 <?php
 // Sections, picked from each setting's name, so a long page is easy to jump around (v0.7.17)
 $sectionOf = function (string $k): string {
-    foreach (['site_' => 'Site', 'motd' => 'Site', 'registration' => 'Site', 'maintenance' => 'Site', 'mail_' => 'Site', 'trusted_' => 'Site', 'blocked_' => 'Site',
+    foreach (['site_' => 'Site', 'motd' => 'Site', 'registration' => 'Site', 'maintenance' => 'Site', 'sso_' => 'Site', 'mail_' => 'Site', 'trusted_' => 'Site', 'blocked_' => 'Site',
               'job_' => 'Job Board', 'player_job' => 'Job Board', 'player_tend' => 'Job Board',
               'worm_' => 'Games & contests', 'memory_' => 'Games & contests', 'race_' => 'Games & contests', 'spit_' => 'Games & contests', 'marrow_' => 'Games & contests', 'carving' => 'Games & contests', 'gotm_' => 'Games & contests', 'yard_' => 'Yard & designer',
               'community_' => 'Community garden', 'trade' => 'Trading', 'gifts' => 'Trading', 'stall_' => 'Trading', 'sapling' => 'Trading',
@@ -120,6 +125,9 @@ foreach ($sections as $sec => $defs) {
       <label class="check"><input type="checkbox" name="s[<?= e($k) ?>]" value="1" <?= $val === '1' ? 'checked' : '' ?>> <?= e($def['label']) ?></label>
     <?php elseif ($def['type'] === 'select'): ?>
       <label><?= e($def['label']) ?><select name="s[<?= e($k) ?>]"><?php foreach ($def['options'] as $ov => $ol): ?><option value="<?= e((string)$ov) ?>"<?= (string)$ov === (string)$val ? ' selected' : '' ?>><?= e($ol) ?></option><?php endforeach; ?></select></label>
+    <?php elseif ($def['type'] === 'secret'): $isSet = setting($k) !== ''; ?>
+      <label><?= e($def['label']) ?><input type="password" name="s[<?= e($k) ?>]" value="" autocomplete="off" placeholder="<?= $isSet ? 'Set (hidden). Type a new value to replace it' : 'Not set' ?>"></label>
+      <?php if ($isSet): ?><label class="check"><input type="checkbox" name="s_clear[<?= e($k) ?>]" value="1"> Clear <?= e($k) ?> (turns it off)</label><?php endif; ?>
     <?php elseif ($def['type'] === 'textarea'): ?>
       <label><?= e($def['label']) ?><textarea name="s[<?= e($k) ?>]" rows="3"><?= e($val) ?></textarea></label>
     <?php else: ?>

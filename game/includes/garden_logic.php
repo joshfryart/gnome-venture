@@ -864,12 +864,13 @@ function soil_speed(array $t): float
 /** How long one watering lasts: moisture up to 2x, plus 5% per soil grade. */
 function water_seconds(array $t, array $p): int
 {
-    return (int)((int)$p['water_interval_minutes'] * 60 * (1 + clamp100((int)$t['moisture']) / 100) * (1 + 0.05 * max(0, grade_index($t)))
+    $secs = (int)((int)$p['water_interval_minutes'] * 60 * (1 + clamp100((int)$t['moisture']) / 100) * (1 + 0.05 * max(0, grade_index($t)))
         * (!empty($t['_rain']) ? [1 => 1.25, 2 => 1.40, 3 => 1.55][min(3, (int)$t['_rain'])] : 1)   // v0.7.96: rain barrel levels
         * (!empty($t['_barrel']) ? 1 + (int)setting('yard_barrel_percent') / 100 : 1)     // a rain barrel right beside it (v0.7.34)
         * (!empty($t['_shade']) ? 1 + (int)setting('yard_shade_percent') / 100 : 1)       // a shade tree beside it
         * max(0.2, 1 + ((int)($t['_clim']['water'] ?? 0) + ((int)($t['mulch'] ?? 0) <= 0 ? (int)($t['_clim']['water_bare'] ?? 0) : 0)) / 100)   // v0.8.9: climate
         * garden_water_mult($t));   // v1.0.0: a hot day dries a watering faster
+    return $secs + mark_more($secs, mark_fx(mark_plot_owner((int)($t['plot_id'] ?? 0)), 'water', mark_ctx_crop($p)));   // F12 lasting marks
 }
 
 /** Bring a square's growth up to date. Plants only grow while watered. */
@@ -1329,6 +1330,10 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
             $cost = 0;
             $msgs[] = '🐦 Wren’s tour: that one was on the house (no energy).';
         }
+        if ($cost > 0 && in_array($action, ['weed', 'water'], true) && mark_charges_fire($uid, $action === 'weed' ? 'weeding' : 'watering', [])) {   // A1 lasting marks
+            $cost = 0;
+            $msgs[] = '🏅 A lasting mark: that took no energy.';
+        }
         if ($cost > 0 && !spend_energy($uid, $cost)) {
             throw new UserError('You’re too tired. Rest a bit and your energy will come back.' . tired_hint($uid));
         }
@@ -1410,6 +1415,7 @@ function garden_action(int $uid, string $action, int $x, int $y, int $itemId = 0
                 break;
             case 'plant':
                 if (!give_item($uid, $itemId, -1)) throw new UserError('You don’t have that seed.');
+                if (!$sapling && mark_charges_fire($uid, 'planting', [])) { give_item($uid, $itemId, 1); $msgs[] = '🏅 A lasting mark: the seed was not used up.'; }   // A2
                 $head = $sapling ? intdiv((int)$np['grow_minutes'] * 60 * (int)setting('sapling_head_start'), 100) : 0;
                 if (q('UPDATE plot_tiles SET plant_id = ?, planted_at = ?, growth_seconds = ?, growth_updated_at = ?, last_watered = NULL, water_day = NULL, owed_days = 0, grow_day = ' . GCLOCK_OWNER_DAY_SQL . ', harvests = 0, nipped = 0, pest = NULL, pest_at = NULL, pest_check = ?
                        WHERE id = ? AND plant_id IS NULL', [$np['id'], gclock_maint_now((int)$t['plot_id']), $head, now(), gclock_plot_date((int)$t['plot_id']), $t['id']])->rowCount() !== 1) {
@@ -1594,8 +1600,10 @@ function do_harvest(array $u, array $t, array $p, ?string $helper = null, int $c
             if ($full > $qty) $msgs[] = '📕 Unstudied: you’d have harvested ' . $full . ' with ' . (plant_home_name((int)$p['id']) ?: 'its region') . ' studied.';
         }   // v0.7.64: regrowths give a bit less than the first crop
         if ($p['produce_item_id'] && $qty > 0) {
-            require_once __DIR__ . '/player_perks.php';
-            if ($qty > 0 && ($gt = player_perk_pct($uid, 'green_thumb', 'perk_green_thumb')) > 0 && mt_rand(1, 100) <= $gt) { $qty++; $msgs[] = '🌱 Green Thumb: one extra!'; }   // 2.6.33
+            [$gt, $mk] = mark_vs_old($uid, 'harvest', mark_ctx_crop($p), 'green_thumb', 'perk_green_thumb');   // F10 lasting marks: the larger of the two
+            if ($qty > 0 && $gt > 0 && mt_rand(1, 100) <= $gt) { $qty++; $msgs[] = '🌱 Green Thumb: one extra!'; }   // 2.6.33
+            if ($qty > 0 && mark_roll($mk)) { $qty++; $msgs[] = '🏅 A lasting mark: one extra!'; }
+            if ($qty > 0 && mark_charges_fire($uid, 'first_harvest_of_a_named_crop', mark_ctx_crop($p))) { $qty++; $msgs[] = '🏅 A lasting mark: one extra today!'; }   // A3
             $kept = $helper !== null && !$pal ? max(1, (int)floor($qty * (100 - (int)setting('helper_cut_percent')) / 100)) : $qty;   // v2.6.40: a crew pal keeps nothing
             give_item($uid, (int)$p['produce_item_id'], $kept);
             require_once __DIR__ . '/harvest_show.php';
@@ -1632,6 +1640,7 @@ function do_harvest(array $u, array $t, array $p, ?string $helper = null, int $c
     $chance = (int)setting('seed_save_chance') + intdiv((int)$t['soil_life'], 4) + $g * 2
         + 3 * eff_mod($u, 'sense');   // v0.9.1: the flat +20 for Seedkeepers is replaced by the tier perks below
     if ((int)$p['perennial'] && !calling_perk($u, 'perennial_seed_full')) $chance = intdiv($chance, 3);   // v0.9.1
+    $chance += mark_fx($uid, 'seed', mark_ctx_crop($p));   // F13 lasting marks: more chance of a seed back
     $seedRoll = random_int(1, 100) <= $chance;
     if ($seedRoll || calling_perk($u, 'seed_always') > 0) {   // v0.9.1: Seedkeeper masters always save one
         $seeds = $seedRoll ? random_int(1, (int)$p['perennial'] ? 1 : 2) : 1;
@@ -1663,7 +1672,7 @@ function do_harvest(array $u, array $t, array $p, ?string $helper = null, int $c
     if ($regrown) $xp = (int)round($xp * (int)setting('regrow_xp_percent') / 100);   // v0.7.64
     $gxp = $xp;   // garden XP keeps its own curve
     [$xp, $lvl] = add_action_xp($uid, $xp, 'Harvesting', (int)$u['level']);   // v0.9.7: action XP grows with the gnome's level
-    $glvl = add_garden_xp((int)$t['plot_id'], $gxp);
+    $glvl = add_garden_xp((int)$t['plot_id'], $gxp, mark_ctx_crop($p));
     $msgs[] = '+' . $xp . ' XP';
     if ($glvl) {
         $msgs[] = '🏡 Your garden reached garden level ' . $glvl . '!';

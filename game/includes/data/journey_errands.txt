@@ -1,0 +1,325 @@
+# Errands of Wren's Journey v2: the side quests folk ask for (2026-11-28; claude/proposal-story-2-quests.md 1.1, 3 and 5.2,
+# claude/proposal-story-3-flavor.md 6). Data for journey_v2_open; read by includes/quest_data.php (journey_errands()). Nothing here is in the
+# game while the setting is off. Lint: claude/tools_lint_quest_data.py. "\n" in a field is a new line; no pipe inside a field; "-" = empty.
+#
+# Q | id | area code | zone # (the world's zone number, 0 = anywhere in the area) | kind | giver | trigger | repeat | level | reward | extra (first time only)
+#   | title | intro | outro
+# S | errand id | kind | spec | qty | alt (kind:spec:qty, a second, peaceful way; - = none) | label
+#
+# kind:    lost (find someone and walk them to a lamp) · creature (beat it, charm it, or the peaceful alt) · deliver · garden   = the 63 errands
+#          counted as side quests (with the 17 area threads of stop_threads_v2.txt: 80);
+#          helper (an errand a main chapter asks for with `help errand:id`; not counted) ·
+#          happening (one of the 14 happening acts: not a quest, an act offered on that happening's day, which keeps its first-time extra).
+# giver:   a townsfolk slug (npcs), a cast member (sorrel-inkpot, pell-quickthistle, puff-morelby, hobb-stiles, garrow-stonecount, dab-tarrow,
+#          bracken-tuppence), a rest stop type (the keeper of such a stop), a haven (its slug), or any.
+# trigger: all must hold, joined by commas, read live. tier>=N@zone:Z / @type:x / @area (a village there at tier N or better; "*2" = two) ·
+#          lit>=N (N lit villages in the area) · regular@zone:Z / @type:x / @area · chapter=slug (that chapter finished) · stage>=N@chapter-slug
+#          (N Repair stages built) · found=place-slug · bed>=K (Seed Bed hand-ins) · seal=CODE · hp=id/id (today's happening at the stop).
+# repeat:  once · regular (a Regular can do it again any later day it is on offer; pays the reward each time, the extra the first time) ·
+#          act (happening rows).
+# level:   recommended, and the level an errand creature is scaled to. Never a lock.
+# reward:  the rest stop reward spec (c=Petals:spread, xp=, item=slug:n, fp= friendship with the giver).
+# extra:   c= xp= item= as above, and seed=crop-slug:n · page=slug · title=Text · mark=1 (one unfound hidden place marked "?" on the map) ·
+#          unlock=recipe:slug / tea:slug / place:slug / theme:slug / shop:slug (rows of journey_extras.txt; a recipe can be one of recipes.txt).
+# S kinds: the chapter step kinds (journey_v2.php: find escort deliver defeat plant visit) and talk (spec = who) and act (a stop act, by slug
+#          or in words until it exists). WHERE in a spec: giver · stop (a village) · lit (a lit village) · stall (tier 2+) · hall (tier 4) ·
+#          bed (the area's Seed Bed stop) · off · a place name; "*3" after it = three different ones. An item named in a spec is a game item
+#          or a carried thing (ITEM rows of journey_extras.txt, handed out at `from`).
+# A creature errand's outro holds three endings, ";;" apart: beaten, charmed, the peaceful way.
+# Reward scale (quests doc 1.4): band 1 as written; band 2 c=140-220, xp=180-300; band 3 c=350, xp=600; band 4 c=600, xp=1,200; band 5 c=900,
+# xp=2,000. Repeatables: c=25:5 / 35:6 / 50:8 / 70:10 / 90:12 with xp=12:2 / 20:3 / 35:4 / 60:6 / 90:8 and fp=1.
+
+# ================================================================ The Maplewold, band 1 (8 errands; 3 threads; 1 happening act; 1 helper)
+Q|na-s01|NA|1|lost|sorrel-inkpot|tier>=1@zone:1|once|2|c=60,xp=40|page=sorrel-map-na,mark=1|Within Sight of the Road|A satchel hangs on the lantern post, with a note pinned to it: "Gone to map the prairie. Back by tea. S. Inkpot." The stallholder says that was Tuesday. She does not say which Tuesday.|Sorrel unrolls her sheet on the new bench and inks in the lamp, the bench and, after some thought, herself. There is one blank bit left on the prairie. She draws a small question mark in it and hands the page to you. "I was not lost," she says. "The map was early."
+S|na-s01|find|sorrel-inkpot|1|-|Find Sorrel Inkpot. She is in the long grass, forty steps from the road, holding her map up to the wrong hill.
+S|na-s01|escort|who:sorrel-inkpot,from:off,to:lit|1|-|Walk Sorrel to the lit stop. She will stop twice to measure things. Let her.
+S|na-s01|visit|segment:lit|1|-|Walk one glowing stretch of road with her. "It goes that way," she says, surprised. "It has gone that way all along."
+
+Q|na-s02|NA|0|deliver|pell-quickthistle|tier>=2@area|regular|5|c=25:5,xp=12:2,fp=1|c=90,xp=60,item=beeswax:2,title=Second Post|First Sack|Pell Quickthistle reads the top letter aloud, in full: "Mrs Ada Pennywhistle, The Blue Door, Second Lamp After The Mill." He weighs the sack in one hand. "Three stops' worth," he says, "and one pair of boots. Mine are spoken for."|Pell ticks the sack off against his boot leather. "Late by a lifetime, delivered in a day," he says. Then he reads you the next address.
+S|na-s02|deliver|item:old-letter:3,from:giver,to:lit*3|1|-|The first time: carry 3 old letters to 3 lit stops, in any order. Do not read them. Pell never has.
+S|na-s02|deliver|item:old-letter:1,from:lit,to:lit|1|-|After that: 1 letter between two lit stops, whenever Pell has one.
+
+Q|na-s03|NA|1|creature|market|regular@zone:1|once|3|c=50,xp=40|seed=blueberry:1|Something in the Oats|The weigher has a sack of oats that weighs less every morning and a hole by the bed edge that gets bigger. She has written "MOLE" on the slate, and under it, smaller, "probably".|The Tunnel Mole leaves by the back way, with remarks, and half an oat.;;The Tunnel Mole agrees to dig under the next field over, where the worms are better. It shakes on it. Its hand is mostly claw.;;Two rows of lentils go in along the bed edge. The mole meets the roots, thinks about it, and turns left.
+S|na-s03|defeat|creature:tunnel-mole|1|plant:crop:lentil:2:1|Deal with the Tunnel Mole: beat it, charm it, or plant 2 lentil at the bed edge to turn it.
+S|na-s03|visit|giver|1|-|Tell the weigher. She rubs out "probably".
+
+Q|na-s04|NA|0|garden|mill|tier>=1@type:mill,hp=bake_day/bread_day|regular|6|c=30:5,xp=12:2,fp=1|unlock=recipe:mill-day-apple-loaf|Hops for the Bake Day|It is bake day at the mill and the miller has flour to his eyebrows. He wants apples for the loaf or hops for the barm, and he is not particular which, so long as it is three.|The loaf comes out the size of a hat. The miller cuts you the end, which he says is the best bit, and writes the recipe on a flour sack so that you will stop asking.
+S|na-s04|deliver|item:apple/hops:3,to:giver|1|-|Hand in 3 apples or 3 hops at the mill.
+
+Q|na-s06|NA|3|deliver|tower|chapter=maplewold-m3-lost-lantern|regular|10|c=25:5,xp=12:2,fp=1|unlock=theme:lantern-glass-post|Oil for the Lost Lantern|The keeper of the Lost Lantern has found, now that it is lit, that it eats. Two cakes of beeswax a week, and it likes its wick trimmed by somebody with steady hands. The keeper holds his out. They are not steady.|The big lamp settles to a clean flame. The keeper gives you the old glass from the lamp room. It would look well on a lantern post, he says, somewhere a boat could see it.
+S|na-s06|deliver|item:beeswax:2,to:Lighthouse of the Lost Lantern|1|-|Bring 2 Beeswax to the lighthouse.
+S|na-s06|act|trim the wick|1|-|Trim the wick. Slowly. The lamp is watching.
+
+Q|na-s07|NA|3|creature|jetty|tier>=2@type:jetty|once|9|c=80,xp=70|unlock=shop:smokehouse-rack|Gulls on the Catch|Two Herring Gulls have worked out when the boats come in. They stand on the net racks like customers. The fisher says he does not mind sharing. He minds being served second.|The gulls go off down the coast to bother a lighthouse.;;The gulls accept the heads and tails, by treaty, and leave the middles. One of them now stands on the fisher's hat while he works. He says it is company.;;The scare-gnome goes up on the rack with its arms out. The gulls look at it for a long time. They do not come closer. One of them bows.
+S|na-s07|defeat|creature:herring-gull|2|deliver:item:rope:2,item:straw-mulch:2,to:giver:1|See off 2 Herring Gulls: beat them, charm them, or build a scare-gnome (2 Rope, 2 Straw Mulch).
+S|na-s07|visit|giver|1|-|Tell the fisher. He will give you a fish and watch to see that you get it home.
+
+Q|na-s09|NA|5|garden|herb|bed>=1|once|10|c=70,xp=60|unlock=place:drowned-paddy-boardwalk,seed=cranberry:1|Goldenrod by the Paddy|The herbalist at Cattailmere says a paddy wants bees and bees want goldenrod. She has one plant. She has been moving it from bank to bank so the bees feel there is more.|Three clumps of goldenrod go in along the bank. Under the last one your trowel hits a plank, and then another. There is an old boardwalk under the water, running out into the reeds.
+S|na-s09|plant|flower:goldenrod:3|1|-|Grow 3 goldenrod to bloom.
+S|na-s09|deliver|item:cut-goldenrod:3,to:bed|1|-|Hand them in at the Cattailmere paddy.
+
+Q|na-s10|NA|4|lost|spring|tier>=1@zone:4|once|12|c=90,xp=80|unlock=recipe:snowshoe-stew|The Bather in the Snow|The hot spring attendant has counted towels and got to three, and counted bathers and got to two. One set of footprints leaves by the wrong path, toward the Aurora Road. They are bare.|The bather is put back in the spring to thaw, and says the snow was bracing. The attendant says nothing and puts on a pot of stew. You get the recipe. The bather gets a second towel.
+S|na-s10|find|the bather|1|-|Find the bather off the Aurora Road. Look for steam.
+S|na-s10|escort|who:the bather,from:off,to:giver|1|-|Walk them back to the spring. They will tell you it is not far. It is quite far.
+
+Q|na-s11|NA|4|happening|any|hp=snow_day/snow_gnome|act|12|c=20:5,xp=10:2,fp=1|title=Snow Neighbour|Snow Gnome Day|Snow to the windowsills, and the whole stop is out rolling it into gnomes. Somebody at the next stop will not have had a hot dinner.|The snow gnome has your hat on for the afternoon. The dinner arrives warm, more or less.
+S|na-s11|act|build the snow gnome|1|-|Build the snow gnome.
+S|na-s11|deliver|meal:1,to:stop|1|-|Carry 1 home-cooked meal to the next stop.
+
+Q|na-dam-debt|NA|5|helper|heron-stilt-village|found=the-dam-debt|once|9|c=80,xp=70|-|The Dam Debt|Marsh-reeve Tully Sedgewick has a ledger with the beavers on one page and the stilt-folk on the other. Each side says the other owes it a log. The sluice is in between, leaking on both.|Three birch logs are entered on both pages and crossed off both. Tully closes the ledger. Both sides say they won.
+S|na-dam-debt|talk|the beaver council|1|-|Hear the beaver council at the Dam Debt. Bring patience. They vote on everything.
+S|na-dam-debt|talk|the stilt-villagers|1|-|Hear the stilt-villagers at Heron Stilt Village. They vote on nothing, loudly.
+S|na-dam-debt|deliver|item:birch-log:3,to:Heron Stilt Village|1|-|Bring the council what it is owed: 3 Birch Log.
+
+# ================================================================ Maizehollow, band 2 (6 errands; 1 thread; 1 happening act)
+Q|ca-s01|CA|3|lost|sorrel-inkpot|tier>=1@area|once|18|c=150,xp=200|page=sorrel-map-ca,mark=1|Sorrel and the Mirage|There is a note on the lantern post: "Gone to map the lake. S. Inkpot." The Barrens has no lake. The innkeeper says there is one most afternoons, about a mile off, and it leaves at dusk.|Sorrel has drawn the lake in, with a dotted edge, and written "afternoons only". She hands you the sheet. "I am not lost," she says. "The map is early."
+S|ca-s01|find|sorrel-inkpot|1|-|Find Sorrel Inkpot in the Barrens. She is standing at the edge of a lake that is not there, with her boots off.
+S|ca-s01|escort|who:sorrel-inkpot,from:off,to:lit|1|-|Walk her to the nearest lit stop. She will want to go round the lake.
+
+Q|ca-s02|CA|0|deliver|market-of-a-thousand-chilies|tier>=2@area*2|regular|18|c=35:6,xp=20:3,fp=1|unlock=shop:chili-strings|Chilies to the Dark Stalls|A stallholder at the Market of a Thousand Chilies has a thousand chilies and the same forty customers. Out along the road the new stalls have beans and nothing to put on them.|The far stall hangs the chilies in a string over the scales. By evening there is a queue, and somebody in it is crying happily.
+S|ca-s02|deliver|item:chili-pepper:3,from:Market of a Thousand Chilies,to:stall|1|-|Carry 3 chili peppers from the Market to any stall (a tier 2 stop).
+
+Q|ca-s03|CA|0|creature|herb|bed>=1|once|18|c=140,xp=180|seed=vanilla:1|The Leafcutter Road|A Leafcutter Column has laid a road straight through the amaranth, two lanes, with overtaking. Each ant leaves with a red leaf held up like a flag. The herbalist says it would be pretty anywhere else.|The column breaks up and re-forms round the outside of the bed, a longer road and a crosser one.;;The column takes the weeds instead, by agreement, and the thistle is gone by Thursday. The herbalist says she should have asked sooner.;;A row of marigolds goes in beside the bed. The road bends toward it by nightfall. The amaranth is let alone, and the marigolds look surprised.
+S|ca-s03|defeat|creature:leafcutter-column|1|plant:flower:marigold:3:1|Move the Leafcutter Column: beat it, charm it, or grow 3 marigold as a decoy row.
+S|ca-s03|visit|giver|1|-|Tell the herbalist.
+
+Q|ca-s05|CA|1|garden|mill|chapter=maizehollow-c1-the-granary|once|17|c=160,xp=220|unlock=recipe:three-sisters-stew|Three Sisters|The miller by the Granary grows corn and nothing else, in rows, like a parade. His grandmother grew three things in one hill and he has never known why. He would like to see it done before he says it is nonsense.|Corn for the pole, beans up the corn, chayote sprawling at their feet. The miller looks at it for a long while. "Well," he says. Then he asks how his grandmother cooked it.
+S|ca-s05|plant|crop:corn:2|1|-|Grow corn and harvest 2.
+S|ca-s05|plant|crop:black-bean:2|1|-|Grow black beans and harvest 2.
+S|ca-s05|plant|crop:chayote:2|1|-|Grow chayote and harvest 2.
+S|ca-s05|deliver|item:corn:2,item:black-bean:2,item:chayote:2,to:giver|1|-|Hand in 2 of each at the mill.
+
+Q|ca-s06|CA|0|happening|any|hp=market_dusk/lantern_walk|act|18|c=35:6,xp=20:3,fp=1|unlock=theme:papel-picado-awning|Lanterns Out|The dusk lantern walk is forming up: six lamps and a dog. The dog carries nothing and leads. There is a seventh lantern with nobody under it.|You walk the glowing stretch behind the dog and hang the lantern at the next stop. Somebody has strung cut paper over the stalls there, and it throws small bright shapes on everyone.
+S|ca-s06|deliver|item:lantern:1,from:giver,to:lit|1|-|Carry a lantern along one lit stretch of road to the next stop.
+
+Q|ca-s07|CA|4|creature|tower|found=smokecap-caldera|once|24|c=220,xp=300|unlock=place:cinder-lee,title=Ash-Walker|The Vulture on the Waymark|A Griffon Vulture has taken the Ash Road waymarker for a perch. It does nothing. It only looks at the mules as they pass, in a measuring way, and the mule trains have stopped passing.|The vulture lifts off, slow as a rug being shaken, and takes a crag further up.;;The vulture agrees that it is not hungry, only bored, and takes up watching the weather instead. It is now the best forecast on the mountain.;;Two suppers go out to a ledge well off the road. The vulture moves house. Behind the ledge is a hollow out of the ash wind, with room for a mule train and a fire.
+S|ca-s07|defeat|creature:griffon-vulture|1|deliver:meal:2,to:off:1|Shift the Griffon Vulture: beat it, charm it, or carry 2 meals to a ledge further off.
+S|ca-s07|visit|giver|1|-|Tell the Warden at the tower. He will count the mules through.
+
+Q|ca-s08|CA|2|deliver|the-stepped-seed-temple|found=the-stepped-seed-temple|once|20|c=180,xp=240|page=seed-temple-tally|The Temple Tally|The seed-counter at the Stepped Seed Temple has shelves cut into every step and a tally stick as long as she is. Half the shelves are empty. She knows which seeds belong there. She has not seen them in years.|Four small jars go onto four stone shelves. The seed-counter cuts four notches and lets you hold the stick. The seed swaps of Maizehollow will have tomatillo and chayote from now on, she says. She has seen to it.
+S|ca-s08|deliver|item:corn-seed:1,item:black-bean-seed:1,item:tomatillo-seed:1,item:chayote-seed:1,to:The Stepped Seed Temple|1|-|Bring one seed each of corn, black bean, tomatillo and chayote to the temple shelves.
+
+# ================================================================ Mistmoor, band 2 (5 errands; 2 threads; 1 happening act; 1 helper)
+Q|nwe-s01|NWE|2|lost|sorrel-inkpot|tier>=1@area|once|18|c=150,xp=200|page=sorrel-map-nwe,mark=1|Sorrel and the Ring|A note on the lantern post: "Gone to pace out the fairy ring. Round by tea. S. Inkpot." A woodcutter says he passed her at the Fairy-ring Clearing this morning, and again at noon, and she was counting both times.|Sorrel inks the ring onto her sheet as a ring, which she says took some finding. She gives you the page. "I was not lost. I was thorough, in a circle."
+S|nwe-s01|find|Fairy-ring Clearing|1|-|Find Sorrel Inkpot at the Fairy-ring Clearing. She is on her forty-first lap.
+S|nwe-s01|escort|who:sorrel-inkpot,from:Fairy-ring Clearing,to:lit|1|-|Walk her to the nearest lit stop, in a straight line. Insist.
+
+Q|nwe-s03|NWE|0|garden|herb|tier>=1@type:herb/orchard|regular|18|c=35:6,xp=20:3,item=beeswax:1,fp=1|unlock=shop:heather-honey|Heather for the Hives|The beekeeper says her bees have been on clover so long that the honey is polite. She wants heather. Heather honey, she says, has opinions.|The hives go quiet in a busy way. The beekeeper gives you a cake of wax and says to come back when it has set, for the honey has to be cut with a knife.
+S|nwe-s03|deliver|item:cut-heather:2,to:giver|1|-|Hand in 2 heather in bloom.
+
+Q|nwe-s04|NWE|0|happening|tower|hp=fog_morning|act|20|c=40:6,xp=25:3,fp=1|title=Fog Lamp|Fog-blind|Fog on the moor like soup in a bowl. The Warden has counted travellers out of the last stop and into this one. The numbers differ by one.|The traveller comes in on your elbow and is put by the fire. The Warden makes the numbers agree and rounds up.
+S|nwe-s04|find|the traveller|1|-|Find the traveller between the two stops. Call out. They are calling too, in the wrong direction.
+S|nwe-s04|escort|who:the traveller,from:off,to:lit|1|-|Walk them to the nearer lamp.
+
+Q|nwe-s05|NWE|1|creature|mill|bed>=1|once|19|c=180,xp=240|seed=hazelnut:1|The Boar in the Barley|A Wild Boar has found the barley bed and is turning it over like a gnome looking for his keys. The miller knows the four old stalks by name. He will only say that Bess is still standing.|The boar goes off through the hedge and takes some of the hedge with it.;;The boar agrees to root under the oaks instead and is shown the oaks. It comes back each autumn to check the terms.;;Three planks and two ropes make a fence a boar respects. It leans on it once, to be sure, and leaves. Under the turned earth there is a hazelnut, sprouting.
+S|nwe-s05|defeat|creature:wild-boar|1|deliver:item:timber-plank:3,item:rope:2,to:bed:1|Save the bed from the Wild Boar: beat it, charm it, or fence it (3 Timber Planks, 2 Rope).
+S|nwe-s05|visit|giver|1|-|Tell the miller. He will introduce you to Bess.
+
+Q|nwe-s06|NWE|3|deliver|dab-tarrow|chapter=mistmoor-n3-a-smuggler-wants-out|once|23|c=200,xp=220|unlock=shop:smugglers-shelf|Honest Crates|Dab Tarrow has three crates, each with a bill of sale, each bill signed. He holds them up to the light for you. He would like them delivered in daylight, by the front door, and he would like somebody else to do it, because his knees go to water.|Three stalls sign for three crates. Dab frames the receipts. His jetty stall gets a shelf of things from far off, with a card on it in his best hand: "Paid for."
+S|nwe-s06|deliver|item:honest-crate:3,from:giver,to:stall*3|1|-|Carry 3 crates from the jetty to 3 different stalls. Knock.
+
+Q|nwe-s08|NWE|4|lost|bracken-tuppence|chapter=mistmoor-n4-lamps-in-the-fog|once|25|c=220,xp=300|unlock=theme:goat-bell-post|The Goat That Stayed|Bracken Tuppence has counted her goats, and there are three, and there have always been three. But the bell she can hear from the Barrow's edge is not one of hers, and it has been ringing since the fog lifted.|A fourth goat, small and grey, that nobody counted because nobody owned it. It walks into camp behind you and lies down under the lamp. Bracken hangs its bell on the lantern post, so the post will know when it is home.
+S|nwe-s08|find|Barrow of the Frost Toad|1|-|Find the kid at the edge of the Barrow. Do not go in. It has not.
+S|nwe-s08|escort|who:the grey kid,from:Barrow of the Frost Toad,to:giver|1|-|Walk it to the Fells camp. It will want carrying. It is heavier than it looks.
+
+Q|nwe-goats|NWE|4|helper|bracken-tuppence|regular@zone:4|once|24|c=200,xp=260|-|Three in the Fog|Bracken Tuppence has three goats and can see none. On the Fells a goat is weather, she says, and today the weather has gone out.|Three goats under one lamp, steaming. Bracken counts them twice and gives the lamp a pat, as if it had done the herding.
+S|nwe-goats|find|Bracken's three goats|3|-|Find the three goats off the road on the Fells. Follow the bells. One of them is not wearing hers.
+S|nwe-goats|escort|who:Bracken's three goats,from:off,to:lit|1|-|Bring them to the lamp.
+
+# ================================================================ Band 3: Sunsprinkle, Rainroot, Olivewhistle, Birchbramble (4 errands, 1 thread, 1 happening act each)
+Q|cb-s01|CB|2|lost|sorrel-inkpot|tier>=1@area|once|27|c=350,xp=600|page=sorrel-map-cb,mark=1|Sorrel and the Tide|A note on the lantern post: "Gone to map the wreck at low water. S. Inkpot." The ferryman reads it and looks at the sea, which is no longer low.|Sorrel wrings out her map and inks the Galleon in, with a line for where the water was and another for where it is. "I was not lost," she says. "I was cut off. It is quite different."
+S|cb-s01|find|Sunken Gnome Galleon|1|-|Find Sorrel Inkpot at the Sunken Gnome Galleon. She is on the highest bit of it, drawing the lowest.
+S|cb-s01|escort|who:sorrel-inkpot,from:Sunken Gnome Galleon,to:lit|1|-|Walk her to the nearest lit stop. Wade, in places.
+
+Q|cb-s02|CB|0|creature|tower|stage>=1@sunsprinkle-the-lighthouse|once|28|c=350,xp=600|unlock=theme:shell-lamp-post|The Hoarder's Lens|One shard of the lighthouse lens is missing, and a Hermit Crab Hoarder on the rocks below is wearing something that flashes. The keeper says it suits him, which is the trouble.|The crab drops the shard and goes off sideways, shell-less and furious, to find a bucket.;;The crab lends the shard to the lighthouse, on the understanding that it is still his. He comes up the stairs on clear nights to look at it.;;Two spiral shells are laid on the rock. The crab tries on both, keeps the larger, and leaves the shard behind like a hat he has gone off.
+S|cb-s02|defeat|creature:hermit-crab-hoarder|1|deliver:item:spiral-shell:2,to:giver:1|Get the lens shard from the Hermit Crab Hoarder: beat him, charm him, or offer a better shell (2 Spiral Shell).
+S|cb-s02|visit|giver|1|-|Bring the shard up to the keeper. Two hundred steps.
+
+Q|cb-s03|CB|0|deliver|ferry|bed>=3|regular|30|c=50:8,xp=35:4,fp=1|unlock=recipe:breadfruit-chips|Breadfruit Boat|The orchard by the ferry has breadfruit again, more than one island can eat. The ferryman has a boat, an empty afternoon and no head for fruit. He asks you to pick the ripe ones. He cannot tell.|The stall on the far island slices the first one thin and fries it. The ferryman eats most of the plate on the way back and asks how it was done.
+S|cb-s03|deliver|item:breadfruit:3,to:stall|1|-|Carry 3 breadfruit to a stall on another island.
+
+Q|cb-s04|CB|0|garden|jetty|tier>=1@type:jetty|once|27|c=350,xp=600|seed=nutmeg:1|Garlands for the Jetty|The jetty is lit and the first boat is due. The jetty-keeper says a lit boat ought to be met with flowers, and that it always was. She has string. She has no flowers.|Three frangipani garlands on three posts. The boat comes in under them and the pilot takes one for his hat. He leaves a nutmeg on the post in its place, still in its red lace.
+S|cb-s04|plant|flower:frangipani:3|1|-|Grow 3 frangipani to bloom.
+S|cb-s04|deliver|item:cut-frangipani:3,to:giver|1|-|Hand them in at the jetty.
+
+Q|cb-s06|CB|0|happening|ferry|hp=ferry_late|act|28|c=50:8,xp=35:4,fp=1|title=Lampwatch|The Late Ferry|The ferry is late. The ferryman's wife says it is always late, and that the lamp on the landing must be kept up until it is in, and that she has kept it up for thirty years and would like one night off.|The ferry comes in on your lamp at an hour nobody admits to. The ferryman eats his supper standing up and says he was only a little behind.
+S|cb-s06|act|keep the lamp|1|-|Keep the landing lamp until the ferry is in.
+S|cb-s06|deliver|meal:1,to:giver|1|-|Bring the ferryman a home-cooked meal.
+
+Q|sa-s01|SA|2|lost|sorrel-inkpot|tier>=1@area|once|27|c=350,xp=600|page=sorrel-map-sa,mark=1|Sorrel and the Stairs|A note on the lantern post: "Gone to count the steps of the Sky City. S. Inkpot." A llama-driver says she was half-way up yesterday. She was half-way up the day before, too.|Sorrel writes the number of steps on the sheet, crosses it out, and writes "many". She gives you the page. "I was not lost. I had lost count. The map is fine."
+S|sa-s01|find|The Sky City Ruins|1|-|Find Sorrel Inkpot half-way up the Sky City Ruins stairs. Do not say a number near her.
+S|sa-s01|escort|who:sorrel-inkpot,from:The Sky City Ruins,to:lit|1|-|Walk her down to the nearest lit stop.
+
+Q|sa-s02|SA|0|creature|jetty|stage>=2@rainroot-the-canoe-jetty|once|28|c=350,xp=600|unlock=theme:carved-prow-jetty|Python on the Planks|The new jetty has its frame up and an Emerald Python asleep across it, end to end, with a lump in the middle that was somebody's lunch. The carpenters are taking a long tea.|The python goes into the river like a rope being paid out.;;The python agrees to sleep on the bank side, where the sun stays longer, and is shown the spot. It takes the afternoon to get there.;;Two suppers are set down at the far end of the bank. Some hours later the python has moved to them, and then past them, and the jetty is only planks again.
+S|sa-s02|defeat|creature:emerald-python|1|deliver:meal:2,to:giver:1|Clear the jetty of the Emerald Python: beat it, charm it, or wait it out with 2 home-cooked meals.
+S|sa-s02|visit|giver|1|-|Tell the carpenters tea is over. The head carpenter carves a prow for the end post, python-shaped, out of respect.
+
+Q|sa-s03|SA|4|deliver|market|found=the-mirror-salt-flat|once|29|c=350,xp=600|unlock=recipe:salt-flat-flatbread|Salt for Every Table|The market cook has been salting the pot with a block the size of her thumb, and it is nearly a thumbnail. The Mirror Salt Flat is three days of white in every direction. Nobody has gone to fetch any since the road went dark.|Three stalls each get a third of the block. The market cook rubs hers on a hot flatbread, tears it in two and gives you the half with the recipe on it. The recipe is "do that".
+S|sa-s03|deliver|item:salt-block:1,from:The Mirror Salt Flat,to:stall*3|1|-|Cut a salt block at the Mirror Salt Flat and carry it round 3 stalls.
+
+Q|sa-s04|SA|0|garden|jetty|tier>=1@type:jetty|regular|27|c=50:8,xp=35:4,fp=1|unlock=tea:jetty-mate|Mate for the Jetty|A jetty is kept, Rowan says, where somebody pours mate. This one has a gourd, a kettle and a keeper with nothing to put in either.|The gourd goes round to the left. Nobody says thank you until they are done, which is the rule. The keeper shows you how she cuts it with mint for the hot afternoons.
+S|sa-s04|deliver|item:yerba-mate:3,to:giver|1|-|Hand in 3 yerba mate at a jetty.
+
+Q|sa-s06|SA|1|happening|market|hp=market_day|act|28|c=50:8,xp=35:4,fp=1|unlock=shop:saddle-blanket|Ranch Market|Market day, and the Gaucho Gnome Ranch has a stall's worth of goods and nobody to walk it in. The gauchos say they would, but the guinea pigs need exercising.|The load goes up on the trestles and is half gone by noon. The ranch sends a saddle blanket for the stall to sell. It is striped. Everything on the ranch is striped.
+S|sa-s06|deliver|item:stall-load:1,from:Gaucho Gnome Ranch,to:giver|1|-|Carry a stall's load from the Gaucho Gnome Ranch to the market stop.
+
+Q|se-s01|SE|3|lost|sorrel-inkpot|tier>=1@area|once|27|c=350,xp=600|page=sorrel-map-se,mark=1|Sorrel and the Labyrinth|A note on the lantern post: "Gone to map the Labyrinth Isle. Shall be some time. S. Inkpot." It is the only one of her notes that has ever been accurate.|Sorrel has mapped the Labyrinth as far as the second corner and labelled the rest "more of the same". She gives you the sheet. "I was not lost. I was being careful, at length."
+S|se-s01|find|The Labyrinth Isle|1|-|Find Sorrel Inkpot in the Labyrinth Isle, naturally. Follow the chalk arrows. Ignore the rubbed-out ones.
+S|se-s01|escort|who:sorrel-inkpot,from:The Labyrinth Isle,to:lit|1|-|Walk her out, and to the nearest lit stop. Keep one hand on the left wall.
+
+Q|se-s02|SE|0|creature|ferry|tier>=1@type:ferry|once|28|c=350,xp=600|title=Speaker to Pelicans|Pelicans in Session|The ferry cannot land. Nine pelicans are standing on the landing in a row, facing the same way, and a tenth is addressing them. The toll-keeper says they have been in session since Thursday and have not yet reached a vote.|The Parliament rises in a great flap, with remarks. They sit again on the harbour wall, which they say was the better chamber all along.;;You are heard out in full. The ruling: the landing is yours from dawn to dusk, theirs by night, and the Speaker keeps the left-hand post. It is entered in the minutes, which is a fish.;;Five sardines are moved, seconded and carried to the end of the breakwater. The whole house follows them. The ferry lands, to mild applause from one porter.
+S|se-s02|defeat|creature:pelican-parliament|1|deliver:item:sardine:5,to:off:1|Clear the landing: fight the Pelican Parliament, charm it (ask for a ruling), or carry 5 Sardine to the breakwater.
+S|se-s02|visit|giver|1|-|Tell the toll-keeper. He will want it in writing. The pelicans did.
+
+Q|se-s03|SE|1|deliver|olive-press-piazza|bed>=1|once|29|c=350,xp=600|unlock=recipe:lemon-olive-bread|First Pressing|The Olive Press Piazza has turned its wheel for the first time since before the bench. The oil is green and it bites. The presser has filled three jars and is standing guard over them with a ladle.|The monks at the Lemon Grove bless the jar, briefly, and then get the bread out. Two stalls put the oil on the counter with a saucer beside it. The monastery cook sends back a loaf with lemon in it and the recipe folded underneath.
+S|se-s03|deliver|item:oil-jar:1,from:Olive Press Piazza,to:Lemon Grove Monastery|1|-|Carry a jar of the first pressing to the Lemon Grove Monastery.
+S|se-s03|deliver|item:oil-jar:2,from:Olive Press Piazza,to:stall*2|1|-|Carry the other two jars to 2 stalls.
+
+Q|se-s04|SE|0|garden|mill|chapter=olivewhistle-the-hill-windmill|regular|30|c=50:8,xp=35:4,fp=1|unlock=shop:lavender-sachet|Lavender for the Sacks|The windmill is grinding and the flour sacks are stacking up in the loft. The miller says the moths have noticed. Her mother kept lavender between the sacks, and her mother never saw a moth.|Lavender between every third sack. The loft smells like a linen cupboard. The miller sews the spare into little bags, and sells them at the stall to folk who have moths of their own.
+S|se-s04|deliver|item:cut-lavender:2,to:giver|1|-|Hand in 2 lavender in bloom at the mill.
+
+Q|se-s06|SE|3|happening|tower|hp=kite_wind|act|28|c=50:8,xp=35:4,fp=1|unlock=theme:kite-mast-tower|Kite Wind|A kite wind, steady from the west. The tower-keeper says the towers used to talk across the water on days like this, kite to kite, and that she still has the kite.|The kite goes up on its long line. A good while later, over the next isle, a second one rises to meet it. The keeper says that is "good morning". She cannot remember the rest.
+S|se-s06|act|fly the signal kite|1|-|Fly the signal kite to the next isle's tower.
+
+Q|ee-s01|EE|2|lost|sorrel-inkpot|tier>=1@area|once|27|c=350,xp=600|page=sorrel-map-ee,mark=1|Sorrel and the Birches|A note on the lantern post: "Gone to map the Amber Woods. Have marked my way on the trees. S. Inkpot." The woodcutter says every tree in the Amber Woods is a birch. They come marked.|Sorrel draws the wood as one large birch, with "etc." beside it. She hands you the sheet. "I was not lost. The trees were repeating themselves."
+S|ee-s01|find|The Amber Woods|1|-|Find Sorrel Inkpot in the Amber Woods. Every tree is the same. She is by one of them.
+S|ee-s01|escort|who:sorrel-inkpot,from:The Amber Woods,to:lit|1|-|Walk her to the nearest lit stop.
+
+Q|ee-s02|EE|0|creature|mill|chapter=birchbramble-the-drying-barn|once|29|c=350,xp=600|seed=quince:1|Bear at the Racks|The new barn is full of drying plums, and a Black Bear has found the low racks. It eats one plum at a time, with its eyes shut. Ginger says she has never seen anyone enjoy her work so much, and she wants it stopped.|The bear goes back into the wood at a dignified amble, sticky to the ears.;;The bear agrees to the windfalls only, by the back fence, and keeps to it. It has started bringing things: a boot, a quince, another boot.;;Two combs of wild honey are left at the wood's edge. The bear does not come back to the racks. In the grass where it sat to eat, there is a quince stone, already split.
+S|ee-s02|defeat|creature:black-bear|1|deliver:item:wild-honeycomb:2,to:off:1|Keep the Black Bear off the racks: beat it, charm it, or leave 2 Wild Honeycomb at the wood's edge.
+S|ee-s02|visit|giver|1|-|Tell Ginger. She will count the plums anyway.
+
+Q|ee-s03|EE|1|deliver|painted-egg-house|found=painted-egg-house|once|28|c=350,xp=600|unlock=theme:painted-shutters|Painted Eggs|The painter at the Painted Egg House does one egg a day and has not sent one down the road in years. There are a great many eggs. She picks three, changes her mind, and picks three others.|Three stops each put an egg in the window. One keeper liked hers so much she has painted the shutters to match. It is catching: the next stop is at it already.
+S|ee-s03|deliver|item:painted-egg:3,from:Painted Egg House,to:stop*3|1|-|Carry 3 painted eggs to 3 stops. Walk like somebody carrying eggs.
+
+Q|ee-s04|EE|0|garden|mill|bed>=1|regular|28|c=50:8,xp=35:4,fp=1|unlock=recipe:buckwheat-plum-cakes|For the Barn|The Drying Barn has racks to the rafters and Ginger means to see every one of them full. Buckwheat or plums, she says, three of either. She has a slate. You are on it.|Three more for the racks. Ginger chalks them up and fries you a buckwheat cake with a plum in the middle, out of the batch she says is for testing.
+S|ee-s04|deliver|item:buckwheat/plum:3,to:giver|1|-|Hand in 3 buckwheat or 3 plums at the barn's mill stop.
+
+Q|ee-s06|EE|0|happening|any|hp=first_frost|act|28|c=50:8,xp=35:4,fp=1|unlock=shop:straw-bed-cover|First Frost|White on the grass this morning and a skin of ice on the trough. The stop's bed is still in leaf, and the keeper is looking at it the way one looks at a child out without a coat.|The bed goes under straw, tucked in at the corners. The keeper says it will do. By noon she is selling straw covers off the stall to everyone who saw.
+S|ee-s06|deliver|item:straw-mulch:2,to:giver|1|-|Cover the stop's bed with 2 Straw Mulch.
+
+# ================================================================ Band 4: Dunewhisper, Spicepeak, Greatcanopy, Thornacre
+Q|mena-s01|MENA|4|lost|sorrel-inkpot|tier>=1@area|once|37|c=600,xp=1200|page=sorrel-map-mena,mark=1|Sorrel and the Oasis|A note on the lantern post: "Gone to fix the position of the Oasis That Moves. S. Inkpot." The keeper sweeps round the post. "It moved," he says. "Tuesday."|Sorrel has drawn the oasis four times on one sheet, with dates. She gives it to you. "I was not lost. I was exactly where the oasis had been."
+S|mena-s01|find|The Oasis That Moves|1|-|Find Sorrel Inkpot at the Oasis That Moves, or where it was. She is sitting in the dry bit, waiting for it to come round again.
+S|mena-s01|escort|who:sorrel-inkpot,from:The Oasis That Moves,to:lit|1|-|Walk her to the nearest lit stop.
+
+Q|mena-s02|MENA|0|creature|spring|tier>=1@type:spring|once|38|c=600,xp=1200|title=Shade-Sharer|The Baboon in the Shade|There is one patch of shade at the well and a Hamadryas Baboon is sitting in the whole of it, cape spread out, like a duke at a picnic. Folk draw their water in the sun and are getting short with each other.|The baboon stalks off into the glare, cape first, and does not look back.;;The baboon moves over. It turns out there was room for six. He takes the middle and expects to be passed the dates.;;Three dates are set down under the far palm. The baboon thinks it over, goes to them, and finds the shade there is just as good and nobody stares.
+S|mena-s02|defeat|creature:hamadryas-baboon|1|deliver:item:date:3,to:off:1|Free the well-shade from the Hamadryas Baboon: beat him, charm him, or leave 3 dates further off.
+S|mena-s02|visit|giver|1|-|Tell the bath-keeper. She counts the shade and gets to six.
+
+Q|mena-s03|MENA|4|deliver|spring|chapter=dunewhisper-the-oasis-waterwheel|regular|39|c=70:10,xp=60:6,fp=1|unlock=theme:shade-sail-bench|Water to the Far Stop|The wheel turns and the oasis has more water than it can drink. The stop out in the dunes has a lamp, a bench and a well that gives a cup a day, on good days.|Two skins go into the far stop's jar. The keeper there rigs the empty skins over the bench on four poles, for shade, and sits under them looking like the owner of a ship.
+S|mena-s03|deliver|item:water-skin:2,from:giver,to:lit|1|-|Carry 2 water-skins from the oasis to a stop out in the dunes.
+
+Q|mena-s04|MENA|2|garden|herb|found=the-hanging-garden-ruins|once|38|c=600,xp=1200|unlock=recipe:rosewater-date-sweets|Roses in the Ruins|The Hanging Garden Ruins hang nothing now but dust. The herbalist says the terraces were roses once, top to bottom, and that the bazaar smelled of it on a west wind. She has cleared one terrace. It took her a year.|Three damask roses on the cleared terrace. The herbalist boils the first petals down for rosewater and rolls dates in it, and writes out how, so that she need not make them all herself.
+S|mena-s04|plant|flower:damask-rose:3|1|-|Grow 3 damask roses to bloom.
+S|mena-s04|deliver|item:cut-damask-rose:3,to:The Hanging Garden Ruins|1|-|Bring them to the cleared terrace at the Hanging Garden Ruins.
+
+Q|mena-s06|MENA|0|happening|shrine|hp=night_watch|act|38|c=70:10,xp=60:6,fp=1|page=star-roads|A Still Night|A still night, no wind, and more stars than anyone needs. Two Grey Cloaks are sitting on the shrine wall with their heads back. One of them moves over without looking down.|They name the stars the way other folk name stops: this one a day from that one, a well between. One of them draws it for you in the sand, and waits while you copy it.
+S|mena-s06|act|read the stars|1|-|Sit on the wall and read the stars with the Grey Cloaks.
+
+Q|csa-s01|CSA|4|lost|sorrel-inkpot|tier>=1@area|once|37|c=600,xp=1200|page=sorrel-map-csa,mark=1|Sorrel in the Cloud|A note on the lantern post: "Gone to take the height of Prayer-flag Pass. S. Inkpot." A yak-herd says the pass has been in cloud for a week. He says somebody up there keeps shouting numbers.|Sorrel writes the height on the sheet and, beside it, "approx., cloud". She gives you the page. "I was not lost. I simply could not see where I was."
+S|csa-s01|find|Prayer-flag Pass|1|-|Find Sorrel Inkpot at Prayer-flag Pass. Follow the flags hand over hand. She is holding the last one.
+S|csa-s01|escort|who:sorrel-inkpot,from:Prayer-flag Pass,to:lit|1|-|Walk her down to the nearest lit stop.
+
+Q|csa-s02|CSA|1|creature|tower|tier>=1@zone:1|once|39|c=600,xp=1200|unlock=shop:yak-wool-blanket|The Rhino on the Road|A One-horned Rhino is asleep across the Lotus Delta causeway. It fits exactly. The carters have been waiting since morning and have started a card game, and a small market.|The rhino gets up, all at once, like a hill deciding, and goes off into the reeds.;;The rhino agrees to sleep with its back end on the causeway only, which leaves room for a cart. It takes the toll in scratches behind the ear.;;Two handfuls of sea salt are left on the bank. The rhino wakes, follows its nose, and settles by the salt. A carter tucks a yak-wool blanket over it, for the look of the thing.
+S|csa-s02|defeat|creature:one-horned-rhino|1|deliver:item:sea-salt:2,to:off:1|Open the causeway: beat the One-horned Rhino, charm it, or leave 2 Sea Salt on the bank.
+S|csa-s02|visit|giver|1|-|Tell the Warden at the tower. He counts the carts through, and the rhino as one.
+
+Q|csa-s03|CSA|3|deliver|tea-garden-slopes|chapter=spicepeak-the-tea-terraces|regular|40|c=70:10,xp=60:6,fp=1|unlock=tea:caravan-brick-tea|Tea Down the Terraces|The terraces are picking again and the Tea Garden Slopes press the leaf into bricks, as they always did, for carrying. A brick keeps for years. The last one that left for the Caravanserai was before Sage was born.|The hall at the Caravanserai shaves the brick into the big pot with cardamom and milk. A caravan master drinks three bowls and says it tastes like the road used to. They show you the shaving of it.
+S|csa-s03|deliver|item:tea-brick:1,from:Tea Garden Slopes,to:The Silk Road Caravanserai|1|-|Carry a tea brick from the Tea Garden Slopes to the Silk Road Caravanserai.
+
+Q|csa-s04|CSA|1|garden|floating-flower-market|bed>=1|once|38|c=600,xp=1200|unlock=theme:lotus-garlands|Lotus for the Market|The Floating Flower Market floats and has a market, and is short of flowers. The boat-women have been selling each other the same three marigolds for a month, to keep in practice.|The lotus goes out on the first boat and the turmeric on the second, for the dyers. By dusk every post on the landing has a garland on it, and so has the boatman's dog.
+S|csa-s04|plant|flower:sacred-lotus:3|1|-|Grow 3 sacred lotus to bloom.
+S|csa-s04|deliver|item:cut-sacred-lotus:3,item:turmeric:3,to:Floating Flower Market|1|-|Bring 3 lotus and 3 turmeric to the Floating Flower Market.
+
+Q|csa-s06|CSA|0|happening|shrine|hp=shrine_day|act|38|c=70:10,xp=60:6,fp=1|title=Button-Payer|Shrine Day|Shrine day. Folk come up the path with small things in their hands: a pebble, a plum, a knot of thread. On the step somebody has already left one clean button.|You leave your small thing beside the button. Nobody thanks you, which is right. The shrine-keeper only nods, and moves the button an inch so that yours has room.
+S|csa-s06|act|leave a small gift|1|-|Leave a small gift on the shrine step, as the Grey Cloaks do.
+
+Q|wca-s01|WCA|2|lost|sorrel-inkpot|tier>=1@area|once|37|c=600,xp=1200|page=sorrel-map-wca,mark=1|Sorrel in the Stacks|A note on the lantern post: "Gone to consult the old maps at the Mud Mosque Library. S. Inkpot." The librarian says a gnome went into the map room on Monday. He has heard paper since. He has not liked to knock.|Sorrel comes out with eleven old maps under her arm and her own sheet finished from all of them at once. She hands it over. "I was not lost. I was cross-referencing."
+S|wca-s01|find|Mud Mosque Library|1|-|Find Sorrel Inkpot among the shelves of the Mud Mosque Library. Follow the sound of paper.
+S|wca-s01|escort|who:sorrel-inkpot,from:Mud Mosque Library,to:lit|1|-|Walk her to the nearest lit stop. She will read as she goes. Steer.
+
+Q|wca-s02|WCA|1|creature|drum-circle-market|found=drum-circle-market|once|38|c=600,xp=1200|unlock=shop:talking-drum|The Drumstick Thieves|A Grey Parrot Gossip has been carrying off the drumsticks from the Drum Circle Market, one a day, and the news with them. The drummers are playing with spoons. The parrots are repeating everything, slightly wrong.|The parrots scatter into the canopy and drop the drumsticks as they go, on people.;;The parrots agree to carry the news properly, for a wage in fruit, and to give the sticks back. They are now the fastest post in the Greatcanopy and the least discreet.;;Four pieces of fruit go up on the high branch. The parrots come down for them and leave the sticks behind, having never really wanted sticks.
+S|wca-s02|defeat|creature:grey-parrot-gossip|1|deliver:item:mango/guava/banana/papaya:4,to:giver:1|Get the drumsticks back from the Grey Parrot Gossip: beat them, charm them, or leave 4 fruit on the high branch.
+S|wca-s02|visit|giver|1|-|Tell the drummers. Stand back.
+
+Q|wca-s03|WCA|2|deliver|mud-mosque-library|found=mud-mosque-library|once|39|c=600,xp=1200|page=library-road-ledger|Overdue|The librarian of the Mud Mosque Library keeps a ledger of loans. Three books went out along the road "for a week" and the ink of that entry has gone brown. He does not want the fines. He wants the books.|Three books back on the shelf, a little swollen. The librarian strikes off the loans and turns the ledger round for you. Further up the same page, in another hand, is a list of names with stops beside them, and dates, one a year. The last line has no name, only a button stitched to the paper.
+S|wca-s03|deliver|item:library-book:3,from:stop*3,to:Mud Mosque Library|1|-|Fetch 3 overdue books back from 3 stops.
+
+Q|wca-s04|WCA|0|garden|inn|tier>=4@area|regular|40|c=70:10,xp=60:6,fp=1|unlock=recipe:fonio-feast-bowl|Fonio for the Pot|The hall has a pot you could bath in and a cook who intends to fill it. Fonio, she says, the small grain, the one her grandmother called the lazy farmer's friend and then worked all day at.|Three measures into the big pot. It swells to feed the hall and two tables outside. The cook lets you stir, and then tells you the rest: what goes in with it, and when to stop.
+S|wca-s04|deliver|item:fonio:3,to:hall|1|-|Hand in 3 fonio at a hall.
+
+Q|wca-s06|WCA|0|happening|camp|hp=fiddler|act|38|c=70:10,xp=60:6,fp=1|unlock=theme:drum-ring-fire|The Fiddler and the Drums|A fiddler has walked in from the east with a tune in four notes, and the drummers have taken it up before she finished it. The camp fire has a ring of drums round it and one gap.|You take the gap. It does not matter that you cannot drum. By the end of the night the fire has a ring of flat stones round it for sitting, and nobody remembers putting them there.
+S|wca-s06|act|join the chorus|1|-|Join the chorus at the fire.
+
+Q|esa-s01|ESA|1|lost|sorrel-inkpot|tier>=1@area|once|37|c=600,xp=1200|page=sorrel-map-esa,mark=1|Sorrel Against the Herd|A note on the lantern post: "Gone to map the route of the Great Migration. S. Inkpot." A ranger looks through his glass for a while. "There," he says. "The one going the other way."|Sorrel draws a broad arrow across the sheet and a very small arrow against it. She gives you the page. "I was not lost. I was the only one going the right way."
+S|esa-s01|find|The Great Migration|1|-|Find Sorrel Inkpot in the middle of the Great Migration, going the other way. Mind the hooves. They mind you.
+S|esa-s01|escort|who:sorrel-inkpot,from:The Great Migration,to:lit|1|-|Walk her to the nearest lit stop, with the herd this time.
+
+Q|esa-s02|ESA|1|creature|baobab-inn|tier>=1@zone:1|once|38|c=600,xp=1200|title=Larder-Keeper|Larder Guest|There is a Secretary Bird in the larder of the Baobab Inn. It walks up and down the shelves with its hands behind its back, as it were, and stamps on anything that might be a snake. So far: a rope, a string of sausages, the cook's belt.|The bird strides out of the door with great offence and a sausage.;;The bird is taken on as larder-keeper, snakes only, and has not broken a jar since. The cook has her belt back.;;Three combs of honey are set on the wall outside. The bird goes out to inspect them and stays, having found the wall has a better view of snakes.
+S|esa-s02|defeat|creature:secretary-bird|1|deliver:item:wild-honeycomb:3,to:giver:1|Get the Secretary Bird out of the larder: beat it, charm it, or leave 3 Wild Honeycomb outside.
+S|esa-s02|visit|giver|1|-|Tell the cook it is safe to come down off the table.
+
+Q|esa-s03|ESA|2|deliver|coffee-ceremony-hut|found=coffee-ceremony-hut|once|39|c=600,xp=1200|unlock=tea:three-cup-ceremony|Three Cups|At the Coffee Ceremony Hut the beans are roasted in a pan over the coals, slowly, while everyone watches and nobody speaks. The hostess says a ceremony is three cups. The road, she says, has had none.|Three halls, three roastings, and at each the whole room goes quiet for the pan. The hostess teaches you the three cups in order. The third, she says, is the blessing. You are not to leave before it.
+S|esa-s03|deliver|item:roasted-beans:3,from:Coffee Ceremony Hut,to:stall*3|1|-|Carry roasted beans from the Hut to 3 halls or stalls.
+
+Q|esa-s04|ESA|4|garden|herb|found=fynbos-fire-trails|once|38|c=600,xp=1200|seed=coffee:1|After the Fire|Fire went through the Fynbos Fire Trails last season, as it does. The herbalist says the ground there is black and sweet and waiting, and that a protea seed will not so much as turn over until it has smelled smoke.|Three king proteas at the trailhead, each the size of a soup plate. In the ash beside them something else has come up, glossy and dark-leaved. The herbalist turns a leaf over. "Coffee," she says. "Somebody dropped a bean. Years ago."
+S|esa-s04|plant|flower:king-protea:3|1|-|Grow 3 king proteas to bloom.
+S|esa-s04|deliver|item:cut-king-protea:3,to:Fynbos Fire Trails|1|-|Bring them to the trailhead of the Fynbos Fire Trails.
+
+Q|esa-s06|ESA|0|happening|any|hp=sleepy_noon|act|38|c=70:10,xp=60:6,fp=1|unlock=recipe:teff-flatbread|Sleepy Noon|Noon, and the plain has gone quiet under the heat. Everybody at the stop is on the shade bench with a hat over the face. One hat lifts. "Is there bread?"|There is, shortly. Teff flatbread, sour and soft, torn and passed along the bench under the hats. Somebody tells you how it is made without sitting up.
+S|esa-s06|deliver|item:teff:2,to:giver|1|-|Bring 2 teff to the shade bench.
+
+# ================================================================ Band 5: Blossomreach, Monsoon Tangle, Coralscatter
+Q|ea-s01|EA|2|lost|sorrel-inkpot|tier>=1@area|once|47|c=900,xp=2000|page=sorrel-map-ea,mark=1|Sorrel and the Gates|A note on the lantern post: "Gone to count the Thousand Gates. I doubt the figure. S. Inkpot." A shrine-keeper says a gnome went in at dawn, counting aloud. At noon the counting stopped, and then began again from one.|Sorrel writes "about a thousand" on the sheet, in small letters. She gives you the page. "I was not lost. I lost count at six hundred. That is a different thing."
+S|ea-s01|find|The Thousand Gates|1|-|Find Sorrel Inkpot in the Thousand Gates. She is at about the six hundredth. Do not ask.
+S|ea-s01|escort|who:sorrel-inkpot,from:The Thousand Gates,to:lit|1|-|Walk her out to the nearest lit stop.
+
+Q|ea-s02|EA|0|creature|shrine|stage>=1@blossomreach-the-red-bridge|once|47|c=900,xp=2000|unlock=theme:moss-lantern-path|The Sleeper on the Path|A Giant Salamander is asleep on the approach to the Red Bridge, the length of the path and the colour of it. The builders have been stepping over it with planks on their shoulders. It has not woken. It may be older than the bridge.|The salamander wakes, looks at everybody as if they were the weather, and slides into the stream.;;The salamander moves into the koi pond, which it says is what it meant to do some years ago. The koi have made room. It keeps the stones along the path damp, and they have grown moss.;;Three fish are left at the edge of the koi pond. In the morning the fish are gone and the salamander is in the pond. The path is free, with a long damp mark down the middle.
+S|ea-s02|defeat|creature:giant-salamander|1|deliver:item:minnow/perch/trout:3,to:off:1|Clear the bridge approach: beat the Giant Salamander, charm it, or leave 3 fish at the pond edge.
+S|ea-s02|visit|giver|1|-|Tell the shrine-keeper. She sets a small stone lantern where its head was.
+
+Q|ea-s03|EA|3|deliver|pearl-diver-cove|found=pearl-diver-cove|once|48|c=900,xp=2000|page=oldest-lamp-ea|Pearls for the Lamp Glass|The divers at Pearl Diver Cove say the oldest lamp in Blossomreach has a glass set with seed pearls, two of them long gone. They say a lamp is like a diver. It will not go down with something missing.|Two seed pearls are pressed into the old lead. The lamp burns a little green. Scratched inside the glass, where only somebody mending it would look, is a row of small marks. Fennick says they are a tally: one for each year it was lit. They stop, and then there is yours.
+S|ea-s03|deliver|item:seed-pearl:2,to:lit|1|-|Bring 2 Seed Pearl to the area's oldest lamp.
+
+Q|ea-s04|EA|0|garden|orchard|bed>=1|regular|48|c=90:12,xp=90:8,fp=1|unlock=recipe:dried-persimmon|Persimmons on the Line|The orchard-keeper has a line strung under the eaves and a way of peeling a persimmon in one go. She dries them a month, and rubs each one every few days, she says, to keep it thinking.|Three more on the line, turning in the wind like small lamps. She takes down an old one, white with its own sugar, and gives it to you with the method. The method is mostly waiting.
+S|ea-s04|deliver|item:persimmon:3,to:giver|1|-|Hand in 3 persimmons to dry.
+
+Q|ea-s06|EA|0|happening|any|hp=lantern_walk|act|47|c=90:12,xp=90:8,fp=1|title=Blossom-Walker|Lantern Walk|The lantern walk is forming up under the cherry trees. The blossom is coming down so thick that the lamps have to be shaken out before they are lit.|One lit stretch under the blossom, slowly, in a line. At the far stop you have petals in your hat, your collar and, you find later, your boots.
+S|ea-s06|visit|segment:lit|1|-|Walk one lit stretch of road under the blossom.
+
+Q|sea-s01|SEA|4|lost|sorrel-inkpot|tier>=1@area|once|47|c=900,xp=2000|page=sorrel-map-sea,mark=1|Sorrel and the Roots|A note on the lantern post: "Gone to plan the Root-wrapped Temple. S. Inkpot." A boatman says the temple has more doors than it used to. The roots have been making them.|Sorrel has drawn the temple and then drawn the roots over it in a second ink, until one can hardly see the first. "I was not lost," she says, handing it over. "The building was moving. Slowly. I checked."
+S|sea-s01|find|Root-wrapped Temple|1|-|Find Sorrel Inkpot inside the Root-wrapped Temple. Take the door that is a door.
+S|sea-s01|escort|who:sorrel-inkpot,from:Root-wrapped Temple,to:lit|1|-|Walk her to the nearest lit stop.
+
+Q|sea-s02|SEA|0|creature|jetty|stage>=1@monsoon-tangle-the-stilt-boathouse|once|48|c=900,xp=2000|unlock=shop:crab-pot|King of the Slip|A Peacock Mantis Shrimp has taken the boathouse slip. It is the size of a gnome's boot and every colour there is, and it has punched a hole in two buckets and one canoe. The boatwrights speak of it with respect, from the bank.|The shrimp backs into the deep water, still squared up, and is not seen again by anyone who went looking.;;The shrimp keeps the left pile of the slip, by treaty, and lets the canoes by. It cracks the boatwrights' crabs for them, for a share.;;Four fish go in at the far bank. The shrimp crosses the channel in a streak and sets up there instead. The boatwrights put down crab pots on this side, now that they can.
+S|sea-s02|defeat|creature:mantis-shrimp|1|deliver:item:minnow/perch/reef-fish:4,to:off:1|Take back the slip from the Peacock Mantis Shrimp: beat it, charm it, or leave 4 fish at the far bank.
+S|sea-s02|visit|giver|1|-|Tell the boatwrights. Show them your bucket is whole.
+
+Q|sea-s03|SEA|1|deliver|floating-market|found=floating-market|regular|48|c=90:12,xp=90:8,fp=1|unlock=theme:boat-stall|Floating Market Run|At the Floating Market the stalls are boats and the customers are boats, and a parcel changes hulls three times before it is sold. A boat-woman holds out three bundles and points with her chin at a canoe.|Three bundles to three stalls, by canoe, without getting out. One stall-keeper liked the look of it and has moored her whole stall, scales and all, to the jetty.
+S|sea-s03|deliver|item:market-bundle:3,from:Floating Market,to:stall*3|1|-|Carry 3 bundles by canoe from the Floating Market, stall to stall.
+
+Q|sea-s04|SEA|0|garden|herb|bed>=1|once|47|c=900,xp=2000|unlock=recipe:festival-sticky-rice|Sampaguita Border|The herbalist wants a white border round the paddy for the festival, sampaguita, the small flower that smells of the evening. And rice for the steamer, she says, since you are coming anyway.|Three sampaguita along the bank and five measures of rice in the basket. She steams it sweet in a leaf, with one flower laid on top that you are not to eat, and tells you how while it cooks.
+S|sea-s04|plant|flower:sampaguita:3|1|-|Grow 3 sampaguita to bloom.
+S|sea-s04|deliver|item:cut-sampaguita:3,item:rice:5,to:giver|1|-|Hand in 3 sampaguita and 5 rice.
+
+Q|sea-s06|SEA|0|happening|inn|hp=cosy_weather|act|47|c=90:12,xp=90:8,fp=1|title=Rain-Guest|Monsoon Day In|Rain like a curtain let down. Nobody is going anywhere, and the innkeeper has decided that this is a party. There is one pot and a great many spoons.|You cook, somebody else stirs, and a third gnome tastes and says it wants salt. It rains the whole time. It is the best day in a week.
+S|sea-s06|act|cook and share|1|-|Cook with the house while it rains.
+S|sea-s06|deliver|meal:1,to:giver|1|-|Put 1 home-cooked meal on the table.
+
+Q|oc-s01|OC|3|lost|sorrel-inkpot|tier>=1@area|once|47|c=900,xp=2000|page=sorrel-map-oc,mark=1|Sorrel's Last Blank Bit|A note on the lantern post: "Gone to the Stone Head Watchers. It is the last blank bit. S. Inkpot." Under it, smaller: "I do not know what I shall do after."|Sorrel inks in the Watchers, one by one, and sits back. It is the fourteenth sheet. She lays it beside the others and they join, edge to edge. "I was never lost," she says. "Well. Once."
+S|oc-s01|find|Stone Head Watchers|1|-|Find Sorrel Inkpot at the Stone Head Watchers. She is drawing them. They are facing her.
+S|oc-s01|escort|who:sorrel-inkpot,from:Stone Head Watchers,to:lit|1|-|Walk her to the nearest lit stop. For once she knows the way.
+
+Q|oc-s02|OC|3|creature|camp|tier>=1@zone:3|once|48|c=900,xp=2000|title=Gave Way Politely|Right of Way|A Tasmanian Devil is standing in the middle of the gully path. It is not doing anything. It is the way it is not doing anything. The camp has taken to going round by the creek, which adds an hour.|The devil goes off into the ferns making a noise like a kettle with a grievance.;;The devil agrees that the path is the path and the ferns are his. He shouts at everyone who passes, as a courtesy.;;Four pieces of fruit are set down beside the path, and then you wait. A long time. The devil eats them one by one, looking at you, and steps aside for good.
+S|oc-s02|defeat|creature:tasmanian-devil|1|deliver:item:kiwi/noni/coconut:4,to:off:1|Clear the gully path: beat the Tasmanian Devil, charm it, or leave 4 fruit and wait.
+S|oc-s02|visit|giver|1|-|Tell the camp the short way is open.
+
+Q|oc-s03|OC|1|deliver|starpath-canoe|found=starpath-canoe|once|49|c=900,xp=2000|unlock=place:the-fourth-atoll,page=star-path|The Star Path|The navigator at the Starpath Canoe has a chart made of shells tied to a frame of sticks: each shell an island, each stick a swell. Three atoll jetties ought to have a copy. The last copies were lost with the last jetties.|Three jetties hang the chart by the lamp. At the third, the jetty-keeper counts the shells and frowns. Her grandmother's chart had one more, out past the ring. She ties it on where it was.
+S|oc-s03|deliver|item:shell-chart:3,from:Starpath Canoe,to:lit*3|1|-|Carry a shell-chart from the Starpath Canoe to 3 atoll jetties.
+
+Q|oc-s04|OC|0|garden|quill-rootstock|bed>=1|regular|48|c=90:12,xp=90:8,fp=1|unlock=recipe:taro-leaf-parcels|Taro for the Reef Garden|The Reef Garden's beds run down into the sea, and Quill Rootstock, the reef keeper, means to have taro standing in every one of them. He plants the tops back as he goes. He says it is only polite.|Three more corms for the garden. Quill wraps the leaves round a filling, ties them with a strip of their own stem, and puts them in the earth oven. You are told the method and, firmly, the waiting time.
+S|oc-s04|deliver|item:taro:3,to:bed|1|-|Hand in 3 taro at the Reef Garden.
+
+Q|oc-s06|OC|1|happening|camp|hp=night_watch|act|47|c=90:12,xp=90:8,fp=1|unlock=shop:kava-bowl|Kava Night|A warm night, and the circle is sitting. The bowl goes round. Nobody speaks until it has been all the way, and then somebody is expected to tell a tale. They are all looking at you.|You tell one. It is about a lamp. Nobody claps, which is right. The bowl comes round again, and the carver says he will make one for the stall, so that the next stop can sit too.
+S|oc-s06|act|sit and tell one tale|1|-|Sit in the circle and tell one tale.

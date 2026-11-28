@@ -131,6 +131,8 @@ function gather_on_walk(array $u, string $land, ?string $tool = null, bool $sure
     $qty += aug_wing_bonus($uid, (string)$pick['tool'], $augNotes);   // 2.7.58 Wing Fletch
     $sense = function_exists('eff_mod') ? eff_mod($u, 'sense') : 0;
     if ($sense > 0 && random_int(1, 100) <= 5 * $sense) $qty++;
+    require_once __DIR__ . '/stop_mark_hooks.php';
+    if (mark_roll(mark_fx($uid, 'gather', ['land' => $land] + mark_ctx_here($uid)))) $qty++;   // F11 lasting marks: one extra
     $rainbow = q_val('SELECT ev_gather_until FROM users WHERE id = ?', [$uid]);
     if ($rainbow && strtotime($rainbow . ' UTC') > time()) $qty *= 2;   // a rainbow (v0.7.31)
     give_item($uid, (int)$pick['item_id'], $qty);

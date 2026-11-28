@@ -1,0 +1,366 @@
+LEVEL CURVE (gnome.php:289 xp_for_level, defaults steep from 10, +15%). users.xp is a running total.
+  Lv  5: total      1000   | sum of thresholds Lv2..Lv5 (how the bands doc got 75,650):      2000
+  Lv 10: total      4500   | sum of thresholds Lv2..Lv10 (how the bands doc got 75,650):     16500
+  Lv 15: total     18375   | sum of thresholds Lv2..Lv15 (how the bands doc got 75,650):     75650
+  Lv 20: total     47500   | sum of thresholds Lv2..Lv20 (how the bands doc got 75,650):    247675
+  Lv 25: total     97500   | sum of thresholds Lv2..Lv25 (how the bands doc got 75,650):    625700
+  Lv 35: total    282625   | sum of thresholds Lv2..Lv35 (how the bands doc got 75,650):   2512875
+  Lv 45: total    618750   | sum of thresholds Lv2..Lv45 (how the bands doc got 75,650):   7044675
+  Lv 55: total   1150875   | sum of thresholds Lv2..Lv55 (how the bands doc got 75,650):  15978600
+  energy a game day with one nap: Lv1 14, Lv5 42, Lv10 77, Lv15 112, Lv20 147
+
+CROPS of the Maplewold, sold raw, per bed and game day (steady state):
+  soybean           t3 ann rar 60 base  36 sell  21 seed  52 xp  24 sleeps  3 regrow 0 -> 12.27 P / bed-day, 1.67 E
+  lentil            t3 ann rar 60 base  36 sell  21 seed  52 xp  24 sleeps  3 regrow 0 -> 12.27 P / bed-day, 1.67 E
+  oats              t4 ann rar 65 base  41 sell  24 seed  59 xp  38 sleeps  5 regrow 0 ->  8.42 P / bed-day, 1.20 E
+  kidney-bean       t3 ann rar 60 base  36 sell  21 seed  52 xp  24 sleeps  3 regrow 0 -> 12.27 P / bed-day, 1.67 E
+  apple             t6 per rar 75 base  51 sell  39 seed 109 xp  79 sleeps 10 regrow 4 -> 23.03 P / bed-day, 1.00 E
+  hops              t5 per rar 70 base  46 sell  35 seed  96 xp  57 sleeps  7 regrow 3 -> 15.75 P / bed-day, 1.33 E
+  raspberry         t4 per rar 65 base  41 sell  31 seed  83 xp  38 sleeps  5 regrow 2 -> 20.93 P / bed-day, 1.50 E
+  wild-rice         t4 ann rar 65 base  41 sell  31 seed  59 xp  38 sleeps  5 regrow 0 -> 11.22 P / bed-day, 1.40 E
+  flower:goldenrod  t3 per rar 42 base  35 sell  27 seed  59 xp  22 sleeps  3 regrow 1 -> 36.45 P / bed-day, 3.00 E
+  apple             t6 per rar 75 base  51 sell  39 seed 109 xp  79 sleeps 10 regrow 4 -> 23.03 P / bed-day, 1.00 E
+  money crop (best buyable, Petals per bed-day): apple
+
+STOP ACTS, top-of-list policy, 5 acts a visit (pay at the stop level = band floor; stops.php:670):
+  NA stops (level 1): Petals/act 8.1 (min 6.8, max 10.1), spent/act 0.0, XP/act 4.8, energy/act 1.12
+  CA stops (level 15): Petals/act 33.5 (min 29.1, max 38.8), spent/act 0.1, XP/act 14.6, energy/act 1.11
+
+Q4 BAR PACE: visit-days to fill each bar, p10/p50/p90 (one visit a game day, tier 0)
+  NA, policy list (top of the list), 5 acts a visit
+    Maplewold Market             market   R  5/ 6/ 7  L  6/ 7/ 7  C  6/ 7/ 7  all three  6/ 7/ 7
+    Poppyburrow                  inn      R  5/ 6/ 7  L  6/ 7/ 8  C  6/ 7/ 8  all three  7/ 7/ 8
+    Honeybrook                   herb     R  5/ 6/ 8  L  6/ 7/ 8  C  7/ 8/ 9  all three  7/ 8/ 9
+    Cloverholt                   mill     R  6/ 7/ 8  L  6/ 7/ 8  C  7/ 8/ 9  all three  7/ 8/ 9
+    Acornby                      camp     R  5/ 6/ 8  L  6/ 8/ 9  C  6/ 7/ 8  all three  7/ 8/ 9
+    Birchhollow                  workshop R  5/ 5/ 6  L  6/ 7/ 8  C  6/ 7/ 8  all three  6/ 7/ 8
+    Mossgate                     shrine   R  5/ 6/ 7  L  7/ 8/ 9  C  7/ 7/ 8  all three  7/ 8/ 9
+    Shellhollow                  jetty    R  6/ 7/ 8  L  7/ 8/ 9  C  7/ 8/ 9  all three  7/ 8/ 9
+    Pebblestead                  ferry    R  6/ 7/ 8  L  7/ 8/ 9  C  7/ 8/ 9  all three  8/ 8/ 9
+    Cattailmere                  herb     R  5/ 6/ 8  L  6/ 7/ 8  C  7/ 8/ 9  all three  7/ 8/ 9
+    Iciclecrest                  tower    R  5/ 6/ 7  L  7/ 8/ 9  C  7/ 8/ 9  all three  7/ 8/ 9
+    Snowcombe                    spring   R  5/ 6/ 7  L  7/ 8/ 9  C  5/ 6/ 7  all three  7/ 8/ 9
+    Granitegate                  tower    R  5/ 6/ 7  L  7/ 8/ 9  C  7/ 8/ 8  all three  7/ 8/ 9
+    The Sugar Shack              orchard  R  5/ 7/ 8  L  6/ 7/ 8  C  7/ 8/ 9  all three  7/ 8/ 9
+    Aurora Camp                  camp     R  5/ 7/ 8  L  6/ 7/ 9  C  6/ 7/ 8  all three  7/ 8/ 9
+    Larkbrook                    inn      R  5/ 7/ 8  L  6/ 7/ 8  C  6/ 7/ 8  all three  7/ 7/ 8
+    Windbottom                   tower    R  5/ 6/ 7  L  6/ 7/ 8  C  6/ 7/ 8  all three  7/ 7/ 8
+    Honeythorpe                  orchard  R  5/ 7/ 8  L  6/ 7/ 8  C  7/ 8/ 9  all three  7/ 8/ 9
+    single bar median over stops x bars: 7.0 (range 5-8); all three at one stop, median of medians 8.0 (range 7-8); share of bars with median in 6-10: 98%
+    days to latch every bar of these 18 stops (3-4 stops a day, perfect routing): p10 39, p50 41, p90 42
+  NA, policy bars (best bar points), 5 acts a visit
+    Maplewold Market             market   R  4/ 5/ 6  L  4/ 5/ 6  C  5/ 6/ 7  all three  6/ 6/ 7
+    Poppyburrow                  inn      R  5/ 6/ 6  L  4/ 5/ 6  C  5/ 6/ 6  all three  5/ 6/ 6
+    Honeybrook                   herb     R  5/ 6/ 6  L  4/ 5/ 6  C  6/ 7/ 8  all three  6/ 7/ 8
+    Cloverholt                   mill     R  4/ 5/ 6  L  5/ 6/ 6  C  6/ 6/ 7  all three  6/ 7/ 7
+    Acornby                      camp     R  4/ 4/ 5  L  5/ 6/ 7  C  5/ 6/ 6  all three  6/ 6/ 7
+    Birchhollow                  workshop R  4/ 5/ 5  L  6/ 6/ 7  C  6/ 6/ 7  all three  6/ 7/ 7
+    Mossgate                     shrine   R  4/ 5/ 6  L  5/ 6/ 7  C  5/ 6/ 6  all three  6/ 6/ 7
+    Shellhollow                  jetty    R  4/ 5/ 6  L  5/ 6/ 6  C  5/ 6/ 7  all three  6/ 6/ 7
+    Pebblestead                  ferry    R  4/ 5/ 5  L  6/ 7/ 8  C  6/ 7/ 7  all three  7/ 7/ 8
+    Cattailmere                  herb     R  5/ 6/ 7  L  4/ 5/ 6  C  6/ 7/ 8  all three  6/ 7/ 8
+    Iciclecrest                  tower    R  4/ 5/ 6  L  6/ 7/ 8  C  5/ 6/ 6  all three  6/ 7/ 8
+    Snowcombe                    spring   R  4/ 5/ 6  L  6/ 7/ 8  C  4/ 5/ 6  all three  6/ 7/ 8
+    Granitegate                  tower    R  4/ 5/ 6  L  6/ 7/ 8  C  5/ 6/ 7  all three  6/ 7/ 8
+    The Sugar Shack              orchard  R  5/ 6/ 7  L  4/ 5/ 6  C  6/ 7/ 8  all three  6/ 7/ 8
+    Aurora Camp                  camp     R  4/ 5/ 6  L  6/ 7/ 7  C  5/ 6/ 6  all three  6/ 7/ 7
+    Larkbrook                    inn      R  5/ 5/ 6  L  5/ 6/ 7  C  5/ 6/ 6  all three  6/ 6/ 7
+    Windbottom                   tower    R  4/ 5/ 6  L  5/ 6/ 7  C  5/ 6/ 7  all three  6/ 6/ 7
+    Honeythorpe                  orchard  R  5/ 6/ 7  L  4/ 5/ 6  C  6/ 7/ 8  all three  6/ 7/ 8
+    single bar median over stops x bars: 6.0 (range 4-7); all three at one stop, median of medians 7.0 (range 6-7); share of bars with median in 6-10: 63%
+    days to latch every bar of these 18 stops (3-4 stops a day, perfect routing): p10 33, p50 35, p90 36
+  NA, policy list (top of the list), 3 acts a visit
+    Maplewold Market             market   R  8/10/12  L  8/10/11  C  8/ 9/10  all three  9/10/13
+    Poppyburrow                  inn      R 15/21/28  L 10/12/15  C  9/10/11  all three 15/21/28
+    Honeybrook                   herb     R 11/14/19  L  8/ 9/10  C 11/15/18  all three 12/16/20
+    Cloverholt                   mill     R  9/11/14  L  8/10/12  C 11/14/18  all three 12/14/18
+    Acornby                      camp     R 13/17/22  L 13/17/22  C  8/ 9/10  all three 15/19/23
+    Birchhollow                  workshop R  6/ 7/ 9  L  8/10/12  C  8/ 9/10  all three  9/10/12
+    Mossgate                     shrine   R 10/13/16  L 11/13/17  C 10/11/13  all three 12/14/17
+    Shellhollow                  jetty    R 11/14/17  L 14/18/24  C 10/11/13  all three 15/18/24
+    Pebblestead                  ferry    R  8/10/12  L 14/17/22  C 12/14/17  all three 14/17/22
+    Cattailmere                  herb     R 10/14/19  L  7/ 9/10  C 12/15/18  all three 12/16/20
+    Iciclecrest                  tower    R 11/15/20  L 14/18/23  C  8/ 9/11  all three 14/18/23
+    Snowcombe                    spring   R  7/ 9/11  L  9/11/13  C  7/ 9/10  all three  9/11/13
+    Granitegate                  tower    R 11/15/20  L 14/18/23  C  8/ 9/10  all three 14/19/24
+    The Sugar Shack              orchard  R 16/22/31  L  8/ 9/10  C 12/15/19  all three 16/22/31
+    Aurora Camp                  camp     R 13/17/22  L 13/17/22  C  8/ 9/10  all three 14/18/23
+    Larkbrook                    inn      R 12/15/21  L  9/12/14  C  8/10/11  all three 12/15/21
+    Windbottom                   tower    R  8/11/14  L 11/14/18  C  8/ 9/10  all three 11/14/18
+    Honeythorpe                  orchard  R 26/42/61  L  7/ 8/ 9  C 14/18/22  all three 26/42/61
+    single bar median over stops x bars: 12.0 (range 7-42); all three at one stop, median of medians 16.5 (range 10-42); share of bars with median in 6-10: 39%
+    days to latch every bar of these 18 stops (3-4 stops a day, perfect routing): p10 85, p50 91, p90 99
+  CA, policy list (top of the list), 5 acts a visit
+    Maizehollow Market           market   R  5/ 6/ 7  L  5/ 6/ 7  C  6/ 7/ 7  all three  6/ 7/ 8
+    Poppynook                    mill     R  6/ 7/ 8  L  5/ 6/ 7  C  6/ 7/ 8  all three  7/ 7/ 8
+    Meadowmere                   inn      R  6/ 7/ 8  L  6/ 7/ 8  C  6/ 7/ 8  all three  7/ 7/ 8
+    Jadedell                     shrine   R  5/ 6/ 7  L  7/ 8/ 9  C  6/ 7/ 8  all three  7/ 8/ 9
+    Frondthorpe                  orchard  R  5/ 7/ 8  L  6/ 7/ 8  C  7/ 8/ 9  all three  7/ 8/ 9
+    Orchiddell                   herb     R  5/ 7/ 8  L  6/ 7/ 8  C  7/ 9/10  all three  8/ 9/10
+    Saffroncrest                 tower    R  5/ 6/ 7  L  7/ 8/ 9  C  6/ 7/ 8  all three  7/ 8/ 9
+    Scorchburrow                 camp     R  6/ 7/ 8  L  6/ 8/ 9  C  6/ 7/ 8  all three  7/ 8/ 9
+    Stonethorpe                  spring   R  5/ 6/ 7  L  7/ 8/ 9  C  5/ 6/ 7  all three  7/ 8/ 9
+    Flintcove                    workshop R  5/ 6/ 6  L  6/ 8/ 9  C  6/ 7/ 7  all three  7/ 8/ 9
+    Market of a Thousand Chilies market   R  5/ 6/ 7  L  5/ 6/ 7  C  6/ 6/ 7  all three  6/ 7/ 7
+    Larkbrook                    inn      R  5/ 7/ 8  L  6/ 7/ 8  C  6/ 7/ 8  all three  7/ 7/ 8
+    single bar median over stops x bars: 7.0 (range 6-9); all three at one stop, median of medians 8.0 (range 7-9); share of bars with median in 6-10: 100%
+    days to latch every bar of these 12 stops (3-4 stops a day, perfect routing): p10 25, p50 26, p90 28
+  what-if, NA without the four answer acts (list, 5 acts): single bar median 8.5 (range 5-61), all three median 13.5 (range 8-61)
+
+[non-fighter, chapter XP rebased, jobs off]  chapter XP table {'M1': 1072, 'M2': 1072, 'M3': 1072, 'M4': 1072, 'M5': 715, 'M6': 1072, 'M7': 357}; overrides -
+  main line done (M1-M6 and M7 steps 1-4), game day p10/p50/p90: 32/34/36
+  Standing on that day p10/p50/p90: 85.2/87.2/87.7; share >= 80: 100%, >= 78: 100%, >= 75: 100%
+  Seal day (main line done and Standing 80) p10/p50/p90: 32/34/36;  no Seal by day 90: 0.0%
+  extra game days from main line done to the Seal: p50 0, p90 0; share needing any: 0%
+  chapter done on game day, median: M1 7.0, M2 17.0, M3 18.0, M4 26.0, M5 27.0, M6 34.0, M7 31.0
+  marks latched (full bars of 54) on the main-line-done day: 12/16/20
+  rows on the main-line-done day, median (p10): lit 14.0 (14.0), raised 6.7 (6.7), hearth 2.0 (2.0), repair 15.0 (15.0), places 10.0 (9.6), friend 5.0 (5.0), threads 5.0 (5.0), errands 5.0 (5.0), grown 5.0 (5.0), bed 6.0 (6.0), flower 4.0 (2.0), delve 0.0 (0.0), lair 5.0 (5.0), pages 5.0 (4.9)
+  level on the Seal day p10/p50/p90: 13/14/14
+  game days on which a lamp, stall or stage waited for Petals: p50 4, p90 6, share of runs with any: 100%
+  stalled step-days by cause, mean per run: chapter stage Petals 2.3, stall tier 2 (M3) 1.6, lamps 4-7 (M7) 0.4, lamp (M1/M2/M4) 0.0
+  7th lamp lit on game day p10/p50/p90: 27/28/29
+  Stops-row Petals actually paid (fee + tier 1 + tier 2): median 3600
+  gross Petals by day 20: 4641/5019/5451; by day 35: 13385/14690/15782
+  free Petals (gross - seeds, stage Petals, stop buys, meals eaten, bought rope/wax) by day 20: 2071/2476/2904; by day 35: 8862/10151/11158
+  game day when gross reaches 3,600: 16/17/18; when free Petals reach 3,600: 25/26/27
+  Petals in per game day, all days: crop sales 255, stop acts 95, chapters 66, passport 16, threads 13, errands 10, adopter welcome 4
+  Petals out per game day: stops row (fee + tiers) 90, seeds 86, crops eaten or handed in (value, not cash) 38, chapter stages 29, garden beds 27, food bought for meals 11, materials bought 9, stop buys and rests 1
+  XP earned by the Seal day, median total 14859 (Lv 15 needs 18375; doc says 75,650); mean by source: chapters 6432, harvests 6051, stop acts 1793, errands 268, stop tiers 180, threads 122, cooking 82, passport 40
+  gross Petals per game day by level (mean): L1 54, L2 90, L3 42, L5 202, L6 232, L7 301, L8 310, L9 521, L10 469, L11 392, L12 716, L13 757, L14 796, L15 836
+
+[fighter, chapter XP rebased, jobs off]  chapter XP table {'M1': 1072, 'M2': 1072, 'M3': 1072, 'M4': 1072, 'M5': 715, 'M6': 1072, 'M7': 357}; overrides -
+  main line done (M1-M6 and M7 steps 1-4), game day p10/p50/p90: 31/32/34
+  Standing on that day p10/p50/p90: 90.7/92.7/92.7; share >= 80: 100%, >= 78: 100%, >= 75: 100%
+  Seal day (main line done and Standing 80) p10/p50/p90: 31/32/34;  no Seal by day 90: 0.0%
+  extra game days from main line done to the Seal: p50 0, p90 0; share needing any: 0%
+  chapter done on game day, median: M1 7.0, M2 17.0, M3 17.0, M4 26.0, M5 26.0, M6 32.0, M7 30.0
+  marks latched (full bars of 54) on the main-line-done day: 11/15/19
+  rows on the main-line-done day, median (p10): lit 14.0 (14.0), raised 6.7 (6.7), hearth 2.0 (2.0), repair 15.0 (15.0), places 10.0 (10.0), friend 5.0 (5.0), threads 5.0 (5.0), errands 5.0 (5.0), grown 5.0 (5.0), bed 6.0 (6.0), flower 4.0 (2.0), delve 5.0 (5.0), lair 5.0 (5.0), pages 5.0 (5.0)
+  level on the Seal day p10/p50/p90: 14/15/15
+  game days on which a lamp, stall or stage waited for Petals: p50 3, p90 4, share of runs with any: 100%
+  stalled step-days by cause, mean per run: chapter stage Petals 1.6, stall tier 2 (M3) 1.1, lamps 4-7 (M7) 0.0, lamp (M1/M2/M4) 0.0
+  7th lamp lit on game day p10/p50/p90: 26/27/28
+  Stops-row Petals actually paid (fee + tier 1 + tier 2): median 3600
+  gross Petals by day 20: 4932/5366/5923; by day 35: 15081/16136/17169
+  free Petals (gross - seeds, stage Petals, stop buys, meals eaten, bought rope/wax) by day 20: 2159/2489/2868; by day 35: 10364/11372/12484
+  game day when gross reaches 3,600: 16/17/17; when free Petals reach 3,600: 23/24/25
+  Petals in per game day, all days: crop sales 281, stop acts 96, chapters 66, passport 16, fights 15, threads 13, errands 10, adopter welcome 4
+  Petals out per game day: stops row (fee + tiers) 90, seeds 89, crops eaten or handed in (value, not cash) 31, chapter stages 29, garden beds 27, materials bought 9, food bought for meals 4, stop buys and rests 1
+  XP earned by the Seal day, median total 18804 (Lv 15 needs 18375; doc says 75,650); mean by source: chapters 6432, harvests 6247, fights 3946, stop acts 1709, errands 267, stop tiers 180, threads 114, cooking 62, passport 40
+  gross Petals per game day by level (mean): L1 59, L2 100, L3 72, L5 191, L6 207, L7 299, L8 306, L9 378, L10 602, L11 454, L12 527, L13 716, L14 858, L15 871, L16 783
+
+[non-fighter main-line-only, chapter XP rebased, jobs off]  chapter XP table {'M1': 1072, 'M2': 1072, 'M3': 1072, 'M4': 1072, 'M5': 715, 'M6': 1072, 'M7': 357}; overrides {'opt_pursuit': (0.0, 0.0), 'meter_from': 'main'}
+  main line done (M1-M6 and M7 steps 1-4), game day p10/p50/p90: 32/33/35
+  Standing on that day p10/p50/p90: 80.2/80.2/80.7; share >= 80: 91%, >= 78: 100%, >= 75: 100%
+  Seal day (main line done and Standing 80) p10/p50/p90: 32/33/35;  no Seal by day 90: 0.0%
+  extra game days from main line done to the Seal: p50 0, p90 0; share needing any: 9%
+  chapter done on game day, median: M1 7.0, M2 15.0, M3 17.0, M4 26.0, M5 27.0, M6 33.0, M7 31.0
+  marks latched (full bars of 54) on the main-line-done day: 12/16/20
+  rows on the main-line-done day, median (p10): lit 14.0 (14.0), raised 6.7 (6.7), hearth 2.0 (2.0), repair 15.0 (15.0), places 9.2 (9.2), friend 5.0 (5.0), threads 5.0 (5.0), errands 1.0 (1.0), grown 5.0 (5.0), bed 6.0 (6.0), flower 2.0 (2.0), delve 0.0 (0.0), lair 5.0 (5.0), pages 4.4 (4.4)
+  level on the Seal day p10/p50/p90: 13/14/14
+  game days on which a lamp, stall or stage waited for Petals: p50 4, p90 5, share of runs with any: 100%
+  stalled step-days by cause, mean per run: chapter stage Petals 2.3, stall tier 2 (M3) 1.0, lamps 4-7 (M7) 0.3, lamp (M1/M2/M4) 0.2
+  7th lamp lit on game day p10/p50/p90: 27/28/29
+  Stops-row Petals actually paid (fee + tier 1 + tier 2): median 3600
+  gross Petals by day 20: 4720/5076/5426; by day 35: 13597/14716/15752
+  free Petals (gross - seeds, stage Petals, stop buys, meals eaten, bought rope/wax) by day 20: 1974/2347/2938; by day 35: 9215/10261/11238
+  game day when gross reaches 3,600: 16/17/18; when free Petals reach 3,600: 24/25/26
+  Petals in per game day, all days: crop sales 259, stop acts 96, chapters 66, passport 16, threads 12, errands 9, adopter welcome 4
+  Petals out per game day: stops row (fee + tiers) 90, seeds 84, crops eaten or handed in (value, not cash) 38, chapter stages 29, garden beds 27, food bought for meals 9, materials bought 9, stop buys and rests 1
+  XP earned by the Seal day, median total 14603 (Lv 15 needs 18375; doc says 75,650); mean by source: chapters 6432, harvests 5940, stop acts 1788, stop tiers 180, threads 99, errands 90, cooking 76, passport 39
+  gross Petals per game day by level (mean): L1 55, L2 99, L3 61, L5 170, L6 240, L7 288, L8 414, L9 486, L10 415, L11 394, L12 673, L13 779, L14 808, L15 832
+
+[fighter main-line-only, chapter XP rebased, jobs off]  chapter XP table {'M1': 1072, 'M2': 1072, 'M3': 1072, 'M4': 1072, 'M5': 715, 'M6': 1072, 'M7': 357}; overrides {'opt_pursuit': (0.0, 0.0), 'meter_from': 'main'}
+  main line done (M1-M6 and M7 steps 1-4), game day p10/p50/p90: 30/32/34
+  Standing on that day p10/p50/p90: 85.2/85.7/86.2; share >= 80: 100%, >= 78: 100%, >= 75: 100%
+  Seal day (main line done and Standing 80) p10/p50/p90: 30/32/34;  no Seal by day 90: 0.0%
+  extra game days from main line done to the Seal: p50 0, p90 0; share needing any: 0%
+  chapter done on game day, median: M1 7.0, M2 15.0, M3 16.0, M4 25.0, M5 26.0, M6 32.0, M7 30.0
+  marks latched (full bars of 54) on the main-line-done day: 11/15/19
+  rows on the main-line-done day, median (p10): lit 14.0 (14.0), raised 6.7 (6.7), hearth 2.0 (2.0), repair 15.0 (15.0), places 9.6 (9.2), friend 5.0 (5.0), threads 5.0 (5.0), errands 1.0 (1.0), grown 5.0 (5.0), bed 6.0 (6.0), flower 2.0 (2.0), delve 5.0 (5.0), lair 5.0 (5.0), pages 4.5 (4.4)
+  level on the Seal day p10/p50/p90: 14/14/15
+  game days on which a lamp, stall or stage waited for Petals: p50 3, p90 4, share of runs with any: 100%
+  stalled step-days by cause, mean per run: chapter stage Petals 2.0, stall tier 2 (M3) 0.8, lamps 4-7 (M7) 0.1, lamp (M1/M2/M4) 0.1
+  7th lamp lit on game day p10/p50/p90: 26/27/27
+  Stops-row Petals actually paid (fee + tier 1 + tier 2): median 3600
+  gross Petals by day 20: 4965/5366/5762; by day 35: 15107/15995/17021
+  free Petals (gross - seeds, stage Petals, stop buys, meals eaten, bought rope/wax) by day 20: 2261/2518/2846; by day 35: 10466/11365/12424
+  game day when gross reaches 3,600: 16/16/17; when free Petals reach 3,600: 23/24/25
+  Petals in per game day, all days: crop sales 282, stop acts 96, chapters 66, passport 16, fights 15, threads 13, errands 10, adopter welcome 4
+  Petals out per game day: stops row (fee + tiers) 90, seeds 87, crops eaten or handed in (value, not cash) 31, chapter stages 29, garden beds 27, materials bought 9, food bought for meals 3, stop buys and rests 1
+  XP earned by the Seal day, median total 18316 (Lv 15 needs 18375; doc says 75,650); mean by source: chapters 6432, harvests 6013, fights 3812, stop acts 1681, stop tiers 180, threads 91, errands 70, cooking 61, passport 37
+  gross Petals per game day by level (mean): L1 57, L2 90, L3 74, L5 182, L6 210, L7 295, L8 312, L9 491, L10 609, L11 417, L12 587, L13 670, L14 888, L15 878, L16 787
+
+[non-fighter planner, chapter XP rebased, jobs off]  chapter XP table {'M1': 1072, 'M2': 1072, 'M3': 1072, 'M4': 1072, 'M5': 715, 'M6': 1072, 'M7': 357}; overrides {'preplant': True, 'stops_per_day': (3,)}
+  main line done (M1-M6 and M7 steps 1-4), game day p10/p50/p90: 30/30/31
+  Standing on that day p10/p50/p90: 85.2/87.2/87.7; share >= 80: 100%, >= 78: 100%, >= 75: 100%
+  Seal day (main line done and Standing 80) p10/p50/p90: 30/30/31;  no Seal by day 90: 0.0%
+  extra game days from main line done to the Seal: p50 0, p90 0; share needing any: 0%
+  chapter done on game day, median: M1 7.0, M2 15.0, M3 16.0, M4 19.0, M5 19.0, M6 28.0, M7 30.0
+  marks latched (full bars of 54) on the main-line-done day: 10/12/15
+  rows on the main-line-done day, median (p10): lit 14.0 (14.0), raised 6.7 (6.7), hearth 2.0 (2.0), repair 15.0 (15.0), places 10.0 (9.2), friend 5.0 (5.0), threads 5.0 (5.0), errands 5.0 (5.0), grown 5.0 (5.0), bed 6.0 (6.0), flower 4.0 (2.0), delve 0.0 (0.0), lair 5.0 (5.0), pages 4.9 (4.9)
+  level on the Seal day p10/p50/p90: 13/13/13
+  game days on which a lamp, stall or stage waited for Petals: p50 6, p90 8, share of runs with any: 100%
+  stalled step-days by cause, mean per run: chapter stage Petals 2.6, lamp (M1/M2/M4) 1.7, lamps 4-7 (M7) 1.1, stall tier 2 (M3) 1.0
+  7th lamp lit on game day p10/p50/p90: 27/27/28
+  Stops-row Petals actually paid (fee + tier 1 + tier 2): median 3600
+  gross Petals by day 20: 4679/5018/5307; by day 35: 13204/14054/14774
+  free Petals (gross - seeds, stage Petals, stop buys, meals eaten, bought rope/wax) by day 20: 2509/2789/3002; by day 35: 8566/9325/9985
+  game day when gross reaches 3,600: 18/18/19; when free Petals reach 3,600: 24/24/25
+  Petals in per game day, all days: crop sales 248, stop acts 85, chapters 66, passport 16, threads 13, errands 10, adopter welcome 3
+  Petals out per game day: stops row (fee + tiers) 90, seeds 90, chapter stages 29, garden beds 27, crops eaten or handed in (value, not cash) 22, food bought for meals 16, materials bought 9, stop buys and rests 1
+  XP earned by the Seal day, median total 13028 (Lv 15 needs 18375; doc says 75,650); mean by source: chapters 6432, harvests 4569, stop acts 1374, errands 285, stop tiers 180, threads 88, cooking 67, passport 29
+  gross Petals per game day by level (mean): L1 52, L2 55, L3 0, L5 163, L6 188, L7 307, L8 183, L9 393, L10 421, L11 476, L12 504, L13 775, L14 688, L15 643
+
+[non-fighter planner, M1-M2 pay 400, chapter XP rebased, jobs off]  chapter XP table {'M1': 1072, 'M2': 1072, 'M3': 1072, 'M4': 1072, 'M5': 715, 'M6': 1072, 'M7': 357}; overrides {'preplant': True, 'stops_per_day': (3,), 'chapter_petals': [400, 400, 300, 375, 450, 525, 600]}
+  main line done (M1-M6 and M7 steps 1-4), game day p10/p50/p90: 29/30/31
+  Standing on that day p10/p50/p90: 85.2/87.2/87.7; share >= 80: 100%, >= 78: 100%, >= 75: 100%
+  Seal day (main line done and Standing 80) p10/p50/p90: 29/30/31;  no Seal by day 90: 0.0%
+  extra game days from main line done to the Seal: p50 0, p90 0; share needing any: 0%
+  chapter done on game day, median: M1 7.0, M2 15.0, M3 16.0, M4 19.0, M5 19.0, M6 28.0, M7 30.0
+  marks latched (full bars of 54) on the main-line-done day: 9/12/14
+  rows on the main-line-done day, median (p10): lit 14.0 (14.0), raised 6.7 (6.7), hearth 2.0 (2.0), repair 15.0 (15.0), places 10.0 (9.2), friend 5.0 (5.0), threads 5.0 (5.0), errands 5.0 (5.0), grown 5.0 (5.0), bed 6.0 (6.0), flower 4.0 (2.0), delve 0.0 (0.0), lair 5.0 (5.0), pages 4.9 (4.9)
+  level on the Seal day p10/p50/p90: 13/13/13
+  game days on which a lamp, stall or stage waited for Petals: p50 6, p90 7, share of runs with any: 100%
+  stalled step-days by cause, mean per run: chapter stage Petals 2.6, stall tier 2 (M3) 1.3, lamps 4-7 (M7) 1.0, lamp (M1/M2/M4) 0.8
+  7th lamp lit on game day p10/p50/p90: 26/27/27
+  Stops-row Petals actually paid (fee + tier 1 + tier 2): median 3600
+  gross Petals by day 20: 5133/5461/5778; by day 35: 14031/14889/15604
+  free Petals (gross - seeds, stage Petals, stop buys, meals eaten, bought rope/wax) by day 20: 2728/2930/3152; by day 35: 9299/10077/10844
+  game day when gross reaches 3,600: 16/17/18; when free Petals reach 3,600: 23/24/25
+  Petals in per game day, all days: crop sales 260, stop acts 84, chapters 76, passport 16, threads 13, errands 10, adopter welcome 3
+  Petals out per game day: seeds 91, stops row (fee + tiers) 90, chapter stages 29, garden beds 27, crops eaten or handed in (value, not cash) 24, food bought for meals 16, materials bought 9, stop buys and rests 1
+  XP earned by the Seal day, median total 13080 (Lv 15 needs 18375; doc says 75,650); mean by source: chapters 6432, harvests 4676, stop acts 1337, errands 285, stop tiers 180, threads 82, cooking 68, passport 28
+  gross Petals per game day by level (mean): L1 52, L2 55, L3 0, L5 305, L6 184, L7 307, L8 222, L9 572, L10 431, L11 471, L12 522, L13 820, L14 702, L15 759
+
+[non-fighter, chapter XP rebased, jobs on]  chapter XP table {'M1': 1072, 'M2': 1072, 'M3': 1072, 'M4': 1072, 'M5': 715, 'M6': 1072, 'M7': 357}; overrides -
+  main line done (M1-M6 and M7 steps 1-4), game day p10/p50/p90: 31/33/35
+  Standing on that day p10/p50/p90: 85.2/87.2/87.7; share >= 80: 100%, >= 78: 100%, >= 75: 100%
+  Seal day (main line done and Standing 80) p10/p50/p90: 31/33/35;  no Seal by day 90: 0.0%
+  extra game days from main line done to the Seal: p50 0, p90 0; share needing any: 0%
+  chapter done on game day, median: M1 7.0, M2 16.0, M3 16.0, M4 25.0, M5 26.0, M6 33.0, M7 29.0
+  marks latched (full bars of 54) on the main-line-done day: 11/15/20
+  rows on the main-line-done day, median (p10): lit 14.0 (14.0), raised 6.7 (6.7), hearth 2.0 (2.0), repair 15.0 (15.0), places 10.0 (9.6), friend 5.0 (5.0), threads 5.0 (5.0), errands 5.0 (5.0), grown 5.0 (5.0), bed 6.0 (6.0), flower 4.0 (2.0), delve 0.0 (0.0), lair 5.0 (5.0), pages 5.0 (4.9)
+  level on the Seal day p10/p50/p90: 14/14/14
+  game days on which a lamp, stall or stage waited for Petals: p50 1, p90 2, share of runs with any: 95%
+  stalled step-days by cause, mean per run: chapter stage Petals 1.0, stall tier 2 (M3) 0.4
+  7th lamp lit on game day p10/p50/p90: 25/26/27
+  Stops-row Petals actually paid (fee + tier 1 + tier 2): median 3600
+  gross Petals by day 20: 6239/7004/7612; by day 35: 18648/20461/22646
+  free Petals (gross - seeds, stage Petals, stop buys, meals eaten, bought rope/wax) by day 20: 2983/3677/4298; by day 35: 13912/15783/17935
+  game day when gross reaches 3,600: 14/14/15; when free Petals reach 3,600: 17/19/22
+  Petals in per game day, all days: crop sales 299, job board 116, stop acts 95, chapters 66, passport 16, threads 13, errands 10, adopter welcome 4
+  Petals out per game day: stops row (fee + tiers) 90, seeds 87, crops eaten or handed in (value, not cash) 33, chapter stages 29, garden beds 27, food bought for meals 10, materials bought 9, stop buys and rests 1
+  XP earned by the Seal day, median total 16428 (Lv 15 needs 18375; doc says 75,650); mean by source: harvests 6604, chapters 6432, stop acts 1739, job board 1031, errands 270, stop tiers 180, threads 117, cooking 67, passport 41
+  gross Petals per game day by level (mean): L1 87, L2 131, L3 131, L5 227, L6 350, L7 342, L8 538, L9 633, L10 631, L11 518, L12 812, L13 1069, L14 996, L15 847
+
+[non-fighter 16 beds, chapter XP rebased, jobs off]  chapter XP table {'M1': 1072, 'M2': 1072, 'M3': 1072, 'M4': 1072, 'M5': 715, 'M6': 1072, 'M7': 357}; overrides {'beds_by_level': {1: 16}}
+  main line done (M1-M6 and M7 steps 1-4), game day p10/p50/p90: 36/40/45
+  Standing on that day p10/p50/p90: 85.7/87.7/87.7; share >= 80: 100%, >= 78: 100%, >= 75: 100%
+  Seal day (main line done and Standing 80) p10/p50/p90: 36/40/45;  no Seal by day 90: 0.0%
+  extra game days from main line done to the Seal: p50 0, p90 0; share needing any: 0%
+  chapter done on game day, median: M1 7.0, M2 17.0, M3 17.0, M4 27.0, M5 28.0, M6 40.0, M7 30.0
+  marks latched (full bars of 54) on the main-line-done day: 15/20/28
+  rows on the main-line-done day, median (p10): lit 14.0 (14.0), raised 6.7 (6.7), hearth 2.0 (2.0), repair 15.0 (15.0), places 10.0 (9.6), friend 5.0 (5.0), threads 5.0 (5.0), errands 5.0 (5.0), grown 5.0 (5.0), bed 6.0 (6.0), flower 4.0 (2.0), delve 0.0 (0.0), lair 5.0 (5.0), pages 5.0 (4.9)
+  level on the Seal day p10/p50/p90: 13/14/14
+  game days on which a lamp, stall or stage waited for Petals: p50 3, p90 4, share of runs with any: 100%
+  stalled step-days by cause, mean per run: chapter stage Petals 1.6, stall tier 2 (M3) 1.3, lamp (M1/M2/M4) 0.0, lamps 4-7 (M7) 0.0
+  7th lamp lit on game day p10/p50/p90: 27/27/28
+  Stops-row Petals actually paid (fee + tier 1 + tier 2): median 3600
+  gross Petals by day 20: 4478/4896/5331; by day 35: 11086/12103/13222
+  free Petals (gross - seeds, stage Petals, stop buys, meals eaten, bought rope/wax) by day 20: 2015/2515/3085; by day 35: 7810/8884/9990
+  game day when gross reaches 3,600: 16/17/18; when free Petals reach 3,600: 24/25/27
+  Petals in per game day, all days: crop sales 181, stop acts 92, chapters 63, passport 14, threads 11, errands 9, adopter welcome 6
+  Petals out per game day: stops row (fee + tiers) 87, seeds 42, chapter stages 28, food bought for meals 18, crops eaten or handed in (value, not cash) 17, materials bought 8, stop buys and rests 3
+  XP earned by the Seal day, median total 14935 (Lv 15 needs 18375; doc says 75,650); mean by source: chapters 6432, harvests 5550, stop acts 2281, errands 277, stop tiers 180, threads 159, cooking 56, passport 50
+  gross Petals per game day by level (mean): L1 54, L2 90, L3 42, L5 202, L6 244, L7 297, L8 372, L9 534, L10 339, L11 387, L12 614, L13 498, L14 674, L15 1287
+
+[non-fighter all-best-crop, chapter XP rebased, jobs off]  chapter XP table {'M1': 1072, 'M2': 1072, 'M3': 1072, 'M4': 1072, 'M5': 715, 'M6': 1072, 'M7': 357}; overrides {'money_mode': 'best'}
+  main line done (M1-M6 and M7 steps 1-4), game day p10/p50/p90: 33/35/46
+  Standing on that day p10/p50/p90: 84.4/86.3/87.7; share >= 80: 100%, >= 78: 100%, >= 75: 100%
+  Seal day (main line done and Standing 80) p10/p50/p90: 33/35/46;  no Seal by day 90: 0.0%
+  extra game days from main line done to the Seal: p50 0, p90 0; share needing any: 0%
+  chapter done on game day, median: M1 7.0, M2 18.0, M3 18.0, M4 27.0, M5 28.0, M6 35.0, M7 32.0
+  marks latched (full bars of 54) on the main-line-done day: 13/17/24
+  rows on the main-line-done day, median (p10): lit 14.0 (14.0), raised 6.7 (6.7), hearth 2.0 (2.0), repair 15.0 (15.0), places 10.0 (9.6), friend 5.0 (5.0), threads 5.0 (5.0), errands 5.0 (5.0), grown 4.4 (3.8), bed 6.0 (6.0), flower 4.0 (2.0), delve 0.0 (0.0), lair 5.0 (5.0), pages 4.8 (4.6)
+  level on the Seal day p10/p50/p90: 13/14/15
+  game days on which a lamp, stall or stage waited for Petals: p50 6, p90 8, share of runs with any: 100%
+  stalled step-days by cause, mean per run: chapter stage Petals 3.1, stall tier 2 (M3) 1.7, lamps 4-7 (M7) 0.7, lamp (M1/M2/M4) 0.5
+  7th lamp lit on game day p10/p50/p90: 28/29/31
+  Stops-row Petals actually paid (fee + tier 1 + tier 2): median 3600
+  gross Petals by day 20: 4795/5173/5574; by day 35: 13373/14545/15802
+  free Petals (gross - seeds, stage Petals, stop buys, meals eaten, bought rope/wax) by day 20: 2110/2476/2752; by day 35: 8102/9396/10574
+  game day when gross reaches 3,600: 17/18/18; when free Petals reach 3,600: 26/27/28
+  Petals in per game day, all days: crop sales 270, stop acts 95, chapters 64, passport 16, threads 12, errands 10, adopter welcome 5
+  Petals out per game day: seeds 97, stops row (fee + tiers) 88, crops eaten or handed in (value, not cash) 36, chapter stages 28, garden beds 26, food bought for meals 14, materials bought 8, stop buys and rests 2
+  XP earned by the Seal day, median total 14988 (Lv 15 needs 18375; doc says 75,650); mean by source: harvests 6777, chapters 6432, stop acts 2005, errands 272, stop tiers 180, threads 138, cooking 80, passport 43
+  gross Petals per game day by level (mean): L1 54, L2 89, L3 26, L5 178, L6 241, L7 323, L8 330, L9 492, L10 549, L11 357, L12 769, L13 809, L14 819, L15 939, L16 1172
+
+[non-fighter, chapter XP doc, jobs off]  chapter XP table {'M1': 4413, 'M2': 4413, 'M3': 4413, 'M4': 4413, 'M5': 2942, 'M6': 4413, 'M7': 1471}; overrides -
+  main line done (M1-M6 and M7 steps 1-4), game day p10/p50/p90: 32/33/36
+  Standing on that day p10/p50/p90: 85.2/87.2/87.7; share >= 80: 100%, >= 78: 100%, >= 75: 100%
+  Seal day (main line done and Standing 80) p10/p50/p90: 32/33/36;  no Seal by day 90: 0.0%
+  extra game days from main line done to the Seal: p50 0, p90 0; share needing any: 0%
+  chapter done on game day, median: M1 7.0, M2 18.0, M3 17.0, M4 26.0, M5 26.0, M6 33.0, M7 30.0
+  marks latched (full bars of 54) on the main-line-done day: 12/16/21
+  rows on the main-line-done day, median (p10): lit 14.0 (14.0), raised 6.7 (6.7), hearth 2.0 (2.0), repair 15.0 (15.0), places 10.0 (9.6), friend 5.0 (5.0), threads 5.0 (5.0), errands 5.0 (5.0), grown 5.0 (5.0), bed 6.0 (6.0), flower 4.0 (2.0), delve 0.0 (0.0), lair 5.0 (5.0), pages 5.0 (4.9)
+  level on the Seal day p10/p50/p90: 18/18/18
+  game days on which a lamp, stall or stage waited for Petals: p50 3, p90 5, share of runs with any: 100%
+  stalled step-days by cause, mean per run: chapter stage Petals 2.5, stall tier 2 (M3) 0.9, lamps 4-7 (M7) 0.1, lamp (M1/M2/M4) 0.0
+  7th lamp lit on game day p10/p50/p90: 27/27/29
+  Stops-row Petals actually paid (fee + tier 1 + tier 2): median 3600
+  gross Petals by day 20: 5171/5699/6213; by day 35: 15000/16432/17758
+  free Petals (gross - seeds, stage Petals, stop buys, meals eaten, bought rope/wax) by day 20: 2628/2927/3212; by day 35: 10217/11649/12982
+  game day when gross reaches 3,600: 16/17/17; when free Petals reach 3,600: 23/24/25
+  Petals in per game day, all days: crop sales 302, stop acts 95, chapters 66, passport 16, threads 13, errands 10, adopter welcome 4
+  Petals out per game day: stops row (fee + tiers) 90, seeds 90, chapter stages 29, garden beds 27, crops eaten or handed in (value, not cash) 27, food bought for meals 10, materials bought 9, stop buys and rests 1
+  XP earned by the Seal day, median total 37041 (Lv 15 needs 18375; doc says 75,650); mean by source: chapters 26478, harvests 8306, stop acts 1769, errands 270, stop tiers 180, threads 122, cooking 75, passport 39
+  gross Petals per game day by level (mean): L1 54, L2 90, L3 42, L10 298, L11 385, L12 641, L13 615, L14 446, L15 590, L16 837, L17 757, L18 866, L19 778
+
+[fighter, chapter XP doc, jobs off]  chapter XP table {'M1': 4413, 'M2': 4413, 'M3': 4413, 'M4': 4413, 'M5': 2942, 'M6': 4413, 'M7': 1471}; overrides -
+  main line done (M1-M6 and M7 steps 1-4), game day p10/p50/p90: 31/33/35
+  Standing on that day p10/p50/p90: 90.7/92.7/92.7; share >= 80: 100%, >= 78: 100%, >= 75: 100%
+  Seal day (main line done and Standing 80) p10/p50/p90: 31/33/35;  no Seal by day 90: 0.0%
+  extra game days from main line done to the Seal: p50 0, p90 0; share needing any: 0%
+  chapter done on game day, median: M1 7.0, M2 18.0, M3 17.0, M4 26.0, M5 26.0, M6 33.0, M7 28.0
+  marks latched (full bars of 54) on the main-line-done day: 11/15/20
+  rows on the main-line-done day, median (p10): lit 14.0 (14.0), raised 6.7 (6.7), hearth 2.0 (2.0), repair 15.0 (15.0), places 10.0 (10.0), friend 5.0 (5.0), threads 5.0 (5.0), errands 5.0 (5.0), grown 5.0 (5.0), bed 6.0 (6.0), flower 4.0 (2.0), delve 5.0 (5.0), lair 5.0 (5.0), pages 5.0 (5.0)
+  level on the Seal day p10/p50/p90: 19/19/19
+  game days on which a lamp, stall or stage waited for Petals: p50 2, p90 4, share of runs with any: 100%
+  stalled step-days by cause, mean per run: chapter stage Petals 1.8, stall tier 2 (M3) 0.7, lamp (M1/M2/M4) 0.0, lamps 4-7 (M7) 0.0
+  7th lamp lit on game day p10/p50/p90: 26/27/28
+  Stops-row Petals actually paid (fee + tier 1 + tier 2): median 3600
+  gross Petals by day 20: 5652/6229/6808; by day 35: 16567/17887/19077
+  free Petals (gross - seeds, stage Petals, stop buys, meals eaten, bought rope/wax) by day 20: 2675/2966/3453; by day 35: 11677/13076/14265
+  game day when gross reaches 3,600: 15/16/17; when free Petals reach 3,600: 21/23/24
+  Petals in per game day, all days: crop sales 324, stop acts 98, chapters 66, fights 19, passport 15, threads 13, errands 10, adopter welcome 4
+  Petals out per game day: seeds 90, stops row (fee + tiers) 90, chapter stages 29, garden beds 27, crops eaten or handed in (value, not cash) 22, materials bought 9, food bought for meals 2, stop buys and rests 1
+  XP earned by the Seal day, median total 44091 (Lv 15 needs 18375; doc says 75,650); mean by source: chapters 26478, harvests 8893, fights 6633, stop acts 1759, errands 267, stop tiers 180, threads 120, cooking 53, passport 39
+  gross Petals per game day by level (mean): L1 59, L2 100, L3 72, L10 274, L11 384, L12 559, L13 706, L14 610, L15 503, L16 842, L17 902, L18 810, L19 962, L20 814, L21 909
+
+WHAT-IFS on the non-fighter base runs (Standing on the main-line-done day):
+  as run (Owl evenings done, M7 step 3): p10/p50/p90 85.2/87.2/87.7
+  without the Owl row: 80.2/82.2/82.7, share >= 80: 98%
+  base non-fighter             as proposed (80)                         Standing p10/p50 85.2/87.2, share at or over 80: 100%, median slack 7.2
+  base non-fighter             threshold 75                             Standing p10/p50 85.2/87.2, share at or over 75: 100%, median slack 12.2
+  base non-fighter             as proposed, Owl not done                Standing p10/p50 80.2/82.2, share at or over 80: 98%, median slack 2.2
+  base non-fighter             threshold 75, Owl not done               Standing p10/p50 80.2/82.2, share at or over 75: 100%, median slack 7.2
+  base non-fighter             errands row needs 3 (not 5)              Standing p10/p50 85.2/87.2, share at or over 80: 100%, median slack 7.2
+  base non-fighter             errands 3, Owl not done                  Standing p10/p50 80.2/82.2, share at or over 80: 98%, median slack 2.2
+  base non-fighter             errands 3 + threshold 78, Owl not done   Standing p10/p50 80.2/82.2, share at or over 78: 100%, median slack 4.2
+  main-line-only non-fighter   as proposed (80)                         Standing p10/p50 80.2/80.2, share at or over 80: 91%, median slack 0.2
+  main-line-only non-fighter   threshold 75                             Standing p10/p50 80.2/80.2, share at or over 75: 100%, median slack 5.2
+  main-line-only non-fighter   as proposed, Owl not done                Standing p10/p50 75.2/75.2, share at or over 80: 0%, median slack -4.8
+  main-line-only non-fighter   threshold 75, Owl not done               Standing p10/p50 75.2/75.2, share at or over 75: 91%, median slack 0.2
+  main-line-only non-fighter   errands row needs 3 (not 5)              Standing p10/p50 80.9/80.9, share at or over 80: 99%, median slack 0.9
+  main-line-only non-fighter   errands 3, Owl not done                  Standing p10/p50 75.9/75.9, share at or over 80: 0%, median slack -4.1
+  main-line-only non-fighter   errands 3 + threshold 78, Owl not done   Standing p10/p50 75.9/75.9, share at or over 78: 0%, median slack -2.1
+  ceiling for a non-fighter, 7 lit, Hearth tier 2, every other row full: 87.7 (master: 87.7)
+
+Q5 MAIZEHOLLOW (tier 2) steady state, 36 beds, 3-4 stops x 5 acts a day:
+  Lv 15: stops 573 P 256 XP (18.6 E); garden all-avocado 829 P 621 XP (36.0 E), or basket of CA crops 592 P 503 XP; energy a day 112 -> Petals 1165-1402, XP 759-877 a game day
+  Lv 18: stops 591 P 261 XP (18.7 E); garden all-avocado 829 P 734 XP (36.0 E), or basket of CA crops 592 P 592 XP; energy a day 133 -> Petals 1183-1420, XP 853-995 a game day
+  Lv 21: stops 589 P 259 XP (18.9 E); garden all-avocado 829 P 848 XP (36.0 E), or basket of CA crops 592 P 689 XP; energy a day 154 -> Petals 1181-1418, XP 948-1107 a game day
+  Lv 24: stops 595 P 261 XP (19.1 E); garden all-avocado 829 P 967 XP (36.0 E), or basket of CA crops 592 P 780 XP; energy a day 175 -> Petals 1187-1425, XP 1041-1228 a game day
+  (Maplewold at Lv 8, 24 beds, same method: stops 139 P, garden 553 P, XP 367)
+  XP Lv 15 -> 25: 79125; band XP rebased 35% chapter share over the 8 chapters of the two areas: 27693

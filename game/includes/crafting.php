@@ -461,9 +461,10 @@ function cook_seconds(array $u, array $r): int
     require_once __DIR__ . '/catalog.php';
     $min = (int)$r['cook_minutes'];
     if ($min <= 0) $min = tier_setting('cook_minutes_tiers', [3, 15, 45])[(string)($r['tier'] ?: 'meal')] ?? 0;
-    require_once __DIR__ . '/player_perks.php';
-    $pct = min(100, max(0, calling_perk($u, 'cook_time_pct') + player_perk_pct((int)($u['id'] ?? 0), 'slow_simmer', 'perk_slow_simmer')));   // 2.6.33
-    return (int)round($min * 60 * (100 - $pct) / 100);
+    $uid = (int)($u['id'] ?? 0);
+    [$old, $mk] = mark_vs_old($uid, 'cook', mark_ctx_here($uid) + mark_ctx_item((int)($r['output_item_id'] ?? 0)), 'slow_simmer', 'perk_slow_simmer');   // F06 lasting marks: the larger of the two
+    $pct = min(100, max(0, calling_perk($u, 'cook_time_pct') + $old));   // 2.6.33
+    return mark_less((int)round($min * 60 * (100 - $pct) / 100), $mk);
 }
 
 /** "8 minutes", "45 seconds". */

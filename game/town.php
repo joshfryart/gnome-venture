@@ -62,6 +62,7 @@ if (is_post()) {
     $spot = (int)($_POST['spot'] ?? 0);
     if (($_POST['back'] ?? '') === 'here.php') redirect('here.php');   // v2.5.35: a rest-stop thing done from the Here picture comes back to it
     $stTab = ($do === 'local' && in_array($_POST['t'] ?? '', ['folk', 'stop'], true)) ? 't=' . $_POST['t'] : '';   // v1.3.0: rest-stop forms come back to their tab
+    if ($do === 'local' && $pnode['kind'] === 'market') redirect('town.php?view=reststop' . ($stTab ? '&' . $stTab : ''));   // lasting marks: the town's own rest stop
     if ($stTab) redirect('town.php?' . $stTab);
     if (!$spot && ($_POST['view'] ?? '') === 'orders') redirect('town.php?' . ($hub ? 'hub=1&' : '') . 'view=orders');   // v2.0.67: the town's Orders tab
     if (!$spot && ($_POST['view'] ?? '') === 'quests') redirect('jobs.php?t=requests' . ($hub ? '&hub=1' : ''));   // v1.7.2 tasks: the order board moved to Tasks
@@ -91,8 +92,19 @@ if ($viewReq === 'passport') {   // v2.0.4 menu folds: Passport works from anywh
     <h1>🏘️ Town</h1>
     <?= main_stop_tabs_html(main_stop_tabs($hub, $inTown, 'stop'), 'stop') ?>
     <div class="townview">
+      <?php if (!$hub && $nodeNow['kind'] === 'market' && stop_is_place($nodeNow)): ?><p><a class="btn" href="<?= e(url('town.php?view=reststop')) ?>">🪧 The town's rest stop: things to do, bars and lasting marks</a></p><?php endif; ?>
       <?= stop_tab_html($u, $nodeNow, $hub) ?>
     </div>
+    <?php
+    page_footer();
+    exit;
+}
+if ($viewReq === 'reststop' && !$hub && $nodeNow['kind'] === 'market' && (function () use ($nodeNow): bool { require_once __DIR__ . '/includes/local.php'; return stop_is_place($nodeNow); })()) {   // lasting marks (stop_marks_open): the market town is a rest stop too
+    page_header($nodeNow['name']);
+    ?>
+    <h1>🏘️ Town</h1>
+    <?= main_stop_tabs_html(main_stop_tabs($hub, $inTown, 'stop'), 'stop') ?>
+    <?= local_panel($u, $nodeNow) ?>
     <?php
     page_footer();
     exit;
@@ -121,7 +133,7 @@ if (!$hub && !in_array($node['kind'], ['market', 'hub'], true)) {
     <div class="crumbs">🌍<?= (function () use ($u, $node) { require_once __DIR__ . '/includes/stops.php'; return stop_perk_chip($u, $node); })() ?> <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></div>
     <?= place_switcher_html($node, 'here') ?>
     <?php if (setting('ppal_open') === '1' || is_admin()) { require_once __DIR__ . '/includes/puzzle_pals.php'; echo ppal_here_html($u, (int)$node['id']); }   // a waiting Puzzle Pal shows on the Here page too, not only World ?>
-    <?php if ($node['kind'] === 'village'): $stType = stop_type_of($node); ?>
+    <?php if (stop_is_place($node)): $stType = stop_type_of($node); ?>
       <?= place_header_html(stop_art_file($stType), $node['name'], 'Rest stop · ' . (string)$node['region'], $node['name'], '', [$road ? '🛣️ ' . e($road['name']) : '🌿 Hidden village, off the road']) ?>
     <?php else: ?>
       <h1><?= $kindIcons[$node['kind']] ?? '📍' ?> <?= e($node['name']) ?></h1>
@@ -129,7 +141,7 @@ if (!$hub && !in_array($node['kind'], ['market', 'hub'], true)) {
     <?php endif; ?>
     <?php require_once __DIR__ . '/includes/destination.php'; echo dest_resume_html($u);   // v1.0.4: carry on along the route ?>
     <?php require_once __DIR__ . '/includes/explore.php'; echo explore_comeback_html($node); ?>
-    <?php if ($node['kind'] === 'village'): ?>
+    <?php if (stop_is_place($node)): ?>
       <?php /* v2.0.65: the "Rest stop · a small village on the road …" line is gone: the place header says rest stop, and the road is a chip there */ ?>
       <?= local_panel($u, $node) ?>
       <?php $mine = q_one('SELECT id, garden_name FROM plots WHERE user_id = ? AND village_id = ?', [$uid, $node['id']]);

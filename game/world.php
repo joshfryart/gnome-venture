@@ -136,12 +136,21 @@ $mapRegion = $selRegion ?? ((int)($node['region_id'] ?? 0) ?: (int)($regionList[
   <div class="worldprimary" id="worldmap">
     <div class="mapwrap<?= myc_on() && world_art_path() === '' ? ' mycwrap' : '' ?>"><?= world_map_svg($u, $mapRegion) ?></div>
     <p class="help maphelp">Tap a region to open its map. 🎩 you · 🍄 Mossbottom is reachable from anywhere.</p>
+<?php if (map_v2_world_on()): ?>    <p class="help maphelp">Deeper caverns are for higher levels: the ruler on the left shows the band.</p>
+<?php endif; ?>
   </div>
   <?= $youpill . $wnav ?>
   <?php require_once __DIR__ . '/includes/letters.php'; echo letters_box($u) . landmark_panel($u, $node);   // v2.5.49: the Lost Letter and the place's own panel were only on the old Go stack ?>
 <?php endif; ?>
 <?php if (!$gn || $selRegion !== null): ?>
-<?php if (myc_on() && region_art_path($mapRegion) === ''):   // the pixel-art region map is the default whenever its picture is there ?>
+<?php $mv2 = region_map_block($u, $mapRegion, $goId, false, (int)($_GET['near'] ?? 0), (int)($_GET['at'] ?? 0));   // 2.8.93 Map v2 ('' unless this region is on the lit floor map)
+if ($mv2 !== ''): ?>
+  <div class="regionmapbox" id="regionmap">
+    <?= region_nav($u, $mapRegion) ?>
+    <?= $mv2 ?>
+    <p class="help maphelp">Tap a stop or a place for the list of places near it. Gold roots lead off the road to places you have found; dotted ones to places not found yet.</p>
+  </div>
+<?php elseif (myc_on() && region_art_path($mapRegion) === ''):   // the pixel-art region map is the default whenever its picture is there ?>
   <div class="regionmapbox" id="regionmap">
     <?= region_nav($u, $mapRegion) ?>
     <div class="mapwrap regionwrap mycwrap"><?= myc_region_block($u, $mapRegion, $goId, isset($_GET['full']))   /* v1.6.1: ?full=1 = the whole region */ ?></div>

@@ -9,6 +9,9 @@ declare(strict_types=1);
 /** Default recommended level per region code, in the order a gnome is meant to wander. */
 const REGION_LEVELS = ['NA' => 1, 'CA' => 4, 'NWE' => 6, 'CB' => 8, 'SE' => 10, 'SA' => 12, 'EE' => 14,
     'MENA' => 17, 'EA' => 20, 'CSA' => 23, 'SEA' => 26, 'WCA' => 29, 'ESA' => 32, 'OC' => 35];
+/** World v2 (master doc 2.1, setting world_v2_open): the band floor of each region's tier. Applied by world_v2_levels() (world_v2.php), never lowering a level. */
+const REGION_LEVELS_V2 = ['NA' => 1, 'CA' => 15, 'NWE' => 15, 'CB' => 25, 'SA' => 25, 'SE' => 25, 'EE' => 25,
+    'MENA' => 35, 'CSA' => 35, 'WCA' => 35, 'ESA' => 35, 'EA' => 45, 'SEA' => 45, 'OC' => 45];
 
 /** The region new gnomes start in (admin setting, by code). */
 function start_region_id(): int
@@ -63,6 +66,7 @@ function record_region_visit(int $uid, ?int $regionId): bool
     if (q_val('SELECT 1 FROM region_visits WHERE user_id = ? AND region_id = ?', [$uid, $regionId])) return false;
     try {
         db_insert('region_visits', ['user_id' => $uid, 'region_id' => $regionId, 'first_at' => now()]);
+        try { q('UPDATE users SET ppal_spawn_day = NULL WHERE id = ?', [$uid]); } catch (Throwable) {}   // a new region is open: Puzzle Pals get topped up on the next page
         return true;
     } catch (Throwable) {
         return false;   // a double click got there first
@@ -75,11 +79,36 @@ function visited_regions(int $uid): array
     return array_map('intval', q('SELECT region_id FROM region_visits WHERE user_id = ?', [$uid])->fetchAll(PDO::FETCH_COLUMN));
 }
 
+/**
+ * Regions this gnome has access to: their home region, any region with one of their gardens, any region they have walked to, and the
+ * region they stand in. Puzzle Pal spawns use this; the Seal gates (proposal-maplewold-bands-and-seals.md) will narrow it with region_gate_open().
+ * Returns region ids.
+ */
+function accessible_regions(int $uid): array
+{
+    $ids = visited_regions($uid);
+    $row = q_one('SELECT region_id, location_id FROM users WHERE id = ?', [$uid]) ?: [];
+    if (!empty($row['region_id'])) $ids[] = (int)$row['region_id'];
+    if (!empty($row['location_id'])) $ids[] = (int)q_val('SELECT region_id FROM locations WHERE id = ?', [(int)$row['location_id']]);
+    foreach (q('SELECT DISTINCT region_id FROM plots WHERE user_id = ? AND region_id IS NOT NULL', [$uid])->fetchAll(PDO::FETCH_COLUMN) as $r) $ids[] = (int)$r;
+    $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+    return array_values(array_filter($ids, fn($rid) => region_gate_open($uid, $rid)));
+}
+
+/** Seal gate (2.8.85, seals.php): can this gnome go into this region? Always true while seals_open is 0, for tier 1-2 regions, guests and grandfathered regions. */
+function region_gate_open(int $uid, int $regionId): bool
+{
+    if (setting('seals_open') !== '1') return true;
+    require_once __DIR__ . '/seals.php';
+    return seal_region_gate_open($uid, $regionId);
+}
+
 /** Can this gnome fast-travel straight to a region? Home, any region with one of their gardens, or anywhere they've walked to. */
 function can_fast_travel(array $u, int $regionId): bool
 {
-    if (setting('travel_needs_visit') !== '1') return true;
     if ((int)($u['region_id'] ?? 0) === $regionId) return true;
+    if (!region_gate_open((int)($u['id'] ?? 0), $regionId)) return false;   // 2.8.85: a Seal-locked door still needs the Seal
+    if (setting('travel_needs_visit') !== '1') return true;
     if (q_val('SELECT 1 FROM plots WHERE user_id = ? AND region_id = ?', [$u['id'], $regionId])) return true;
     return (bool)q_val('SELECT 1 FROM region_visits WHERE user_id = ? AND region_id = ?', [$u['id'], $regionId]);
 }
@@ -93,10 +122,11 @@ function next_region_suggestion(array $u): ?array
     $byCode = [];
     foreach (q('SELECT * FROM regions')->fetchAll() as $r) $byCode[$r['code']] = $r;
     $best = null;
-    foreach (ROAD_PAIRS as [$a, $b]) {
+    foreach (road_pairs() as [$a, $b]) {
         foreach ([[$a, $b], [$b, $a]] as [$from, $to]) {
             if (!isset($byCode[$from], $byCode[$to])) continue;
             if (!in_array((int)$byCode[$from]['id'], $been, true) || in_array((int)$byCode[$to]['id'], $been, true)) continue;
+            if (!region_gate_open((int)$u['id'], (int)$byCode[$to]['id'])) continue;   // 2.8.85: not behind a closed Seal door
             $cand = $byCode[$to] + ['via' => $byCode[$from]['gnomish_name']];
             if (!$best || (int)$cand['min_level'] < (int)$best['min_level']) $best = $cand;
         }

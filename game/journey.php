@@ -4,6 +4,7 @@ declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/garden_logic.php';
 require_once __DIR__ . '/includes/journey.php';
+require_once __DIR__ . '/includes/journey_v2.php';
 $u = require_login();
 $ch = (int)($_POST['ch'] ?? $_GET['j'] ?? 0);
 if (is_post()) {
@@ -13,6 +14,7 @@ if (is_post()) {
         'hand_in' => journey_hand_in($u, $ch),
         'finish' => journey_finish($u, $ch),
         'crate' => journey_crate($u, $ch),
+        'step' => journey_v2_on() ? journey_v2_step_act($u, (int)($_POST['t'] ?? 0)) : [false, 'Unknown action.'],   // journey v2: escort and deliver
         default => [false, 'Unknown action.'],
     };
     if ($msg !== '') flash($msg, $ok ? 'ok' : 'err');

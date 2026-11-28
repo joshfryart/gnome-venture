@@ -1,0 +1,33 @@
+# World v2 (2026-11-28, claude/PROPOSAL-HOLLOW-MASTER.md 2.3, claude/proposal-maplewold-bands-and-seals.md 3). Read by includes/world_v2.php,
+# and only once the setting world_v2_open is on: nothing in this file exists in a world while it is off. Rows are only added, never changed.
+#
+# P | region | zone # | kind (village, haven, wonder, delve) | name | stop type (villages; - for the others) | description
+# M | region | zone # | name                       an existing landmark that moves to another zone (its old side path stays, so nobody loses the way)
+# R | route name | from | to | sections | min-max level     a fixed side path. A place is CODE:Name, CODE:@town (the region's town) or CODE:@zoneN (the first village of zone N)
+#
+# Walking from Granitegate, the Den or the Ferry Landing into another region has its own door (WORLD_V2_DOORS in world_v2.php).
+
+P|NA|5|village|Cattailmere|herb|A causeway croft on stilts above the fen. The wild-rice paddy sways by the boardwalk and every doorstep has a pair of wet boots on it.
+P|NA|5|haven|Heron Stilt Village|-|Houses on tall legs over the reeds, with herons on every roof keeping watch. Rest here and see what is on the shelf today.
+P|NA|5|wonder|The Dam Debt|-|The beavers' great dam, and the long ledger of who owes whom a log. Help settle a line of it for fen finds.
+M|NA|5|Beaverdam Tunnels
+P|NA|6|village|Granitegate|tower|A watchtower village at the foot of the Climb, built of grey granite. The Warden's lamp burns at the top of the tower all night.
+P|NA|6|haven|Cairn Keeper's Hut|-|A low stone hut out of the wind, with a kettle that is never quite cold. Rest here and see what is on the shelf today.
+P|NA|6|wonder|Cairnback Pass|-|A saddle of bare rock where every traveller adds one stone to the cairns. Read the old stones for mountain finds.
+P|NA|6|delve|Hollow Peak|-|A mountain hollowed out by long-gone miners: ladders, ledges and echoes all the way down.
+P|NA|3|haven|Ferry Landing|-|A plank jetty past the lighthouse where the Sunsprinkle ferry ties up, when the tide allows. Rest here and see what is on the shelf today.
+
+R|Fen Path|NA:Honeybrook|NA:Cattailmere|2|8-11
+R|Fen Path|NA:Cattailmere|NA:Heron Stilt Village|2|8-11
+R|Fen Path|NA:Cattailmere|NA:The Dam Debt|3|9-11
+R|Fen Path|NA:Cattailmere|NA:Beaverdam Tunnels|3|10-11
+R|Fen Path|NA:Cattailmere|NA:Pebblestead|2|8-11
+R|Cairnback Climb|NA:Poppyburrow|NA:Granitegate|2|12-15
+R|Cairnback Climb|NA:Granitegate|NA:Cairn Keeper's Hut|2|12-15
+R|Cairnback Climb|NA:Granitegate|NA:Cairnback Pass|3|13-15
+R|Cairnback Climb|NA:Granitegate|NA:Hollow Peak|3|14-15
+R|Cairnback Climb|NA:Granitegate|CA:@zone4|4|15-18
+R|Aurora Road|NA:Aurora Camp|NA:Den of the Great White Owl|3|11-15
+R|Northern Rim Pass|NA:Den of the Great White Owl|NWE:@zone4|4|15-18
+R|Tide Track|NA:Lighthouse of the Lost Lantern|NA:Ferry Landing|2|7-10
+R|Tide Track|NA:Ferry Landing|CB:@town|3|25-27

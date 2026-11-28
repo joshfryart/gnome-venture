@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '2.8.84');
+define('APP_VERSION', '2.8.94');
 
 if (!is_file(APP_ROOT . '/config.php')) {
     http_response_code(503);
@@ -714,6 +714,8 @@ if (setting('db_version') !== APP_VERSION && (int)setting('boot_retry_after') <=
 if (setting('petshops220') !== '1') { require_once __DIR__ . '/catfish_pets.php'; petshops_boot(); }   // 2.2.x: the pet shops exist even where the version is not bumped yet (a dev copy, a fresh install)
 if (setting('upg_pantry_reprice') !== '1') { require_once __DIR__ . '/pantry.php'; pantry_reprice_boot(); }   // preserves priced from a stale rarity cache get their right price once (pantry.php); a world on the same version still gets it
 if (setting('upg_meal_tiers2') !== '1') { require_once __DIR__ . '/catalog.php'; meal_tiers_boot(); }   // 2.7.03: hearty snacks (smoked trout...) become Meals, once
+if (setting('world_v2_open') === '1' && setting('world_v2_done') !== '1') { require_once __DIR__ . '/world_v2.php'; boot_step('world_v2', 'world_v2_boot'); }   // 2026-11-28: the world v2 changes, once, when the setting is switched on
+if (setting('world_v2_open') === '1' && setting('creatures_v2_done') !== '1') { require_once __DIR__ . '/creatures_v2.php'; boot_step('creatures_v2', 'creatures_v2_boot'); }   // 2026-11-28: the Lv 38-55 creatures and the tier 4-5 lair guardians, once, when world v2 is switched on
 market_boot();   // v1.0.0 wave 2b: the market Almanac page exists even where db_version was set by hand (a dev copy)
 
 send_security_headers();
@@ -721,6 +723,7 @@ start_secure_session();
 
 $CURRENT_USER = load_current_user();
 if ($CURRENT_USER && gclock_crew_mornings($CURRENT_USER)) $CURRENT_USER = load_current_user();   // the garden crew works a 06:00 the gnome stayed up past (pal_crew.php pcrew_mornings)
+if (!empty($CONFIG['lockdown'])) { require_once __DIR__ . '/lockdown.php'; lockdown_gate(); }   // private test site (config.php 'lockdown'): only its admin gets in, never on the command line (includes/lockdown.php)
 require_once __DIR__ . '/action_log.php';
 action_log_boot();   // 2.6.27: last 100 actions per player (admin-only view)
 

@@ -1,0 +1,29 @@
+# What a rest stop looks like when you arrive, dark and relit (2026-11-28; claude/proposal-story-3-flavor.md 4). Data for journey_v2_open,
+# read by includes/quest_data.php (stop_state_text()); nothing shows it yet, and nothing here is in the game while the setting is off.
+# stop type | state | text
+# state: dark = tier 0 (not adopted, or no lamp yet) · lit = tier 1 or better, and once in full the first time you arrive after it is lit.
+# An off-road village reads lit once it has a lamp of its own (off-road villages have tiers 0 to 2, master doc ruling 5).
+market|dark|Bare stall frames and a leaning notice board. One woman sells eggs off a windowsill and calls it the market.
+market|lit|The lamp is lit over the best bench, and two stalls have turned up to see what the fuss is.
+mill|dark|The wheel is green and still. The miller grinds by hand and says the exercise is good for him. It is not.
+mill|lit|A lamp over the sack door. The wheel turns, complaining, and the pond has an opinion again.
+inn|dark|The sign has lost its paint and the door sticks. There are beds, the innkeeper says, if you do not mind the hens.
+inn|lit|Lamp in the porch, fire in the grate. The hens have been moved, under protest.
+shrine|dark|Moss to the ankles and no lantern lit. Somebody has left one clean button on the step all the same.
+shrine|lit|One stone lantern burns at the foot of the path. The moss around it has started, very faintly, to glow.
+jetty|dark|Three planks missing and a bucket with no bottom. An angler sits at the end anyway, out of habit.
+jetty|lit|A lamp on the end post. The fish come to look at it, and the anglers have noticed.
+herb|dark|The beds have gone to nettles, with one stubborn row of thyme. The herbalist says she is letting it rest.
+herb|lit|A lamp at the gate and the first bed dug over. The bees are back and behaving as if they never left.
+workshop|dark|The forge is cold and there is a wren in the bellows. The tinker mends kettles on the doorstep, in daylight only.
+workshop|lit|The lamp is lit and so is the forge. Somebody is hammering something that did not need it.
+orchard|dark|Unpicked trees and wasps in the long grass. The press has a tarpaulin on it and the tarpaulin has a hole.
+orchard|lit|A lamp hangs from the first tree. There are ladders out, and an argument about whose ladders.
+ferry|dark|The boat is pulled up on the bank with grass growing in it. The ferryman will row you over if you help bail.
+ferry|lit|A lamp on the landing and the bell scraped clean. The ferry is in the water and nearly on time.
+tower|dark|The beacon basket is empty and there is a jackdaw in it. From the top you can see three dark roads.
+tower|lit|The lamp at the foot of the stair is lit. From the top, one road now has a faint line on it, like a snail's.
+spring|dark|Warm water, green edges, no lantern. The bath-keeper counts towels and gets to two.
+spring|lit|A lamp in the steam, with a halo round it. Somebody has boiled an egg to mark the day.
+camp|dark|A ring of logs round a cold black patch. One tent, one kettle, and a wanderer who says it is cosier small.
+camp|lit|A lamp on a pole and a fire under it. The ring of logs has more bottoms on it than logs.

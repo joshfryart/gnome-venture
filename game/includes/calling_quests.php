@@ -269,6 +269,7 @@ function calling_event(int $uid, string $kind, string $target = '', int $n = 1, 
 {
     if ($uid <= 0 || !empty($ctx['helper'])) return;
     if ($n > 0 && $kind !== 'grade') { require_once __DIR__ . '/hollow_goals.php'; hollow_goal_event($uid, $kind, $target, $n, $ctx); }   // v1.0.0 wave 3: the Hollow's weekly jar (and any festival jar) listens to every event
+    if ($n > 0 && setting('journey_v2_open') === '1') { require_once __DIR__ . '/journey_v2.php'; journey_v2_event($uid, $kind, $target, $n); }   // journey v2: plant and defeat steps
     if ($n <= 0 && !in_array($kind, CALLING_MAX_KINDS, true)) return;
     // v0.9.4: meals only. A snack never counts; an eat needs a Meal or Feast tier (raw food has none); a cook without a tier is an older emitter
     $tier = $ctx['tier'] ?? null;

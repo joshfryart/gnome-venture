@@ -73,6 +73,7 @@ function page_header(string $title, bool $admin = false): void
 <?php endif; /* nav dock: only when the setting nav_dock is on for this viewer (admins first); CSS shows it in landscape on short screens only */ ?>
 <script src="<?= e(url('assets/early.js?v=' . APP_VERSION)) ?>"></script>
 <script src="<?= e(url('assets/site.js?v=' . APP_VERSION)) ?>" defer></script>
+<?php if (!$admin && $page === 'world.php' && setting('map_v2_open') === '1'): ?><script src="<?= e(url('assets/mapv2.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; /* 2.8.93 Map v2: the lit floor region map widget */ ?>
 <?php if (!$admin && in_array($page, ['spit.php', 'worms.php', 'memory.php', 'mushroom.php', 'race.php', 'marrow.php', 'letters.php'], true)): ?><script src="<?= e(url('assets/' . substr($page, 0, -4) . '.js?v=' . APP_VERSION)) ?>" defer></script>
 <?php endif; /* v1.4.0: assets/spit.js, assets/worms.js. v1.4.6: assets/memory.js, assets/mushroom.js. v1.4.7: assets/race.js, assets/marrow.js, assets/letters.js */ ?>
 <?php if (!$admin && (in_array($page, ['puzzles.php', 'gifsaw.php', 'jigsaw.php', 'rainbarrel.php', 'gnomebeds.php', 'puzzlepals.php', 'paljobs.php', 'palyard.php'], true) || !empty($GLOBALS['gv_front_demo']))): ?><link rel="stylesheet" href="<?= e(url('assets/puzzles.css?v=' . APP_VERSION)) ?>"><?php if (!in_array($page, ['puzzlepals.php', 'paljobs.php', 'palyard.php'], true)): ?><script src="<?= e(url('assets/' . (['puzzles.php' => 'puzzlehub', 'rainbarrel.php' => 'rainbarrel', 'gnomebeds.php' => 'gnomebeds'][$page] ?? 'puzzles') . '.js?v=' . APP_VERSION)) ?>" defer></script><?php endif; ?>
@@ -169,10 +170,11 @@ if ($u && !$admin && !$onboarding && !in_array($page, ['adventure.php', 'world.p
   <?php else: ?>
     <a href="<?= e(url('index.php')) ?>">Home</a>
     <a href="<?= e(url('login.php')) ?>">Log in</a>
+    <?php if (empty($GLOBALS['CONFIG']['lockdown'])): // a private test site (includes/lockdown.php) has no sign-ups and no public pages ?>
     <a href="<?= e(url('register.php')) ?>">Join</a>
     <?php foreach (q('SELECT slug, title FROM pages WHERE published = 1 AND show_in_nav = 1 ORDER BY title')->fetchAll() as $p): ?>
       <a href="<?= e(url('page.php?p=' . urlencode($p['slug']))) ?>"><?= e($p['title']) ?></a>
-    <?php endforeach; ?>
+    <?php endforeach; endif; ?>
   <?php endif; ?>
   <?php endif; ?>
 <?php endif; ?>
@@ -214,6 +216,7 @@ if ($u && !$admin && !$onboarding && !in_array($page, ['adventure.php', 'world.p
   <div class="flash <?= e($f['type']) ?>" role="<?= $f['type'] === 'err' ? 'alert' : 'status' ?>"><?= e($f['msg']) ?></div>
 <?php endforeach; ?>
 <?php endif;
+    if ($u && !$admin && !$onboarding && setting('stop_marks_open') === '1') { require_once __DIR__ . '/stop_mark_hooks.php'; echo mark_flags_html((int)$u['id'], $page); }   // A5/A6 lasting marks held for this page
     if (!$admin && !$onboarding && $tourStep > 0) echo tour_box($tourStep, $tourAsk, $tourArrived);
 }
 

@@ -118,7 +118,7 @@ function stop_titles(int $uid): array
 /** Stamp this stop. Returns [isNew, messages]. Also counts repeat visits. */
 function stop_stamp(int $uid, array $loc): array
 {
-    if (($loc['kind'] ?? '') !== 'village') return [false, []];
+    if (!stop_is_place($loc)) return [false, []];
     $visit = (string)q_val('SELECT arrived_at FROM users WHERE id = ?', [$uid]);
     $new = false;
     if (!q_val('SELECT 1 FROM stop_stamps WHERE user_id = ? AND location_id = ?', [$uid, (int)$loc['id']])) {
@@ -139,6 +139,8 @@ function stop_stamp(int $uid, array $loc): array
         foreach (stop_sets_check($uid) as $m) $msgs[] = $m;
         calling_event($uid, 'page', 'stop:' . $loc['slug'], 1);
     }
+    require_once __DIR__ . '/stop_mark_hooks.php';
+    foreach (mark_charge_lines(mark_charges_fire($uid, 'first_visit_to_the_stop', mark_ctx_loc((int)$loc['id']))) as $m) $msgs[] = '🏅 ' . $m;   // A3 lasting marks: the first visit this game day
     return [$new, $msgs];
 }
 

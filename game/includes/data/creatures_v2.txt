@@ -1,0 +1,73 @@
+# World v2 creatures for gnome levels 38-55 (claude/proposal-creatures-38-55.txt; master doc section 10): tiers 4 and 5, 53 ordinary + 7 roaming bosses.
+# Imported only while the setting world_v2_open is on (creatures_v2.php; import_creatures_txt($stats, 'creatures_v2.txt')). Off = none of these exists in the world.
+# Same line format as creatures.txt: slug | Name | size | landscapes | level | drops (Item name:chance%, ...) | description | cond (optional)
+# Their region, board-fight ability, style and pieces: data/pf_creatures_v2.txt. Lair guardians at band top: data/creatures_v2_lairs.txt.
+# ================= TIER 4 (levels 38-45) =================
+# ---- MENA, the Dunewhisper (coast, grassland, mountain, desert)
+locust-cloud|Desert Locust Cloud|medium|grassland,desert|38|Aphid Wings:55,Straw Mulch:35,*seed:10|The sky turns brown, lands on your lunch, and leaves when there is no lunch.|we=heat,sun
+flamingo-regiment|Flamingo Regiment|large|coast,island,wetland|38|Bright Feather:55,Sea Salt:40,Pink Sand:15|Four hundred pink legs marching in step, and not one of them looks where it treads.
+hamadryas-baboon|Hamadryas Baboon|large|mountain,desert|40|Monkey Fur:55,Stolen Trinket:30,Frankincense Tear:4|Wears a silver cape, keeps a cliff, and charges a toll payable in everything you own.
+barbary-sheep|Barbary Sheep|large|mountain|42|Goat Hair:60,Slate Shard:30,Rock Crystal:10|A sand-coloured beard on four hooves that settles every argument about ledges head first.
+dorcas-gazelle|Dorcas Gazelle|medium|grassland,desert|43|Velvet Pelt:50,Desert Sage:35,*seed:8|Could outrun you easily and has chosen, today, to kick instead.|dp=dawn,dusk
+lanner-falcon|Lanner Falcon|large|mountain,coast,desert,island|44|Hawk Feather:55,Eagle Down:30,Golden Talon:4|Folds its wings somewhere above the sun and arrives before you hear it.|we=sun
+sirocco-oryx|Sirocco Oryx|boss|desert,grassland|44|Antler Shard:60,Desert Gem:20,Frankincense Tear:10,*guide:5|Two horns like drawn sabres and a white coat the heat cannot touch. The dunes move aside for it.|we=heat
+# ---- CSA, Spicepeak (wetland, grassland, forest, mountain)
+red-panda|Red Panda|medium|mountain,forest|39|Bushy Tuft:55,Fiddleheads:35,Saffron Thread:4|Stands on its hind legs to look enormous, which to a gnome it already was.
+temple-langur|Temple Langur|large|forest,rainforest|40|Monkey Fur:55,Stolen Bauble:30,*seed:10|Grey, long-tailed and considered sacred, a fact it brings up constantly.
+monsoon-peacock|Monsoon Peacock|large|forest,grassland|41|Pretty Feather:55,Long Feather:40,Saffron Thread:5|A hundred eyes open at once, and all of them are judging your hat.|we=rain,storm
+dhole-pack|Dhole Pack|large|forest,mountain|43|Fox Pelt:55,Fox Fang:35,Bushy Tuft:15|Red dogs that whistle to each other. You are what the whistling is about.|dp=dawn,dusk
+one-horned-rhino|One-horned Rhino|large|wetland,grassland|44|Mire Hide:55,River Clay:35,*seed:8|Armour-plated, short-sighted, and quite sure the path was built for it.
+bar-headed-goose|Bar-headed Goose Skein|medium|mountain,wetland|45|Long Feather:55,Eagle Down:35,Edelweiss:10|Flies over the highest peaks in the world and still has the breath left to hiss at you.|se=autumn,spring
+monsoon-elephant|Monsoon Elephant|boss|forest,grassland,wetland|45|Mire Hide:60,Heartwood:30,Saffron Thread:10,*guide:5|To a gnome it is not an animal but weather: grey, slow, and impossible to argue with.|we=rain,storm
+# ---- WCA, the Greatcanopy (grassland, wetland, rainforest, coast)
+tsetse-swarm|Tsetse Swarm|medium|grassland,wetland|38|Gnat Dust:60,Aphid Wings:30|One bite and you fancy a nap. The swarm will wait while you have it.|we=heat,sun
+grey-parrot-gossip|Grey Parrot Gossip|medium|rainforest,coast|39|Bright Feather:55,Stolen Trinket:25,*seed:10|Repeats everything you said on the path, in your voice, to the creatures further along it.
+lagoon-manatee|Lagoon Manatee|large|coast,wetland,island|40|Mangrove Root:50,Samphire:40,Seed Pearl:8|A drifting grey sofa that means no harm and causes a great deal.
+goliath-beetle|Goliath Beetle|medium|rainforest|41|Beetle Shell:60,Rubber Sap:30,Kola Nut:5|The heaviest beetle there is, and it flies, which nobody asked for.
+dwarf-crocodile|Dwarf Crocodile|large|wetland,coast,island|42|Mire Hide:55,Snake Fang:30,Mangrove Root:20|Called dwarf by people who are not gnomes.|dp=night,dusk
+gaboon-viper|Gaboon Viper|large|rainforest|43|Snake Skin:55,Venom Fang:35,Kola Nut:4|Looks exactly like a pile of leaves, right up until the pile has opinions.
+okapi|Okapi|large|rainforest,forest|45|Velvet Pelt:55,Laterite Clay:30,Kola Nut:6|Half zebra, half rumour. It licks its own ears and kicks anyone who stares.
+canopy-gorilla|Canopy Gorilla|boss|rainforest|45|Velvet Pelt:60,Heartwood:35,Kola Nut:10,*guide:5|Beats his chest once, politely, to give you time to reconsider.|we=fog,rain
+# ---- ESA, Thornacre Savanna (grassland, mountain, wetland, desert)
+meerkat-mob|Meerkat Mob|medium|desert,grassland|38|Digging Claw:55,Scarab Shell:30,*seed:8|One stands guard, the rest stand behind it, and every one of them has seen you.|we=sun
+secretary-bird|Secretary Bird|large|grassland|40|Long Feather:55,Snake Skin:30,Black Feather:20|Dressed for the office, quills behind its ears, and it stamps on things for a living.
+shoebill|Shoebill|large|wetland|41|Heron Plume:55,Rainbow Fish:30,Marsh Pearl:6|Stares at you for an hour without blinking, then bows. Do not bow back.|we=fog,rain
+black-mamba|Black Mamba|large|grassland,desert|42|Snake Skin:55,Venom Fang:35,Tanzanite Chip:3|The fastest snake on the plain, and in a worse mood than the slow ones.|we=heat,sun
+wildebeest-stampede|Wildebeest Stampede|large|grassland|44|Velvet Pelt:50,Dung Ball:40,Straw Mulch:25,*seed:8|Ten thousand hooves that all had the same idea at once, and the idea was your direction.|se=summer
+acacia-giraffe|Acacia Giraffe|large|grassland|45|Spotted Hide:55,Bushy Tuft:30,Tanzanite Chip:5|From gnome height it is four trees walking, with a small disapproving face somewhere in the clouds.
+rift-hippo|Rift Lake Hippo|boss|wetland,grassland|44|Mire Hide:60,Cattail Root:40,Marsh Pearl:15,*guide:5|Yawns like a cave with tusks. The lake is its bath, and you are in it.|dp=dusk,night
+# ================= TIER 5 (levels 46-55) =================
+# ---- EA, Blossomreach (grassland, forest, coast, desert; mountain added)
+gobi-jerboa|Gobi Jerboa|medium|desert|46|Rat Pelt:55,Desert Sage:35,Desert Glass:10|All ears and springs. It bounces off your hat and is three dunes away before you finish falling over.|dp=night
+golden-pheasant|Golden Pheasant|medium|forest,grassland,mountain|47|Pretty Feather:55,Bright Feather:40,*seed:10|Dressed in every colour the paintbox had, and furious that you noticed.
+terrace-mantis|Terrace Mantis|large|grassland,forest|48|Centipede Plate:55,Shed Butterfly Scales:30,Silk Cocoon:5|Folds its arms as if in prayer. The prayer is grace before meals.|se=summer,autumn
+golden-takin|Golden Takin|large|mountain|49|Goat Hair:55,Antler Shard:30,Edelweiss:15|Part goat, part ox, part haystack, and it comes down the slope like all three.
+red-crowned-crane|Red-crowned Crane|large|wetland,grassland|50|Heron Plume:55,Long Feather:35,Golden Carp:15|Dances beautifully in the snow, and the dance ends on your head.|se=winter
+giant-spider-crab|Giant Spider Crab|large|coast|51|Crab Claw:55,Crab Shell:40,Pearl:8|Legs as long as a harbour wall, and it walks as if the sea floor were hot.
+giant-salamander|Giant Salamander|large|wetland,mountain|53|Mire Hide:55,Frog Skin:35,Jade Eye:5|A river boulder with a smile wider than it has any use for.|we=rain,fog
+manul|Steppe Manul|medium|desert,grassland,mountain|54|Frost Fur:55,Bushy Tuft:35,Desert Gem:6|The crossest face on the steppe in the thickest fur, glaring from a rock it has no plans to share.|se=winter
+great-panda|Great Panda|boss|forest,mountain|54|Velvet Pelt:60,Heartwood:30,Silk Cocoon:10,*guide:5|A snowdrift with black sleeves, eating the forest one stalk at a time. Do not stand between it and the next stalk.
+# ---- SEA, the Monsoon Tangle (wetland, coast, island, rainforest)
+archerfish-volley|Archerfish Volley|medium|wetland,coast|46|Rainbow Fish:55,Mangrove Root:30,Seed Pearl:6|Each one spits water with perfect aim, and there are twelve of them, taking turns.
+tarsier|Lantern-eyed Tarsier|medium|island,rainforest|47|Monkey Fur:50,Firefly Glow:35,Glowing Bead:10|Each eye is bigger than its brain, and both of them are on you.|dp=night
+proboscis-monkey|Proboscis Monkey|large|wetland,coast|48|Monkey Fur:55,Mangrove Root:35,*seed:10|The nose arrives first, honking. The rest belly-flops out of the mangroves after it.
+flying-fox-camp|Flying Fox Camp|large|island,rainforest|49|Velvet Pelt:50,Bromeliad Seeds:35,*seed:12|A tree full of folded umbrellas that all open at dusk and want your fruit.|dp=dusk,night
+rhinoceros-hornbill|Rhinoceros Hornbill|large|rainforest|50|Long Feather:55,Bright Feather:35,Agarwood Chip:5|Wears a second beak on top of the first, for emphasis.
+mantis-shrimp|Peacock Mantis Shrimp|medium|coast,island|52|Crab Shell:55,Coral Fragment:35,Pearl:8|Sees colours you have no names for and punches hard enough to boil the water.
+malay-tapir|Malay Tapir|large|rainforest,wetland|52|Velvet Pelt:55,Leaf Mould Clump:35,Agarwood Chip:4|Black at both ends and white in the middle, as if it stopped halfway through getting dressed.|dp=night,dusk
+king-cobra|King Cobra|large|rainforest,wetland|53|Snake Skin:55,Venom Fang:40,Agarwood Chip:5|Stands up to look you in the eye, which for a gnome means looking a very long way up.
+old-man-of-the-tangle|Old Man of the Tangle|boss|rainforest|55|Monkey Fur:60,Heartwood:40,Agarwood Chip:12,*guide:5|An orange-bearded elder who has watched the forest for sixty monsoons and made up his mind about you in one.|we=rain
+# ---- OC, the Coralscatter (island, coast, forest, desert; mountain added)
+quokka|Quokka|medium|island|46|Velvet Pelt:55,Sea Grapes:35,*seed:10|Smiles at everyone. It is still smiling as it goes through your satchel.
+giant-weta|Giant Weta|medium|forest,mountain,island|47|Centipede Plate:55,Leaf Mould Clump:30,Glowing Bead:6|A cricket the weight of a sparrow, with spiked legs and no interest in moving off the path.|dp=night
+echidna|Echidna|medium|desert,forest|48|Thistle Spines:60,Ant Chitin:35,Black Opal:3|A pincushion with a snout. It does not attack so much as let you make your own mistakes.
+bilby|Bilby|medium|desert|50|Digging Claw:50,Rat Pelt:35,Desert Rose Stone:15|Rabbit ears, a long pink nose and a burrow it would like you to fall into.|dp=night
+little-penguin-parade|Little Penguin Parade|medium|coast,island|50|Sardine:55,Gull Feather:35,Seed Pearl:8|They come up the beach at dusk in a tidy blue queue, and the queue goes through you.|dp=dusk
+tasmanian-devil|Tasmanian Devil|large|forest|50|Badger Pelt:55,Rat Tooth:35,Black Opal:4|A small black growl with a jaw attached, heard long before it is seen.|dp=night
+kea|Kea|medium|mountain,forest|51|Bright Feather:55,Stolen Bauble:35,Rock Crystal:10|An alpine parrot that takes things apart to see how they work. It has started on your boots.|we=snow,frost
+red-kangaroo-boomer|Red Kangaroo Boomer|large|desert,grassland|52|Velvet Pelt:55,Mesquite Pods:30,Red Ochre:20|Leans back on its tail to free both feet for the discussion.|we=heat,sun
+crown-of-thorns|Crown-of-Thorns Star|large|island,coast|53|Urchin Shell:55,Coral Fragment:40,Pearl:8|Twenty arms, a thousand spines and an appetite for reef. Nothing has ever made it hurry.
+platypus|Platypus|medium|wetland,forest|53|Velvet Pelt:55,River Clay:30,Venom Fang:15|A duck's bill, a beaver's tail, a venomous spur, and no patience for being told it cannot exist.|dp=dawn,dusk
+tuatara|Tuatara|large|island,forest|55|Lizard Scale:55,Fossil Shell:30,Black Opal:6|Older than the lizards, with a third eye on top of its head, and it has seen your sort before.|dp=night
+wedge-tailed-eagle|Wedge-tailed Eagle|large|desert,mountain,grassland|55|Eagle Down:55,Long Feather:40,Golden Talon:6|Rides the heat above the Red Heart in slow circles, and each circle is a little smaller.|we=sun,heat
+old-saltie|Old Saltie|boss|coast,wetland,island|55|Mire Hide:60,Wyrm Fang:25,Pearl:20,*guide:5|A crocodile that swims between islands as if the sea were a puddle, and has never once been in a hurry.

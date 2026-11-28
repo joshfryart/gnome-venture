@@ -1,0 +1,10 @@
+# World v2 lair guardians (claude/proposal-creatures-38-55.txt LAIR TABLE): overrides of the generated boss-<lair slug> rows (ensure_lair_bosses(), landmarks.php).
+# Applied by creatures_v2_lairs() (creatures_v2.php) while world_v2_open is on: name, level (band top), drops, description, cond.
+# lair name | Name | level | drops (Item name:chance%, *guide:N) | description | cond (optional)
+Tomb of the Sand Scarab|Sand Scarab|45|Scarab Shell:60,Desert Glass:40,Frankincense Tear:15,*guide:5|A beetle as big as a cart, rolling something it insists is the sun.
+Temple of the Tiger Moth|Tiger Moth|45|Moth Wing:60,Wing Dust:40,Saffron Thread:15,*guide:5|A great striped moth that circles the temple lamps and takes it personally when one goes out.|dp=night,dusk
+Hollow of the Silverback Spider|Silverback Spider|45|Spider Silk:60,Spider Fang:40,Kola Nut:15,*guide:5|A very old silver spider who spins her stories into the web, and has reached the chapter with a gnome in it.
+Snowcrown Peak|Mountain Lion of the Snowpeak|45|Elder Pelt:60,Fox Fang:35,Tanzanite Chip:15,*guide:5|Sleeps on the only snow for a thousand leagues and wakes for trespassers.|we=snow,frost
+Lair of the Jade Dragon-fly|Jade Dragon-fly|55|Shed Dragonfly Wing:60,Jade Eye:25,Silk Cocoon:15,*guide:5|Hunts over the last oasis on wings of green glass, and the oasis is not big enough for two.|we=heat,sun
+Dragonlizard Den|Dragonlizard|55|Lizard Scale:60,Wyrm Fang:30,Agarwood Chip:15,*guide:5|A monitor lizard so large the island seems to have been put there for it to lie on.|we=heat,sun
+Reef of the Box Jelly Queen|Box Jelly Queen|55|Sea Glass:60,Glowing Bead:35,Black Opal:15,*guide:5|Glass-clear and almost not there, trailing threads that sting like a nettle the length of a street.

@@ -153,6 +153,26 @@ ok('the win card says the pals wait on the map (puzzles.js)', str_contains((stri
 $g = q_one('SELECT * FROM users WHERE guest = 1 LIMIT 1');
 ok('guests never get spawns', !$g || ppal_map_spawns($g) === []);
 
+echo "== pals only wait in regions the gnome can reach\n";
+require_once APP_ROOT . '/includes/progression.php';
+$open_ = accessible_regions($uid);
+$nodes_ = ppal_spawn_nodes($uid);
+ok('every spawn node is in an accessible region', $nodes_ && !array_filter($nodes_, fn($n) => !in_array($n['region_id'], $open_, true)), json_encode($open_));
+$far = (int)q_val('SELECT id FROM regions WHERE id NOT IN (' . implode(',', array_map('intval', $open_ ?: [0])) . ') ORDER BY id LIMIT 1');
+$farLoc = $far ? (int)q_val("SELECT id FROM locations WHERE region_id = ? AND kind = 'market' LIMIT 1", [$far]) : 0;
+if ($farLoc) {
+    ok('no node in a region the gnome has not reached', !array_filter($nodes_, fn($n) => $n['region_id'] === $far));
+    $pal_ = ppal_roster($pic)[0];
+    q('DELETE FROM ppal_spawns WHERE user_id = ?', [$uid]);
+    q('INSERT INTO ppal_spawns (user_id, pal_key, pic_id, loc_id, made_day) VALUES (?, ?, ?, ?, ?)', [$uid, $pal_['key'], $pid, $farLoc, gclock_my_date()]);
+    ppal_spawns_reset();
+    ok('an old spawn in an unreachable region is not shown', !isset(ppal_spawns($uid)[$farLoc]));
+    ok('the refresh prunes it', ppal_spawn_prune($uid) === 1 && !q_val('SELECT 1 FROM ppal_spawns WHERE user_id = ? AND loc_id = ?', [$uid, $farLoc]));
+    record_region_visit($uid, $far);
+    ok('walking into a region opens it for pals and clears the day guard', in_array($far, accessible_regions($uid), true) && q_val('SELECT ppal_spawn_day FROM users WHERE id = ?', [$uid]) === null);
+    q('DELETE FROM region_visits WHERE user_id = ? AND region_id = ?', [$uid, $far]);
+}
+
 q('DELETE FROM ppal_found WHERE user_id = ?', [$uid]); q('DELETE FROM ppal_releases WHERE user_id = ?', [$uid]); q('DELETE FROM ppal_spawns WHERE user_id = ?', [$uid]);
 set_setting('ppal_open', '0'); setting('__reload__');
 echo $fails ? "$fails FAILED\n" : "all ok\n";

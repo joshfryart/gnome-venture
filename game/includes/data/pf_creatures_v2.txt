@@ -1,0 +1,78 @@
+# World v2 board-fight rows of the creatures of data/creatures_v2.txt (levels 38-55), read by pfd_creature_rows() only while world_v2_open is on.
+# Same columns as data/pf_creatures.txt; every row is a base row (`=` keeps the creatures_v2.txt value) with its region, ability, style and 4 own pieces.
+# The family names an existing creature of the same class (pf_creature_class.txt), so the class rule and the Codex picture fall back to it.
+# slug|family|name|size|landscapes|regions|level|cond|ability|ai|deck|drops|petals|exp|art|description|new_items
+
+# ---- MENA
+locust-cloud|aphid-swarm|=|=|=|MENA|=|=|swarm-dense+D2|crowd|-/mind/Crop Strip:hurt:0.8:body:bash:3;Wing Roar:hurt:0.7:craft:quick:2;Sky Darkener:trick:0.4:mind:trip:3;Hopper Rain:guard:0.6:body:-:3|=|17-31|1.1|-|=|-
+flamingo-regiment|grey-heron|=|=|=|MENA|=|=|two-aims+D12|balanced|-/craft/Leg Stab:hurt:0.9:craft:pierce:3;Pink Wall Peck:hurt:0.8:mind:pierce:3;Marching Step:guard:0.6:body:evade:3;Mud Sieve:trick:0.4:craft:quick:2|=|31-57|1.1|-|=|-
+hamadryas-baboon|mischief-monkey|=|=|=|MENA|=|=|grudge-fury+stagger1|burst|-/body/Cape Charge:hurt:1.2:body:pierce:3;Fang Show:hurt:0.8:craft:quick:2;Cliff Perch:guard:0.5:body:-:3;Toll Snatch:trick:0.4:mind:trip:3|=|33-61|1.2|-|=|-
+barbary-sheep|cliff-ram|=|=|=|MENA|=|=|grudge+D5|blocker|-/body/Horn Butt:hurt:0.9:body:bash:3;Beard Wall:guard:0.8:body:hold:4;Ledge Shove:trick:0.5:craft:bash:3;Rock Stance:guard:0.7:mind:hold:4|=|34-63|1.1|-|=|-
+dorcas-gazelle|lichen-reindeer|=|=|=|MENA|=|=|grudge+D8|trickster|-/body/Pronk Feint:trick:0.4:mind:trip:3;Dune Dodge:guard:0.6:craft:evade:3;Hoof Kick:hurt:1.0:body:bash:3;Sand Flick:trick:0.5:mind:evade:2|=|20-37|1.1|-|=|-
+lanner-falcon|great-hawk|=|=|=|MENA|=|=|two-aims+ambush2|ambusher|-/craft/Sun Stoop:hurt:1.2:craft:pierce:3;Glare Veer:trick:0.4:mind:evade:3;Wing Cloak:guard:0.5:body:-:3;Talon Rake:hurt:0.8:body:trip:2|=|36-67|1.2|-|=|-
+sirocco-oryx|desert-camel|=|=|=|MENA|=|=|two-turns+toughhide2|burst|-/body/Sabre Horns:hurt:1.2:body:pierce:3;Heat Shimmer:hurt:0.8:craft:quick:2;White Coat:guard:0.5:body:-:3;Dune Charge:trick:0.4:mind:trip:3|=|81-150|1.2|-|=|-
+
+# ---- CSA
+red-panda|red-fox|=|=|=|CSA|=|=|grudge+D8|trickster|-/body/Tall Stand:trick:0.4:mind:trip:3;Tail Wrap:guard:0.6:craft:evade:3;Claw Swipe:hurt:1.0:body:bash:3;Branch Hop:trick:0.5:mind:evade:2|=|18-33|1.1|-|=|-
+temple-langur|mischief-monkey|=|=|=|CSA|=|=|grudge+D12|balanced|-/body/Temple Slap:hurt:0.9:craft:pierce:3;Sacred Stare:hurt:0.8:mind:pierce:3;Long Tail Guard:guard:0.6:body:evade:3;Offering Grab:trick:0.4:craft:quick:2|=|33-61|1.1|-|=|-
+monsoon-peacock|tawny-owl|=|=|=|CSA|=|=|two-aims+wary1|trickster|-/craft/Hundred Eyes:trick:0.4:mind:trip:3;Fan Screen:guard:0.6:craft:evade:3;Peck Down:hurt:1.0:body:bash:3;Rain Dance:trick:0.5:mind:evade:2|=|34-63|1.1|-|=|-
+dhole-pack|bramble-wolf|=|=|=|CSA|=|=|grudge-fury+ambush1|ambusher|-/body/Whistle Strike:hurt:1.2:craft:pierce:3;Circle Round:trick:0.4:mind:evade:3;Pack Cover:guard:0.5:body:-:3;Hamstring Nip:hurt:0.8:body:trip:2|=|35-65|1.2|-|=|-
+one-horned-rhino|prairie-bison|=|=|=|CSA|=|=|grudge-slow+plated2|blocker|-/body/Horn Charge:hurt:0.9:body:bash:3;Armour Plates:guard:0.8:body:hold:4;Wallow Shove:trick:0.5:craft:bash:3;Plate Stance:guard:0.7:mind:hold:4|=|36-67|1.2|-|=|-
+bar-headed-goose|herring-gull|=|=|=|CSA|=|=|two-aims+D4|burst|-/craft/Hiss Dive:hurt:1.2:body:pierce:3;Thin Air Rush:hurt:0.8:craft:quick:2;Skein Shield:guard:0.5:body:-:3;Peak Honk:trick:0.4:mind:trip:3|=|21-39|1.1|-|=|-
+monsoon-elephant|prairie-bison|=|=|=|CSA|=|=|two-turns+plated2|guardian|-/body/Trunk Wall:guard:0.8:body:thorns:3;Monsoon Stamp:hurt:0.8:body:bash:3;Grey Bulk:guard:0.6:mind:hold:4;Mud Spray:trick:0.45:craft:thorns:3|=|82-152|1.2|-|=|-
+
+# ---- WCA
+tsetse-swarm|gnat-cloud|=|=|=|WCA|=|=|swarm-dense+D2|poisoner|-/mind/Sleepy Bite:hurt:0.9:craft:poison:3;Drone Lull:trick:0.4:mind:trip:3;Haze Dodge:guard:0.6:body:evade:3;Nap Venom:hurt:0.8:mind:poison:3|=|17-31|1.1|-|=|-
+grey-parrot-gossip|carrion-crow|=|=|=|WCA|=|=|two-aims+wary1|trickster|-/craft/Echo Mock:trick:0.4:mind:trip:3;Feather Fluff:guard:0.6:craft:evade:3;Beak Crack:hurt:1.0:body:bash:3;Rumour Spread:trick:0.5:mind:evade:2|=|18-33|1.1|-|=|-
+lagoon-manatee|sea-otter-bandit|=|=|=|WCA|=|=|current+regrow1|healer|-/body/Sea Grass Graze:heal:0.5:mind:-:3;Sofa Bump:hurt:1.0:body:pierce:3;Lagoon Drift:guard:0.7:craft:evade:3;Tail Paddle:hurt:0.9:craft:trip:3|=|33-61|1.1|-|=|-
+goliath-beetle|dung-beetle|=|=|=|WCA|=|=|swarm+plated1|guardian|-/mind/Horn Shell:guard:0.8:body:thorns:3;Heavy Drop:hurt:0.8:body:bash:3;Wing Case:guard:0.6:mind:hold:4;Buzz Lift:trick:0.45:craft:thorns:3|=|19-35|1.1|-|=|-
+dwarf-crocodile|delta-gharial|=|=|=|WCA|=|=|venom-trail+ambush1|ambusher|-/craft/Bank Lunge:hurt:1.2:craft:pierce:3;Still Log:trick:0.4:mind:evade:3;Armoured Back:guard:0.5:body:-:3;Roll Under:hurt:0.8:body:trip:2|=|34-63|1.2|-|=|-
+gaboon-viper|sand-viper-matriarch|=|=|=|WCA|=|=|venom-long+ambush2|poisoner|-/craft/Long Fang:hurt:0.9:craft:poison:3;Leaf Pile:trick:0.4:mind:trip:3;Patterned Hide:guard:0.6:body:evade:3;Slow Venom:hurt:0.8:mind:poison:3|=|35-65|1.2|-|=|-
+okapi|giant-anteater|=|=|=|WCA|=|=|grudge-slow+D8|trickster|-/body/Stripe Blur:trick:0.4:mind:trip:3;Ear Lick:guard:0.6:craft:evade:3;Back Kick:hurt:1.0:body:bash:3;Rumour Fade:trick:0.5:mind:evade:2|=|37-68|1.1|-|=|-
+canopy-gorilla|jungle-tiger|=|=|=|WCA|=|=|two-turns+enrage2|blocker|-/body/Chest Beat:hurt:0.9:body:bash:3;Silverback Stand:guard:0.8:body:hold:4;Branch Fling:trick:0.5:craft:bash:3;Canopy Hold:guard:0.7:mind:hold:4|=|82-152|1.2|-|=|-
+
+# ---- ESA
+meerkat-mob|tunnel-mole|=|=|=|ESA|=|=|grudge+D4|crowd|-/body/Mob Rush:hurt:0.8:body:bash:3;Burrow Pop:hurt:0.7:craft:quick:2;Sentry Call:trick:0.4:mind:trip:3;Huddle Up:guard:0.6:body:-:3|=|17-31|1.1|-|=|-
+secretary-bird|great-hawk|=|=|=|ESA|=|=|two-aims+D10|burst|-/craft/Stamp Kick:hurt:1.2:body:pierce:3;Quill Strike:hurt:0.8:craft:quick:2;Wing Mantle:guard:0.5:body:-:3;Paperwork Stare:trick:0.4:mind:trip:3|=|33-61|1.1|-|=|-
+shoebill|grey-heron|=|=|=|ESA|=|=|two-aims+ambush1|stall|-/craft/Reed Stand:guard:0.7:body:hold:4;Bow Down:trick:0.4:mind:evade:3;Bill Clap:hurt:0.9:craft:pierce:2;Shoe Shell:guard:0.6:craft:thorns:3|=|34-63|1.2|-|=|-
+black-mamba|dust-sidewinder|=|=|=|ESA|=|=|venom-long+D4|poisoner|-/craft/Mamba Strike:hurt:0.9:craft:poison:3;Coffin Mouth:trick:0.4:mind:trip:3;Plain Dash:guard:0.6:body:evade:3;Second Bite:hurt:0.8:mind:poison:3|=|34-63|1.2|-|=|-
+wildebeest-stampede|prairie-bison|=|=|=|ESA|=|=|grudge-slow+stagger2|crowd|-/body/Hoof Thunder:hurt:0.8:body:bash:3;Herd Surge:hurt:0.7:craft:quick:2;Dust Cloud:trick:0.4:mind:trip:3;Horn Wall:guard:0.6:body:-:3|=|36-67|1.2|-|=|-
+acacia-giraffe|lichen-reindeer|=|=|=|ESA|=|=|grudge+toughhide1|guardian|-/body/Long Neck Guard:guard:0.8:body:thorns:3;Necking Swing:hurt:0.8:body:bash:3;Tree Height:guard:0.6:mind:hold:4;Hoof Stamp:trick:0.45:craft:thorns:3|=|37-68|1.1|-|=|-
+rift-hippo|black-bear|=|=|=|ESA|=|=|two-turns+drain2|healer|-/body/Lake Wallow:heal:0.5:mind:-:3;Tusk Yawn:hurt:1.0:body:pierce:3;Mud Bath:guard:0.7:craft:evade:3;River Rush:hurt:0.9:craft:trip:3|=|81-150|1.2|-|=|-
+
+# ---- EA
+gobi-jerboa|grumpy-lemming|=|=|=|EA|=|=|grudge+wary2|trickster|-/body/Spring Bounce:trick:0.4:mind:trip:3;Ear Flick:guard:0.6:craft:evade:3;Tail Thump:hurt:1.0:body:bash:3;Dune Leap:trick:0.5:mind:evade:2|=|21-39|1.1|-|=|-
+golden-pheasant|tawny-owl|=|=|=|EA|=|=|two-aims+D12|balanced|-/craft/Gold Flash:hurt:0.9:craft:pierce:3;Spur Kick:hurt:0.8:mind:pierce:3;Paint Cloak:guard:0.6:body:evade:3;Startle Burst:trick:0.4:craft:quick:2|=|22-41|1.1|-|=|-
+terrace-mantis|leafcutter-column|=|=|=|EA|=|=|swarm+ambush2|ambusher|-/mind/Praying Strike:hurt:1.2:craft:pierce:3;Leaf Sway:trick:0.4:mind:evade:3;Folded Arms:guard:0.5:body:-:3;Grace Snatch:hurt:0.8:body:trip:2|=|39-72|1.2|-|=|-
+golden-takin|cliff-ram|=|=|=|EA|=|=|grudge-slow+plated2|blocker|-/body/Slope Charge:hurt:0.9:body:bash:3;Haystack Coat:guard:0.8:body:hold:4;Ox Shove:trick:0.5:craft:bash:3;Goat Stance:guard:0.7:mind:hold:4|=|40-74|1.2|-|=|-
+red-crowned-crane|grey-heron|=|=|=|EA|=|=|two-aims+D8|trickster|-/craft/Snow Dance:trick:0.4:mind:trip:3;Wing Veil:guard:0.6:craft:evade:3;Bill Thrust:hurt:1.0:body:bash:3;Crown Bow:trick:0.5:mind:evade:2|=|41-76|1.1|-|=|-
+giant-spider-crab|shore-crab|=|=|=|EA|=|=|current-hard+plated2|guardian|-/body/Harbour Legs:guard:0.8:body:thorns:3;Claw Reach:hurt:0.8:body:bash:3;Shell Squat:guard:0.6:mind:hold:4;Long Pinch:trick:0.45:craft:thorns:3|=|42-78|1.2|-|=|-
+giant-salamander|bullfrog|=|=|=|EA|=|=|venom-trail+regrow2|healer|-/craft/River Rest:heal:0.5:mind:-:3;Boulder Bite:hurt:1.0:body:pierce:3;Slime Coat:guard:0.7:craft:evade:3;Wide Smile Snap:hurt:0.9:craft:trip:3|=|43-80|1.2|-|=|-
+manul|tufted-lynx|=|=|=|EA|=|=|grudge-fury+toughhide2|stall|-/body/Thick Fur:guard:0.7:body:hold:4;Cross Glare:trick:0.4:mind:evade:3;Rock Pounce:hurt:0.9:craft:pierce:2;Fluff Wall:guard:0.6:craft:thorns:3|=|25-46|1.2|-|=|-
+great-panda|black-bear|=|=|=|EA|=|=|two-turns+regrow2|healer|-/body/Bamboo Snack:heal:0.5:mind:-:3;Paw Swat:hurt:1.0:body:pierce:3;Snowdrift Sit:guard:0.7:craft:evade:3;Sleeve Slam:hurt:0.9:craft:trip:3|=|99-183|1.2|-|=|-
+
+# ---- SEA
+archerfish-volley|bog-pike|=|=|=|SEA|=|=|current+D4|burst|-/body/Water Shot:hurt:1.2:body:pierce:3;Spit Volley:hurt:0.8:craft:quick:2;Ripple Dive:guard:0.5:body:-:3;Aim Again:trick:0.4:mind:trip:3|=|21-39|1.1|-|=|-
+tarsier|mischief-monkey|=|=|=|SEA|=|=|grudge+wary1|trickster|-/body/Lantern Eyes:trick:0.4:mind:trip:3;Branch Cling:guard:0.6:craft:evade:3;Night Leap:hurt:1.0:body:bash:3;Stare Freeze:trick:0.5:mind:evade:2|=|22-41|1.1|-|=|-
+proboscis-monkey|mischief-monkey|=|=|=|SEA|=|=|grudge+stagger1|blocker|-/body/Nose Honk:hurt:0.9:body:bash:3;Belly Flop Guard:guard:0.8:body:hold:4;Mangrove Shove:trick:0.5:craft:bash:3;Pot Belly:guard:0.7:mind:hold:4|=|39-72|1.1|-|=|-
+flying-fox-camp|carrion-crow|=|=|=|SEA|=|=|two-aims+D4|crowd|-/craft/Umbrella Swoop:hurt:0.8:body:bash:3;Fruit Grab:hurt:0.7:craft:quick:2;Wing Wrap:trick:0.4:mind:trip:3;Dusk Rush:guard:0.6:body:-:3|=|40-74|1.1|-|=|-
+rhinoceros-hornbill|great-hawk|=|=|=|SEA|=|=|two-aims+D10|burst|-/craft/Casque Bash:hurt:1.2:body:pierce:3;Double Beak:hurt:0.8:craft:quick:2;Wing Whoosh:guard:0.5:body:-:3;Fig Toss:trick:0.4:mind:trip:3|=|41-76|1.1|-|=|-
+mantis-shrimp|hermit-crab-hoarder|=|=|=|SEA|=|=|current-hard+D10|burst|-/body/Club Punch:hurt:1.2:body:pierce:3;Boiling Strike:hurt:0.8:craft:quick:2;Shell Duck:guard:0.5:body:-:3;Colour Flash:trick:0.4:mind:trip:3|=|24-44|1.2|-|=|-
+malay-tapir|wild-boar|=|=|=|SEA|=|=|grudge-slow+D11|blocker|-/body/Snout Shove:hurt:0.9:body:bash:3;Night Coat:guard:0.8:body:hold:4;Wallow Push:trick:0.5:craft:bash:3;Half-dressed Stand:guard:0.7:mind:hold:4|=|43-80|1.1|-|=|-
+king-cobra|emerald-python|=|=|=|SEA|=|=|venom-long+stagger2|poisoner|-/craft/Royal Fang:hurt:0.9:craft:poison:3;Hood Spread:trick:0.4:mind:trip:3;Rise Up:guard:0.6:body:evade:3;Cobra Venom:hurt:0.8:mind:poison:3|=|43-80|1.2|-|=|-
+old-man-of-the-tangle|mischief-monkey|=|=|=|SEA|=|=|two-turns+wary2|guardian|-/body/Elder Branch:guard:0.8:body:thorns:3;Long Arm Swing:hurt:0.8:body:bash:3;Monsoon Patience:guard:0.6:mind:hold:4;Leaf Umbrella:trick:0.45:craft:thorns:3|=|101-187|1.2|-|=|-
+
+# ---- OC
+quokka|grumpy-lemming|=|=|=|OC|=|=|grudge+D12|balanced|-/body/Smile Bite:hurt:0.9:craft:pierce:3;Satchel Raid:hurt:0.8:mind:pierce:3;Grin Shield:guard:0.6:body:evade:3;Hop Off:trick:0.4:craft:quick:2|=|21-39|1.0|-|=|-
+giant-weta|giant-centipede|=|=|=|OC|=|=|swarm-dense+plated1|guardian|-/mind/Spiked Legs:guard:0.8:body:thorns:3;Heavy Hop:hurt:0.8:body:bash:3;Armour Plates:guard:0.6:mind:hold:4;Leg Rasp:trick:0.45:craft:thorns:3|=|22-41|1.1|-|=|-
+echidna|badger|=|=|=|OC|=|=|grudge-slow+toughhide2|guardian|-/body/Spine Ball:guard:0.8:body:thorns:3;Snout Dig:hurt:0.8:body:bash:3;Curl Up:guard:0.6:mind:hold:4;Quill Prick:trick:0.45:craft:thorns:3|=|22-41|1.1|-|=|-
+bilby|tunnel-mole|=|=|=|OC|=|=|grudge+D3|trickster|-/body/Burrow Trap:trick:0.4:mind:trip:3;Ear Turn:guard:0.6:craft:evade:3;Nose Jab:hurt:1.0:body:bash:3;Pit Fall:trick:0.5:mind:evade:2|=|23-43|1.1|-|=|-
+little-penguin-parade|herring-gull|=|=|=|OC|=|=|two-aims+D4|crowd|-/craft/Blue Queue:hurt:0.8:body:bash:3;Beach March:hurt:0.7:craft:quick:2;Flipper Slap:trick:0.4:mind:trip:3;Huddle Line:guard:0.6:body:-:3|=|23-43|1.1|-|=|-
+tasmanian-devil|honey-badger-brute|=|=|=|OC|=|=|grudge-fury+enrage2|burst|-/body/Jaw Crush:hurt:1.2:body:pierce:3;Night Growl:hurt:0.8:craft:quick:2;Black Coat:guard:0.5:body:-:3;Screech:trick:0.4:mind:trip:3|=|41-76|1.2|-|=|-
+kea|carrion-crow|=|=|=|OC|=|=|two-aims+D3|trickster|-/craft/Boot Unpick:trick:0.4:mind:trip:3;Feather Ruffle:guard:0.6:craft:evade:3;Beak Lever:hurt:1.0:body:bash:3;Snow Tumble:trick:0.5:mind:evade:2|=|23-43|1.1|-|=|-
+red-kangaroo-boomer|outback-dingo|=|=|=|OC|=|=|grudge+stagger2|burst|-/body/Tail Lean Kick:hurt:1.2:body:pierce:3;Box Jab:hurt:0.8:craft:quick:2;Hop Back:guard:0.5:body:-:3;Foot Flurry:trick:0.4:mind:trip:3|=|43-80|1.2|-|=|-
+crown-of-thorns|clam-lurker|=|=|=|OC|=|=|current+toughhide2|stall|-/body/Thorn Arms:guard:0.7:body:hold:4;Reef Creep:trick:0.4:mind:evade:3;Slow Digest:hurt:0.9:craft:pierce:2;Spine Field:guard:0.6:craft:thorns:3|=|43-80|1.2|-|=|-
+platypus|bullfrog|=|=|=|OC|=|=|venom-trail+D8|poisoner|-/craft/Spur Sting:hurt:0.9:craft:poison:3;Bill Probe:trick:0.4:mind:trip:3;River Dive:guard:0.6:body:evade:3;Venom Spur Kick:hurt:0.8:mind:poison:3|=|24-44|1.1|-|=|-
+tuatara|sun-lizard|=|=|=|OC|=|=|venom-trail+plated1|guardian|-/craft/Old Scales:guard:0.8:body:thorns:3;Third Eye Glare:hurt:0.8:body:bash:3;Spiny Crest:guard:0.6:mind:hold:4;Slow Bite:trick:0.45:craft:thorns:3|=|45-83|1.1|-|=|-
+wedge-tailed-eagle|storm-eagle|=|=|=|OC|=|=|two-aims+ambush2|ambusher|-/craft/Heat Stoop:hurt:1.2:craft:pierce:3;Circle Lower:trick:0.4:mind:evade:3;Wing Span Shield:guard:0.5:body:-:3;Talon Lock:hurt:0.8:body:trip:2|=|45-83|1.2|-|=|-
+old-saltie|delta-gharial|=|=|=|OC|=|=|two-turns+ambush2|ambusher|-/craft/Island Lunge:hurt:1.2:craft:pierce:3;Sea Drift:trick:0.4:mind:evade:3;Salt Armour:guard:0.5:body:-:3;Death Roll:hurt:0.8:body:trip:2|=|101-187|1.2|-|=|-

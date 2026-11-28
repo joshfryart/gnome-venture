@@ -33,10 +33,12 @@ function dv2_seed(int $uid, int $lmId): string
     return substr(md5('dv2|' . $uid . '|' . $lmId . '|' . landmark_day()), 0, 12);   // one route per gnome, delve and day
 }
 
-/** Torch fuel for a floor of a tier. */
-function dv2_fuel(int $uid, string $tier): int
+/** Torch fuel for a floor of a tier, in the delve $lm (a landmarks row: its torch marks). */
+function dv2_fuel(int $uid, string $tier, array $lm = []): int
 {
-    return DV_TORCH[$tier] + DV2_TORCH_LANTERN * tool_tier($uid, 'lantern');
+    require_once __DIR__ . '/stop_mark_hooks.php';
+    $mk = $lm && mark_hooks_on() ? mark_fx($uid, 'torch', ['delve' => [dv2_slug($lm), str_replace('-', '_', dv2_slug($lm))], 'region' => mark_region_code((int)($lm['region_id'] ?? 0))]) : 0;   // F21 lasting marks
+    return DV_TORCH[$tier] + DV2_TORCH_LANTERN * tool_tier($uid, 'lantern') + $mk;
 }
 
 /** Light radius: the usual, or 1 tile once the torch is out. */
@@ -168,7 +170,7 @@ function dv2_pick(array $u, array &$exp, array &$sc, string $nodeId): array
     } else {
         $f = ['k' => 'g', 'gs' => $sc['st']['rs'] . '|' . $nodeId, 'ti' => $tier, 'kd' => $node['kind'], 'sl' => dv2_slug((array)$sc['lm'])];
     }
-    $f += ['n' => $nodeId, 't' => dv2_fuel($uid, $f['ti']), 'got' => [], 'key' => 0];
+    $f += ['n' => $nodeId, 't' => dv2_fuel($uid, $f['ti'], (array)$sc['lm']), 'got' => [], 'key' => 0];
     $sc['st']['f'] = $f;
     $sc['st']['at'] = $nodeId;
     $sc['map'] = dv2_floor_map($f);
@@ -250,7 +252,7 @@ function dv2_touch(array $u, array &$exp, array &$sc, string $t, int $x, int $y)
         exp_log($exp, '🗝️ A rusty key. It might open a door nearby.');
     } elseif ($t === 'M') {
         $exp['hp'] = (int)$exp['max_hp'];
-        $sc['st']['f']['t'] = dv2_fuel($uid, (string)$sc['st']['f']['ti']);
+        $sc['st']['f']['t'] = dv2_fuel($uid, (string)$sc['st']['f']['ti'], (array)$sc['lm']);
         exp_log($exp, '🕯️ A moss shrine. Your hurts mend and your torch burns bright again.');
     } elseif ($t === 'E') {
         $exp['depth'] = (int)$exp['depth'] + 1;
@@ -380,7 +382,7 @@ function dv2_party_html(array $u, array $exp, ?array $sc): string
     $o = '<div class="dv2strip"><div class="dv2top"><span class="dv2chip">Stage <b>' . min((int)$exp['steps_total'], (int)$exp['depth'] + 1) . '</b>/' . (int)$exp['steps_total'] . ' · danger ' . (int)$exp['level'] . '</span>';
     if ($sc && !empty($sc['st']['f'])) {
         $f = $sc['st']['f'];
-        $max = dv2_fuel((int)$u['id'], (string)$f['ti']);
+        $max = dv2_fuel((int)$u['id'], (string)$f['ti'], (array)($sc['lm'] ?? []));
         $pct = $max > 0 ? max(0, min(100, (int)round(100 * (int)$f['t'] / $max))) : 0;
         $o .= '<span class="dv2torch" title="Each step burns the torch. At 0 the light shrinks, nothing else happens.">🔦<svg class="dv2bar" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect width="' . $pct . '" height="10"/></svg><b>' . (int)$f['t'] . '</b></span>';
     }

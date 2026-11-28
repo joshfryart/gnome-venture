@@ -289,6 +289,8 @@ function pest_chances(array $t, array $p, string $date, array $ctx): array
     $b = $ctx['bonus'][$pos] ?? [];
     $cutC = max(0, min(90, (int)setting('companion_cut_pct'))) / 100;
     $cutA = max(0, min(100, (int)setting('pest_counter_cut_pct'))) / 100;
+    require_once __DIR__ . '/stop_mark_hooks.php';
+    $cutM = mark_fx(mark_plot_owner((int)$t['plot_id']), 'pest', mark_ctx_crop($p)) / 100;   // F17 lasting marks: pests less likely
     $out = [];
     foreach ($defs as $slug => $d) {
         if ($d['kindlist'] && !in_array((string)$p['kind'], $d['kindlist'], true)) continue;
@@ -305,7 +307,7 @@ function pest_chances(array $t, array $p, string $date, array $ctx): array
         if ($counter === 'birds' && !empty($b['birds'])) $c *= 0.4;
         if (!empty($b['hedge'])) $c *= 0.8;
         if ($ctx['greenhouse']) $c *= 0.5;
-        $out[$slug] = $c;
+        $out[$slug] = $c * (1 - $cutM);
     }
     return $out;
 }

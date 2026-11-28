@@ -175,9 +175,10 @@ function route_danger(array $u, array $route): array
     if (($route['kind'] ?? '') === 'road' || (($route['kind'] ?? '') === 'side' && !(int)$route['fixed'])) {   // v0.7.24: roads (and gentle side paths)
         return [$gentle, $gentle, true];
     }
-    // v0.7.85: fixed-route levels are stored as absolute values (roads.php), so use them as they are; never above 40
-    $min = min(40, max(1, (int)$route['min_level']));
-    return [$min, min(40, max($min, (int)$route['max_level'])), false];
+    // v0.7.85: fixed-route levels are stored as absolute values (roads.php), so use them as they are; never above 40 (world v2: 57, a band-top lair's path)
+    $cap = setting('world_v2_open') === '1' ? 57 : 40;
+    $min = min($cap, max(1, (int)$route['min_level']));
+    return [$min, min($cap, max($min, (int)$route['max_level'])), false];
 }
 
 /**
@@ -187,10 +188,10 @@ function route_danger(array $u, array $route): array
 function route_walk_minutes(array $u, array $route): array
 {
     $mins = (int)$route['minutes'];
-    if ($mins > 0 && !empty($u['id'])) {   // 2.6.33: Spring in Step perk
-        require_once __DIR__ . '/player_perks.php';
-        $sp = player_perk_pct((int)$u['id'], 'spring_step', 'perk_spring_step');
+    if ($mins > 0 && !empty($u['id'])) {   // 2.6.33: Spring in Step perk; F05 lasting marks, the larger of the two
+        [$sp, $mk] = mark_vs_old((int)$u['id'], 'walk', mark_ctx_route($u, $route), 'spring_step', 'perk_spring_step');
         if ($sp > 0) $mins = max(1, (int)round($mins * (100 - $sp) / 100));
+        $mins = mark_less($mins, $mk, 1);
     }
     $pct = (int)setting('low_road_time_pct');
     if ($mins <= 0 || $pct >= 100) return [$mins, false];
@@ -223,13 +224,24 @@ function start_expedition(array $u, int $routeId): array
     if (($route['kind'] ?? 'road') === 'side') {   // v0.7.24: side paths only lead to places you've found
         require_once __DIR__ . '/roads.php';
         $dest = q_one('SELECT * FROM locations WHERE id = ?', [$to]);
-        if (!$dest || (!on_road($to) && !place_known((int)$u['id'], $dest))) return [false, 'You don’t know the way there yet. Explore off the road to find it.'];
+        $sign = $dest && world_v2_signposted_from(['to' => $dest] + $route, (int)$here['id']);   // world v2: a signposted path out of the region, behind its own door
+        if (!$dest || (!on_road($to) && !place_known((int)$u['id'], $dest) && !$sign)) return [false, 'You don’t know the way there yet. Explore off the road to find it.'];
+        if ($sign && ($door = world_v2_door_refusal((int)$u['id'], $here, $dest)) !== '') return [false, $door];
+    }
+    if (setting('seals_open') === '1') {   // 2.8.85: a Seal door on the border (the way back is never closed: seals.php)
+        $toRegion = (int)q_val('SELECT region_id FROM locations WHERE id = ?', [$to]);
+        if ($toRegion && (int)($here['region_id'] ?? 0) && $toRegion !== (int)$here['region_id']) {
+            require_once __DIR__ . '/seals.php';
+            if (($warden = seal_warden_message((int)$u['id'], (int)$here['region_id'], $toRegion)) !== '') return [false, $warden];
+        }
     }
     require_once __DIR__ . '/road_kinds.php';   // 2.7.00: ferry, tunnel, pass, toll, overgrown, flooded roads
     if (($rkWhy = rk_start_check($u, $route)) !== null) return [false, $rkWhy];
     require_once __DIR__ . '/trail_tiles.php';   // graphical navigation 2d
     $trail = trail_on();   // tile walk: one energy to step on, the rest of the Trail is free; a timer walk is unchanged
     $cost = $trail ? trail_base_cost($u, $route) : route_energy($u, $route);
+    $mkWalk = mark_charges_ready((int)$u['id'], 'first_walk_from_to_the_stop', mark_ctx_walk((int)$here['id'], $to, (int)$route['id']));   // A1/A3 lasting marks: taken once the walk starts
+    $cost = mark_charge_energy($mkWalk, $cost);
     $staffWear = null;
     $roadFree = $cost === 0;   // v0.9.1: a Master Wayfinder's road walk is already free
     if ($cost > 0 && staff_free((int)$u['id'])) {   // v0.7.30: the walking staff carries you (v0.7.86: and wears a little); v0.9.1: a free walk doesn't touch the staff
@@ -252,6 +264,7 @@ function start_expedition(array $u, int $routeId): array
         if ($rkMin > 0) rk_charge_travel((int)$u['id'], $rkSecs, $rkMin);
     }
     $gc = gnome_combat($u, true);
+    $gc['max_hp'] += mark_fx((int)$u['id'], 'hp', mark_ctx_walk((int)$here['id'], $to, (int)$route['id']));   // F20 lasting marks: on this road
     [$min, $max, $scaled] = route_danger($u, $route);
     [$mins, $quickWalk] = route_walk_minutes($u, $route);   // v0.9.7: a road far below you is a quick walk
     if (setting('climate_on') === '1') {   // v0.8.9: some climates make walks into the region slower
@@ -277,8 +290,11 @@ function start_expedition(array $u, int $routeId): array
     $rkScene = $trail && trail_scene_make((int)$u['id'], $newExp, $route, (int)$route['b_id'] === (int)$here['id'] && (int)$route['a_id'] !== (int)$here['id']);
     if ($rkScene) q('UPDATE expeditions SET steps_total = ?, arrive_at = ? WHERE id = ?', [trail_sections($route), now(), $newExp]);   // 2d: sections instead of steps and minutes
     if ($rkDefer && !$rkScene) { gclock_charge((int)$u['id'], 'travel', $rkSecs); }   // no tile map to ask the toll on: the plain road's time
+    $mkTaken = mark_charges_take((int)$u['id'], $mkWalk);
+    $mkLess = count(array_filter($mkTaken, fn($p) => $p['family'] === 'A1'));
+    $mkNote = implode('', array_map(fn($l) => ' 🏅 ' . $l . '.', array_merge($mkLess ? [$mkLess . ' energy less (a lasting mark)'] : [], mark_charge_lines($mkTaken))));
     return [true, '🍄 You step onto the mycelium. ' . ($quickWalk && !$quick ? '💨 Quick walk. ' : '') . ($cost ? '(−' . $cost . ' energy)' : ($roadFree ? '🧭 A Wayfinder knows the road: no energy used.' : '🦯 Your staff makes light work of it: no energy used.'))
-        . ($staffWear ? ' ' . $staffWear : '') . ($rkNote !== '' ? ' ' . $rkNote : '')];
+        . ($staffWear ? ' ' . $staffWear : '') . ($rkNote !== '' ? ' ' . $rkNote : '') . $mkNote];
 }
 
 /** v1.9.0: how many log lines to keep: the usual 25, or 160 while a fight is on (the whole fight, for "Show all"). */
@@ -453,10 +469,10 @@ function give_find(array $u, array $scene): string
         $rich = max(0, climate_fx((int)$scene['region_id'])['finds'] ?? 0);
     }
     // Gathering comes first: what the landscape offers, if the gnome carries the right tool.
-    $hint = '';
+    $hint = ($mc = mark_coins_line(mark_coins_on($uid, 'coin_on_a_road_walk', mark_ctx_here($uid)))) !== '' ? $mc . '. ' : '';   // A4 lasting marks
     if (random_int(1, 100) <= 60 && ($g = gather_on_walk($u, (string)$scene['land']))) {
-        if (!str_starts_with($g, '👀')) return $g;
-        $hint = $g . ' ';
+        if (!str_starts_with($g, '👀')) return $hint . $g;
+        $hint .= $g . ' ';
     }
     $r = random_int(1, 100);
     if ($r <= 35 && ($msg = give_local_seed($u, $scene))) {
@@ -1282,7 +1298,9 @@ function rest_heal(array &$exp): void
     $pct = max(0, min(50, (int)setting('walk_rest_heal_percent')));
     $max = (int)$exp['max_hp'];
     if ($pct <= 0 || (int)$exp['hp'] >= $max || (int)$exp['hp'] <= 0) return;
-    $n = min($max - (int)$exp['hp'], max(1, (int)round($max * $pct / 100)));
+    $n = max(1, (int)round($max * $pct / 100));
+    if (mark_hooks_on()) $n = mark_heal((int)$exp['user_id'], $n, mark_ctx_walk((int)$exp['from_id'], (int)$exp['to_id'], (int)$exp['route_id']) + ['group' => 'trail']);   // F09 lasting marks: resting on a trail
+    $n = min($max - (int)$exp['hp'], $n);
     $exp['hp'] = (int)$exp['hp'] + $n;
     $log = json_decode((string)$exp['log'], true) ?: [];
     if ($log) {
@@ -1344,6 +1362,10 @@ function arrive(array $u, array &$exp): void
         $rg = q_one('SELECT gnomish_name FROM regions WHERE id = ?', [$to['region_id']]);
         exp_log($exp, '🗺️ You’ve reached ' . ($rg['gnomish_name'] ?? 'a new region') . ' for the first time! You can now travel straight here from anywhere.');
         add_xp((int)$u['id'], 10 + location_min_level((int)$to['id']));
+    }
+    if ($to['region_id'] && setting('seals_open') === '1') {   // 2.8.85: Standing may have moved on the way (a new place, a page): award the area's Seal if it is due
+        require_once __DIR__ . '/seals.php';
+        if (region_seal_check((int)$u['id'], (int)$to['region_id'])) exp_log($exp, '🔏 Wren binds a new section of her Almanac: the ' . seal_area_name((int)$to['region_id']) . ' Seal is yours!');
     }
     $routeKind = (string)q_val('SELECT kind FROM routes WHERE id = ?', [$exp['route_id']]); calling_event((int)$u['id'], 'arrive', (string)$to['slug'], 1, ['kind' => (string)$to['kind']]); if ($routeKind !== '') calling_event((int)$u['id'], 'walk', $routeKind, 1, ['kind' => $routeKind]);   // v0.9.4 N1: one event per leg
     $walkXp = 2 + intdiv((int)q_val('SELECT level FROM routes WHERE id = ?', [$exp['route_id']]), 2);

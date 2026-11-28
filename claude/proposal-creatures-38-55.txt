@@ -1,0 +1,160 @@
+# PROPOSAL (data only, nothing wired in): creatures for gnome levels 38-55, tiers 4 and 5 of claude/proposal-maplewold-bands-and-seals.md
+# Pass 4 review: the seven lair-guardian lines are no longer importable rows (they duplicated the generated `boss-<lair>` guardians);
+# they are now LAIR OVERRIDES at band top (45 / 55), commented with `#L|`. Importable: 53 ordinary + 7 roaming bosses = 60.
+# Same line format as game/includes/data/creatures.txt:
+# slug | Name | size | landscapes | level | drops (Item name:chance%, ...) | description | cond (optional)
+# A drop name ending in *new is an item that does not exist yet (listed at the bottom). Strip the *new marker before pasting into creatures.txt.
+# creatures.txt has no region column. The region headers below are the intended `regions` value for the matching base rows in data/pf_creatures.txt
+# (without such a row a creature fits every region). No species below repeats a creature of creatures.txt or a named variant of pf_creatures.txt.
+# Tundra is left out on purpose: none of the seven tier 4-5 regions has a tundra zone (zones.txt).
+# Tier 4 has no island zone and tier 5 has no mountain zone, so a few coast creatures also list island and a few EA/OC creatures also list mountain,
+# to keep every landscape covered from 38 to 55 for level-matched roads elsewhere.
+
+# ================= TIER 4 (levels 38-45) =================
+
+# ---- MENA, the Dunewhisper (coast, grassland, mountain, desert)
+locust-cloud|Desert Locust Cloud|medium|grassland,desert|38|Aphid Wings:55,Straw Mulch:35,*seed:10|The sky turns brown, lands on your lunch, and leaves when there is no lunch.|we=heat,sun
+flamingo-regiment|Flamingo Regiment|large|coast,island,wetland|38|Bright Feather:55,Sea Salt:40,Pink Sand:15|Four hundred pink legs marching in step, and not one of them looks where it treads.
+hamadryas-baboon|Hamadryas Baboon|large|mountain,desert|40|Monkey Fur:55,Stolen Trinket:30,Frankincense Tear*new:4|Wears a silver cape, keeps a cliff, and charges a toll payable in everything you own.
+barbary-sheep|Barbary Sheep|large|mountain|42|Goat Hair:60,Slate Shard:30,Rock Crystal:10|A sand-coloured beard on four hooves that settles every argument about ledges head first.
+dorcas-gazelle|Dorcas Gazelle|medium|grassland,desert|43|Velvet Pelt:50,Desert Sage:35,*seed:8|Could outrun you easily and has chosen, today, to kick instead.|dp=dawn,dusk
+lanner-falcon|Lanner Falcon|large|mountain,coast,desert,island|44|Hawk Feather:55,Eagle Down:30,Golden Talon:4|Folds its wings somewhere above the sun and arrives before you hear it.|we=sun
+# lair override (not imported; see LAIR TABLE) for (Tomb of the Sand Scarab) and roaming boss
+#L|sand-scarab|Sand Scarab|boss|desert|45|Scarab Shell:60,Desert Glass:40,Frankincense Tear*new:15,*guide:5|A beetle as big as a cart, rolling something it insists is the sun.
+sirocco-oryx|Sirocco Oryx|boss|desert,grassland|44|Antler Shard:60,Desert Gem:20,Frankincense Tear*new:10,*guide:5|Two horns like drawn sabres and a white coat the heat cannot touch. The dunes move aside for it.|we=heat
+
+# ---- CSA, Spicepeak (wetland, grassland, forest, mountain)
+red-panda|Red Panda|medium|mountain,forest|39|Bushy Tuft:55,Fiddleheads:35,Saffron Thread*new:4|Stands on its hind legs to look enormous, which to a gnome it already was.
+temple-langur|Temple Langur|large|forest,rainforest|40|Monkey Fur:55,Stolen Bauble:30,*seed:10|Grey, long-tailed and considered sacred, a fact it brings up constantly.
+monsoon-peacock|Monsoon Peacock|large|forest,grassland|41|Pretty Feather:55,Long Feather:40,Saffron Thread*new:5|A hundred eyes open at once, and all of them are judging your hat.|we=rain,storm
+dhole-pack|Dhole Pack|large|forest,mountain|43|Fox Pelt:55,Fox Fang:35,Bushy Tuft:15|Red dogs that whistle to each other. You are what the whistling is about.|dp=dawn,dusk
+one-horned-rhino|One-horned Rhino|large|wetland,grassland|44|Mire Hide:55,River Clay:35,*seed:8|Armour-plated, short-sighted, and quite sure the path was built for it.
+bar-headed-goose|Bar-headed Goose Skein|medium|mountain,wetland|45|Long Feather:55,Eagle Down:35,Edelweiss:10|Flies over the highest peaks in the world and still has the breath left to hiss at you.|se=autumn,spring
+# lair override (not imported; see LAIR TABLE) for (Temple of the Tiger Moth) and roaming boss
+#L|tiger-moth|Tiger Moth|boss|forest|45|Moth Wing:60,Wing Dust:40,Saffron Thread*new:15,*guide:5|A great striped moth that circles the temple lamps and takes it personally when one goes out.|dp=night,dusk
+monsoon-elephant|Monsoon Elephant|boss|forest,grassland,wetland|45|Mire Hide:60,Heartwood:30,Saffron Thread*new:10,*guide:5|To a gnome it is not an animal but weather: grey, slow, and impossible to argue with.|we=rain,storm
+
+# ---- WCA, the Greatcanopy (grassland, wetland, rainforest, coast)
+tsetse-swarm|Tsetse Swarm|medium|grassland,wetland|38|Gnat Dust:60,Aphid Wings:30|One bite and you fancy a nap. The swarm will wait while you have it.|we=heat,sun
+grey-parrot-gossip|Grey Parrot Gossip|medium|rainforest,coast|39|Bright Feather:55,Stolen Trinket:25,*seed:10|Repeats everything you said on the path, in your voice, to the creatures further along it.
+lagoon-manatee|Lagoon Manatee|large|coast,wetland,island|40|Mangrove Root:50,Samphire:40,Seed Pearl:8|A drifting grey sofa that means no harm and causes a great deal.
+goliath-beetle|Goliath Beetle|medium|rainforest|41|Beetle Shell:60,Rubber Sap:30,Kola Nut*new:5|The heaviest beetle there is, and it flies, which nobody asked for.
+dwarf-crocodile|Dwarf Crocodile|large|wetland,coast,island|42|Mire Hide:55,Snake Fang:30,Mangrove Root:20|Called dwarf by people who are not gnomes.|dp=night,dusk
+gaboon-viper|Gaboon Viper|large|rainforest|43|Snake Skin:55,Venom Fang:35,Kola Nut*new:4|Looks exactly like a pile of leaves, right up until the pile has opinions.
+okapi|Okapi|large|rainforest,forest|45|Velvet Pelt:55,Laterite Clay:30,Kola Nut*new:6|Half zebra, half rumour. It licks its own ears and kicks anyone who stares.
+# lair override (not imported; see LAIR TABLE) for (Hollow of the Silverback Spider) and roaming boss
+#L|silverback-spider|Silverback Spider|boss|rainforest|45|Spider Silk:60,Spider Fang:40,Kola Nut*new:15,*guide:5|A very old silver spider who spins her stories into the web, and has reached the chapter with a gnome in it.
+canopy-gorilla|Canopy Gorilla|boss|rainforest|45|Velvet Pelt:60,Heartwood:35,Kola Nut*new:10,*guide:5|Beats his chest once, politely, to give you time to reconsider.|we=fog,rain
+
+# ---- ESA, Thornacre Savanna (grassland, mountain, wetland, desert)
+meerkat-mob|Meerkat Mob|medium|desert,grassland|38|Digging Claw:55,Scarab Shell:30,*seed:8|One stands guard, the rest stand behind it, and every one of them has seen you.|we=sun
+secretary-bird|Secretary Bird|large|grassland|40|Long Feather:55,Snake Skin:30,Black Feather:20|Dressed for the office, quills behind its ears, and it stamps on things for a living.
+shoebill|Shoebill|large|wetland|41|Heron Plume:55,Rainbow Fish:30,Marsh Pearl:6|Stares at you for an hour without blinking, then bows. Do not bow back.|we=fog,rain
+black-mamba|Black Mamba|large|grassland,desert|42|Snake Skin:55,Venom Fang:35,Tanzanite Chip*new:3|The fastest snake on the plain, and in a worse mood than the slow ones.|we=heat,sun
+wildebeest-stampede|Wildebeest Stampede|large|grassland|44|Velvet Pelt:50,Dung Ball:40,Straw Mulch:25,*seed:8|Ten thousand hooves that all had the same idea at once, and the idea was your direction.|se=summer
+acacia-giraffe|Acacia Giraffe|large|grassland|45|Spotted Hide:55,Bushy Tuft:30,Tanzanite Chip*new:5|From gnome height it is four trees walking, with a small disapproving face somewhere in the clouds.
+# lair override (not imported; see LAIR TABLE) for (Snowcrown Peak) and roaming boss
+#L|snowpeak-lion|Mountain Lion of the Snowpeak|boss|mountain|45|Elder Pelt:60,Fox Fang:35,Tanzanite Chip*new:15,*guide:5|Sleeps on the only snow for a thousand leagues and wakes for trespassers.|we=snow,frost
+rift-hippo|Rift Lake Hippo|boss|wetland,grassland|44|Mire Hide:60,Cattail Root:40,Marsh Pearl:15,*guide:5|Yawns like a cave with tusks. The lake is its bath, and you are in it.|dp=dusk,night
+
+# ================= TIER 5 (levels 46-55) =================
+
+# ---- EA, Blossomreach (grassland, forest, coast, desert; mountain added)
+gobi-jerboa|Gobi Jerboa|medium|desert|46|Rat Pelt:55,Desert Sage:35,Desert Glass:10|All ears and springs. It bounces off your hat and is three dunes away before you finish falling over.|dp=night
+golden-pheasant|Golden Pheasant|medium|forest,grassland,mountain|47|Pretty Feather:55,Bright Feather:40,*seed:10|Dressed in every colour the paintbox had, and furious that you noticed.
+terrace-mantis|Terrace Mantis|large|grassland,forest|48|Centipede Plate:55,Shed Butterfly Scales:30,Silk Cocoon*new:5|Folds its arms as if in prayer. The prayer is grace before meals.|se=summer,autumn
+golden-takin|Golden Takin|large|mountain|49|Goat Hair:55,Antler Shard:30,Edelweiss:15|Part goat, part ox, part haystack, and it comes down the slope like all three.
+red-crowned-crane|Red-crowned Crane|large|wetland,grassland|50|Heron Plume:55,Long Feather:35,Golden Carp:15|Dances beautifully in the snow, and the dance ends on your head.|se=winter
+giant-spider-crab|Giant Spider Crab|large|coast|51|Crab Claw:55,Crab Shell:40,Pearl:8|Legs as long as a harbour wall, and it walks as if the sea floor were hot.
+giant-salamander|Giant Salamander|large|wetland,mountain|53|Mire Hide:55,Frog Skin:35,Jade Eye:5|A river boulder with a smile wider than it has any use for.|we=rain,fog
+manul|Steppe Manul|medium|desert,grassland,mountain|54|Frost Fur:55,Bushy Tuft:35,Desert Gem:6|The crossest face on the steppe in the thickest fur, glaring from a rock it has no plans to share.|se=winter
+# lair override (not imported; see LAIR TABLE) for (Lair of the Jade Dragon-fly) and roaming boss
+#L|jade-dragon-fly|Jade Dragon-fly|boss|desert|55|Shed Dragonfly Wing:60,Jade Eye:25,Silk Cocoon*new:15,*guide:5|Hunts over the last oasis on wings of green glass, and the oasis is not big enough for two.|we=heat,sun
+great-panda|Great Panda|boss|forest,mountain|54|Velvet Pelt:60,Heartwood:30,Silk Cocoon*new:10,*guide:5|A snowdrift with black sleeves, eating the forest one stalk at a time. Do not stand between it and the next stalk.
+
+# ---- SEA, the Monsoon Tangle (wetland, coast, island, rainforest)
+archerfish-volley|Archerfish Volley|medium|wetland,coast|46|Rainbow Fish:55,Mangrove Root:30,Seed Pearl:6|Each one spits water with perfect aim, and there are twelve of them, taking turns.
+tarsier|Lantern-eyed Tarsier|medium|island,rainforest|47|Monkey Fur:50,Firefly Glow:35,Glowing Bead:10|Each eye is bigger than its brain, and both of them are on you.|dp=night
+proboscis-monkey|Proboscis Monkey|large|wetland,coast|48|Monkey Fur:55,Mangrove Root:35,*seed:10|The nose arrives first, honking. The rest belly-flops out of the mangroves after it.
+flying-fox-camp|Flying Fox Camp|large|island,rainforest|49|Velvet Pelt:50,Bromeliad Seeds:35,*seed:12|A tree full of folded umbrellas that all open at dusk and want your fruit.|dp=dusk,night
+rhinoceros-hornbill|Rhinoceros Hornbill|large|rainforest|50|Long Feather:55,Bright Feather:35,Agarwood Chip*new:5|Wears a second beak on top of the first, for emphasis.
+mantis-shrimp|Peacock Mantis Shrimp|medium|coast,island|52|Crab Shell:55,Coral Fragment:35,Pearl:8|Sees colours you have no names for and punches hard enough to boil the water.
+malay-tapir|Malay Tapir|large|rainforest,wetland|52|Velvet Pelt:55,Leaf Mould Clump:35,Agarwood Chip*new:4|Black at both ends and white in the middle, as if it stopped halfway through getting dressed.|dp=night,dusk
+king-cobra|King Cobra|large|rainforest,wetland|53|Snake Skin:55,Venom Fang:40,Agarwood Chip*new:5|Stands up to look you in the eye, which for a gnome means looking a very long way up.
+# lair override (not imported; see LAIR TABLE) for (Dragonlizard Den) and roaming boss
+#L|dragonlizard|Dragonlizard|boss|island|55|Lizard Scale:60,Wyrm Fang:30,Agarwood Chip*new:15,*guide:5|A monitor lizard so large the island seems to have been put there for it to lie on.|we=heat,sun
+old-man-of-the-tangle|Old Man of the Tangle|boss|rainforest|55|Monkey Fur:60,Heartwood:40,Agarwood Chip*new:12,*guide:5|An orange-bearded elder who has watched the forest for sixty monsoons and made up his mind about you in one.|we=rain
+
+# ---- OC, the Coralscatter (island, coast, forest, desert; mountain added)
+quokka|Quokka|medium|island|46|Velvet Pelt:55,Sea Grapes:35,*seed:10|Smiles at everyone. It is still smiling as it goes through your satchel.
+giant-weta|Giant Weta|medium|forest,mountain,island|47|Centipede Plate:55,Leaf Mould Clump:30,Glowing Bead:6|A cricket the weight of a sparrow, with spiked legs and no interest in moving off the path.|dp=night
+echidna|Echidna|medium|desert,forest|48|Thistle Spines:60,Ant Chitin:35,Black Opal*new:3|A pincushion with a snout. It does not attack so much as let you make your own mistakes.
+bilby|Bilby|medium|desert|50|Digging Claw:50,Rat Pelt:35,Desert Rose Stone:15|Rabbit ears, a long pink nose and a burrow it would like you to fall into.|dp=night
+little-penguin-parade|Little Penguin Parade|medium|coast,island|50|Sardine:55,Gull Feather:35,Seed Pearl:8|They come up the beach at dusk in a tidy blue queue, and the queue goes through you.|dp=dusk
+tasmanian-devil|Tasmanian Devil|large|forest|50|Badger Pelt:55,Rat Tooth:35,Black Opal*new:4|A small black growl with a jaw attached, heard long before it is seen.|dp=night
+kea|Kea|medium|mountain,forest|51|Bright Feather:55,Stolen Bauble:35,Rock Crystal:10|An alpine parrot that takes things apart to see how they work. It has started on your boots.|we=snow,frost
+red-kangaroo-boomer|Red Kangaroo Boomer|large|desert,grassland|52|Velvet Pelt:55,Mesquite Pods:30,Red Ochre:20|Leans back on its tail to free both feet for the discussion.|we=heat,sun
+crown-of-thorns|Crown-of-Thorns Star|large|island,coast|53|Urchin Shell:55,Coral Fragment:40,Pearl:8|Twenty arms, a thousand spines and an appetite for reef. Nothing has ever made it hurry.
+platypus|Platypus|medium|wetland,forest|53|Velvet Pelt:55,River Clay:30,Venom Fang:15|A duck's bill, a beaver's tail, a venomous spur, and no patience for being told it cannot exist.|dp=dawn,dusk
+tuatara|Tuatara|large|island,forest|55|Lizard Scale:55,Fossil Shell:30,Black Opal*new:6|Older than the lizards, with a third eye on top of its head, and it has seen your sort before.|dp=night
+wedge-tailed-eagle|Wedge-tailed Eagle|large|desert,mountain,grassland|55|Eagle Down:55,Long Feather:40,Golden Talon:6|Rides the heat above the Red Heart in slow circles, and each circle is a little smaller.|we=sun,heat
+# lair override (not imported; see LAIR TABLE) for (Reef of the Box Jelly Queen) and roaming boss
+#L|box-jelly-queen|Box Jelly Queen|boss|coast|55|Sea Glass:60,Glowing Bead:35,Black Opal*new:15,*guide:5|Glass-clear and almost not there, trailing threads that sting like a nettle the length of a street.
+old-saltie|Old Saltie|boss|coast,wetland,island|55|Mire Hide:60,Wyrm Fang:25,Pearl:20,*guide:5|A crocodile that swims between islands as if the sea were a puddle, and has never once been in a hurry.
+
+# ================= LAIR TABLE =================
+# Lair level = BAND TOP (pass 4: one rule, same as the bands doc: Owl 15, tier 2 lairs 25, tier 3 35, tier 4 45, tier 5 55).
+# These seven lairs already exist (landmarks.txt). Their guardians are generated by ensure_lair_bosses() as `boss-<location slug>`.
+# The `#L|` lines above are overrides for those rows (name, level, drops, description), not new creatures.
+# region | lair name                          | zone (landscape)   | override of        | generated name now                 | level
+# MENA   | Tomb of the Sand Scarab            | 4 (desert)         | sand-scarab        | Sand Scarab                        | 45
+# CSA    | Temple of the Tiger Moth           | 3 (forest)         | tiger-moth         | Tiger Moth                         | 45
+# WCA    | Hollow of the Silverback Spider    | 3 (rainforest)     | silverback-spider  | Silverback Spider                  | 45
+# ESA    | Snowcrown Peak                     | 2 (mountain)       | snowpeak-lion      | Guardian of Snowcrown Peak         | 45
+# EA     | Lair of the Jade Dragon-fly        | 4 (desert)         | jade-dragon-fly    | Jade Dragon-fly                    | 55
+# SEA    | Dragonlizard Den                   | 3 (island)         | dragonlizard       | Guardian of Dragonlizard Den       | 55
+# OC     | Reef of the Box Jelly Queen        | 2 (coast)          | box-jelly-queen    | Box Jelly Queen                    | 55
+# Lair route = level - 2 .. level + 2, so Lv 55 lairs meet creatures up to 57: pick_creature's level-6 window is covered by the 53-55 rows.
+# Roaming bosses: sirocco-oryx 44 (MENA), monsoon-elephant 45 (CSA), canopy-gorilla 45 (WCA), rift-hippo 44 (ESA),
+#                 great-panda 54 (EA), old-man-of-the-tangle 55 (SEA), old-saltie 55 (OC).
+# (Pass 4: settled on band top.) Tier 2-3 lairs keep their generated guardians, re-levelled to 25 and 35.
+
+# ================= NEW ITEMS (7, one regional rare each) =================
+# Frankincense Tear (MENA) · Saffron Thread (CSA) · Kola Nut (WCA) · Tanzanite Chip (ESA) · Silk Cocoon (EA) · Agarwood Chip (SEA) · Black Opal (OC)
+# Each drops at 3-6% from two or three ordinary creatures of its region and 10-15% from that region's two bosses.
+# Every other drop name is already used in creatures.txt or is a gatherable of gatherables.txt (by its display name there).
+# Note: import_creatures_txt makes an item for any unknown drop name (pfc_item_for_drop), so a typo becomes a new item silently.
+
+# ================= THINGS TO CHECK BEFORE THIS GOES IN (found, not fixed) =================
+# 1. BALANCE (the one to sim). Stats come from size + level in import_creatures_txt (includes/adventure_data.php, about line 422):
+#      hp = (5 + 3*level) * size mult (0.8 / 1.1 / 1.6 / 2.4) · attack = 1 + level/3 + (0/0/2/2) · defence = 9 + level/3 + (0/1/2/3)
+#      damage = d4/d6/d8/d10 + level/4 · xp = level * 6 * size mult. The formula is linear with no cap, so it does work above 40:
+#      large Lv 45 = 224 hp, attack 18, defence 26, d8+11 · boss Lv 50 = 372 hp, attack 19, defence 28, d10+12 · boss Lv 55 = 408 hp, attack 21, defence 30, d10+13.
+#    But the d20 maths drifts (includes/adventure.php gnome_combat, includes/combat_math.php):
+#      gnome attack = 2 + level/2 + stat, against defence growing at level/3: at Lv 55 a gnome has +29 before stats against defence 28-30, so it hits on almost any roll.
+#      gnome armour = 10 + nimble + level/4, against creature attack growing at level/3: at Lv 55 armour 23 + nimble against attack +21, so the creature also hits on almost any roll.
+#    So from about Lv 45 the dice stop mattering and fights are a race of health against damage. Nothing above Lv 40 has been simulated; run a sim at 45 and 55 before shipping.
+#    Fleeing: the roll needs d20 + nimble >= 8 + level/3, which is 26 against a Lv 55 foe: impossible without nimble 6 or more.
+# 2. Fixed routes are clamped to Lv 40: route_danger() in includes/adventure.php lines 179-180 does min(40, ...) on min_level and max_level.
+#    pick_creature takes ordinary creatures of level-6 .. level+2, so on a fixed route nothing above Lv 42 would ever be met until that clamp is raised.
+# 3. Lair bosses do not come from creatures.txt. ensure_lair_bosses() (includes/landmarks.php about line 558) makes a creature `boss-<location slug>` per lair,
+#    named from the "of the X" part of the lair name, at the level of the lair's side route, with the drops copied from the LOWEST-level boss of creatures.txt
+#    that fits the lair's landscape. Imported as rows, the seven lair lines would have become
+#    active roaming bosses with the same names as the (inactive) generated guardians: duplicates. Pass 4: they are now `#L|` overrides. Needed code: a lair
+#    override step (data file or boot step) that sets name, level, drops and description on the `boss-<slug>` rows, for new and existing worlds.
+#    Generated names differ for Snowcrown Peak AND Dragonlizard Den (neither has "of the" in its name).
+# 4. Lair levels are set in LAIR_LEVEL_1115 (includes/roads.php line 9) at the old region levels (8 to 37), and REGION_LEVELS (includes/progression.php line 10)
+#    still has the old values (MENA 17 ... OC 35). Both need the new bands: REGION_LEVELS NA 1, CA/NWE 15, CB/SA/SE/EE 25, MENA/CSA/WCA/ESA 35, EA/SEA/OC 45;
+#    lairs at band top (Owl 15; Smokecap, Frost Toad 25; Hurricane Crab, Condor's Crag, Cinder Wyrm, Grey Wolf King 35; the seven above 45/55),
+#    with a boot step for existing worlds (as medium_lair_levels_1115 did). The clamp min(40, ...) in route_danger must rise to at least 57.
+# 5. Roaming bosses: any boss of the landscape with level <= walk level + 8 can turn up (6% roll) and lower ones are scaled up, so the Lv 44-45 bosses start
+#    appearing on Lv 36-37 walks and the old Lv 26-32 bosses still roam at Lv 55. That is how it works today; say if the new ones should be region-bound in pf_creatures.txt.
+# 6. pf_creatures.txt already has named variants at Lv 38-40 placed by the OLD region levels (Ratel Pair, Emu Mob, Lava Beetle, Gorse Beast, Old Brock, Conger Brute,
+#    Elder Tiger, Mangrove Crab Emperor, Ibex Patriarch, Musk Ox, Reef Eel Tyrant, Alpha Dingo, Kraken Spawn). Their regions and levels will need a pass when the bands move.
+#    Each creature here also needs its pf_creatures.txt row (regions, ability, deck, petals, art) to be region-bound and to fight on the board.
+# 7. Count: 60 importable lines (53 ordinary, 7 roaming bosses) + 7 lair overrides. Every landscape but tundra has an ordinary creature at most 3 levels
+#    apart from 38 to 53+ (checked in pass 4). To trim, the least load-bearing are quokka, tuatara and okapi. Do NOT trim meerkat-mob or proboscis-monkey:
+#    the quest proposal uses them (with dhole-pack, hamadryas-baboon, one-horned-rhino, grey-parrot-gossip, secretary-bird, giant-salamander,
+#    mantis-shrimp, tasmanian-devil).
+# 8. Near-duplicates checked: old-saltie (OC) vs the pf variant saltwater-gharial (OC 36); barbary-sheep vs cliff-ram / Ibex Patriarch. Distinct species, kept.
+#    No species repeats creatures.txt or a pf_creatures.txt variant name.

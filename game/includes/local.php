@@ -15,7 +15,7 @@ require_once __DIR__ . '/stop_adopt.php';
 /** Everything the POST can do at a stop. $kind is an activity slug, or _chat _errand _deliver _drop _adopt _give _perk _release. */
 function local_do(array $u, array $loc, string $kind, array $in): array
 {
-    if (($loc['kind'] ?? '') !== 'village') return [false, 'There’s nothing like that here.'];
+    if (!stop_is_place($loc)) return [false, 'There’s nothing like that here.'];
     switch ($kind) {
         case '_chat': return stop_chat($u, $loc, (int)($in['folk'] ?? 0));
         case '_errand': return stop_errand_accept($u, $loc, (int)($in['folk'] ?? 0));
@@ -428,6 +428,7 @@ function local_panel(array $u, array $loc): string
     $h .= '<header class="st-head"><div class="st-art">' . stop_svg($type, 'icon', 'st-ico-lg') . '</div><div class="st-headtxt"><h2>' . e($t['name']) . '</h2><p class="st-amb">' . e($ambLine) . '</p>' . (($hp = $pool['happening'] ?? null) ? '<p class="st-hap"><b>' . e($hp['icon'] . ' ' . $hp['name']) . '</b> · ' . e(str_replace('{place}', (string)$loc['name'], $hp['headline'])) . '</p>' : '')
         . '<p class="st-chips"><span class="chip">' . HOLLOW_DAYPARTS[$now['dp']][0] . ' ' . HOLLOW_DAYPARTS[$now['dp']][1] . '</span><span class="chip">' . $wi['emoji'] . ' ' . e($wi['label']) . '</span><span class="chip">' . HOLLOW_SEASONS[$now['se']][0] . ' ' . HOLLOW_SEASONS[$now['se']][1] . '</span>'
         . ($tier ? '<span class="chip">★ Tier ' . $tier . '</span>' : '') . '</p></div></header>';
+    if (stop_marks_active($uid)) $h .= mark_plaque_html($u, $loc);   // lasting marks: one plaque line per full bar
     if ($isNew || $stampMsgs) {
         $h .= '<div class="box notice st-newstamp"><div class="st-stamp has" data-sh="' . (int)$t['hue'] . '">' . stop_svg($type, 'stamp', 'st-stamp-art') . '<b>' . e($loc['name']) . '</b></div><div>';
         foreach ($stampMsgs as $m) $h .= '<p>' . e($m) . '</p>';
@@ -447,7 +448,7 @@ function local_panel(array $u, array $loc): string
     $tabs = ['do' => '🧭 Do', 'folk' => '👥 Villagers', 'stop' => '🏡 Stop'];
     $h .= '<nav class="tabs st-tabs" aria-label="Rest stop sections">';
     foreach ($tabs as $k => $lab) {
-        $h .= '<a class="' . ($tab === $k ? 'on' : '') . '" href="' . e(url('town.php' . ($k === 'do' ? '' : '?t=' . $k))) . '">' . $lab . ($k === 'folk' && $ready ? ' <span class="st-tabbadge" title="Ready to hand in" aria-label="' . $ready . ' ready to hand in">' . $ready . '</span>' : '') . ($k === 'do' && $leftToday > 0 ? ' <span class="st-tabbadge soft" title="Still to do today" aria-label="' . $leftToday . ' still to do today">' . $leftToday . '</span>' : '') . '</a>';
+        $h .= '<a class="' . ($tab === $k ? 'on' : '') . '" href="' . e(url(($loc['kind'] === 'market' ? 'town.php?view=reststop' : 'town.php') . ($k === 'do' ? '' : ($loc['kind'] === 'market' ? '&' : '?') . 't=' . $k))) . '">' . $lab . ($k === 'folk' && $ready ? ' <span class="st-tabbadge" title="Ready to hand in" aria-label="' . $ready . ' ready to hand in">' . $ready . '</span>' : '') . ($k === 'do' && $leftToday > 0 ? ' <span class="st-tabbadge soft" title="Still to do today" aria-label="' . $leftToday . ' still to do today">' . $leftToday . '</span>' : '') . '</a>';
     }
     $h .= '</nav>';
 
@@ -459,8 +460,8 @@ function local_panel(array $u, array $loc): string
             $h .= '</ul></details>';
         }
         $h .= '<p class="help">📖 <a href="' . e(url('town.php?view=passport')) . '">Your stamp passport</a> · ' . count(stop_stamps_of($uid)) . ' stamps</p>';
-        $h .= stop_adopt_panel($u, $loc, fn(string $k, string $inner) => local_form($k, $inner));
-        $h .= season_fold_html($u) . land_card_html($u, $loc, !empty($loc['region_id']) ? q_one('SELECT * FROM regions WHERE id = ?', [$loc['region_id']]) : null);   // v2.0.61: Seasons and Land live on the Stop tab
+        if ($loc['kind'] === 'village') $h .= stop_adopt_panel($u, $loc, fn(string $k, string $inner) => local_form($k, $inner));   // a town or haven as a stop (lasting marks) is not adopted and has no land
+        $h .= season_fold_html($u) . ($loc['kind'] !== 'village' ? '' : land_card_html($u, $loc, !empty($loc['region_id']) ? q_one('SELECT * FROM regions WHERE id = ?', [$loc['region_id']]) : null));   // v2.0.61: Seasons and Land live on the Stop tab
         return $h . '</section>';
     }
     if ($tab === 'folk') {

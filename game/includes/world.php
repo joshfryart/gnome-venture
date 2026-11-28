@@ -4,6 +4,7 @@ declare(strict_types=1);
 /** Home regions, known plants, guides, travel and shops. */
 
 require_once __DIR__ . '/gnome.php';   // v0.9.1: calling_perk() for travel and selling perks
+require_once __DIR__ . '/stop_mark_hooks.php';   // lasting marks (behind stop_marks_open)
 
 const HUB_REGION = 'Mossbottom';   // the hub market every player can reach from anywhere
 
@@ -270,6 +271,10 @@ function travel_to(array $u, int $regionId): array
     $target =q_one('SELECT * FROM regions WHERE id = ?', [$regionId]);
     if (!$target) return [false, 'There’s no such place.'];
     if ($target['gnomish_name'] === player_location($u)) return [false, 'You’re already here.'];
+    if (setting('seals_open') === '1') {   // 2.8.85: a Seal-locked door still needs the Seal (home, gardens and places already reached stay open)
+        require_once __DIR__ . '/seals.php';
+        if (($warden = seal_region_warden_message((int)$u['id'], (int)$target['id'])) !== '') return [false, $warden];
+    }
     if (!can_fast_travel($u, (int)$target['id'])) {   // v0.7.43: walk there once first
         return [false, 'You haven’t been to ' . $target['gnomish_name'] . ' yet. Walk the roads there once (recommended level ' . region_min_level((int)$target['id']) . '), then you can travel straight there any time.'];
     }
@@ -281,6 +286,10 @@ function travel_to(array $u, int $regionId): array
     // v0.9.1: calling perks (Wayfinder): a Petals discount and less energy, by calling tier
     $cost = (int)round($cost * (100 - calling_perk($u, 'fast_travel_discount')) / 100);
     $energy = max(0, $energy - calling_perk($u, 'fast_travel_energy_minus'));
+    $mkFrom = mark_ctx_here((int)$u['id']);   // lasting marks: a fast travel starts where the gnome stands
+    $cost = mark_less($cost, mark_fx((int)$u['id'], 'travel', $mkFrom));   // F18 fast travel cost
+    $mkFt = mark_charges_ready((int)$u['id'], 'fast_travel', $mkFrom);   // A1 lasting marks: 1 energy less, taken once the travel is paid
+    $energy = mark_charge_energy($mkFt, $energy);
     db()->beginTransaction();
     $market = q_val("SELECT id FROM locations WHERE region_id = ? AND kind = 'market' ORDER BY id LIMIT 1", [$target['id']]);
     if (q('UPDATE users SET coins = coins - ?, energy = energy - ?, location = ?, location_id = ?, arrived_at = ? WHERE id = ? AND coins >= ? AND energy >= ?',
@@ -289,7 +298,7 @@ function travel_to(array $u, int $regionId): array
         return [false, 'You need ' . number_format($cost) . ' ' . setting('currency_name') . ' and ' . $energy . ' energy to travel there.'];
     }
     $find = '';
-    if (random_int(1, 100) <= calling_perk($u, 'travel_seed_pct')) {   // v0.9.1: chance by calling tier (0 without a calling)
+    if (random_int(1, 100) <= calling_perk($u, 'travel_seed_pct') + mark_fx((int)$u['id'], 'trailseed', $mkFrom)) {   // + F23 seed on fast travel   // v0.9.1: chance by calling tier (0 without a calling)
         $options = q('SELECT DISTINCT i.id, i.name FROM plant_regions pr
                       JOIN plants p ON p.id = pr.plant_id JOIN items i ON i.id = p.seed_item_id
                       WHERE pr.region_id = ?', [$target['id']])->fetchAll();
@@ -299,6 +308,7 @@ function travel_to(array $u, int $regionId): array
             $find = ' 🧭 On the way you find some wild ' . $seed['name'] . '!';
         }
     }
+    if (mark_charges_take((int)$u['id'], $mkFt)) $find .= ' 🏅 A lasting mark saved you 1 energy.';
     record_region_visit((int)$u['id'], (int)$target['id']);
     db()->commit();
     calling_event((int)$u['id'], 'travel', (string)$target['code'], 1);   // v0.9.4 N4: a fast travel
@@ -384,8 +394,9 @@ function buy_from_shop(array $u, int $stockId, int $qty): array
         return [false, 'You can’t afford ' . $qty . ' × ' . $s['name'] . ' (' . number_format($cost) . ' ' . setting('currency_name') . ').'];
     }
     give_item((int)$u['id'], (int)$s['item_id'], $qty);
+    $mkLine = mark_buy_charges((int)$u['id'], (int)$s['sid'], (int)$s['item_id'], (string)$s['item_category'], (string)$s['name']);   // A3 lasting marks: one extra
     db()->commit();
-    return [true, "You buy $qty × {$s['name']} for " . number_format($cost) . ' ' . setting('currency_name') . '.', $cost, (string)$s['name']];
+    return [true, "You buy $qty × {$s['name']} for " . number_format($cost) . ' ' . setting('currency_name') . '.' . ($mkLine !== '' ? ' ' . $mkLine . '.' : ''), $cost, (string)$s['name']];
 }
 
 /** What a player pays in a shop: Charm, then any friendship discount with the staff (v0.7.13). */
@@ -394,6 +405,7 @@ function shop_price(array $u, int $price, int $shopId, int $itemId = 0): int
     $p = charm_price($u, $price, true);
     $d = shop_discount_pct($u, $shopId, $itemId);
     $p = $d ? max(1, (int)round($p * (100 - $d) / 100)) : $p;
+    $p = mark_buy_price($u, $p, $shopId, $itemId);   // F02 lasting marks
     return $itemId > 0 ? max(1, (int)round($p * market_buy_mult($itemId))) : $p;   // v1.0.0: seasonal seeds and crops cost a little less in season
 }
 
@@ -412,7 +424,7 @@ function shop_discount_pct(array $u, int $shopId, int $itemId = 0): int
     $d = $fd[$key];
     if ($sale && strtotime($sale . ' UTC') > time()) $d += 20;   // the weather vane (v0.7.31)
     require_once __DIR__ . '/player_perks.php';
-    $d += player_perk_pct($uid, 'silver_tongue', 'perk_silver_tongue');   // 2.6.33
+    $d += mark_vs_old($uid, 'buy', mark_ctx_shop($shopId, $itemId), 'silver_tongue', 'perk_silver_tongue')[0];   // 2.6.33 (a lasting mark that beats it: mark_buy_price instead)
     require_once __DIR__ . '/trail_sight_extras.php'; $d += trail_sight_disc_pct($uid, 'shop') + sights5_disc_item_pct($uid, $itemId);   // 2.7.00: a Trail Sight's shop discount; fifth pass: one scoped to this item's category (disc=shop:20:60:seed)
     return max(0, min(60, $d));
 }
@@ -508,6 +520,7 @@ function shop_buy_floor(int $itemId, ?array $u): ?int
         if ($u) {
             $p = charm_price($u, $p, true);
             if ($d = shop_discount_pct($u, (int)$r['shop_id'], $itemId)) $p = max(1, (int)round($p * (100 - $d) / 100));   // 2.7.58 EC3: the same discounts shop_price applies
+            $p = mark_buy_price($u, $p, (int)$r['shop_id'], $itemId);   // and the same lasting marks
         }
         $p = max(1, (int)round($p * $mult));
         if ($best === null || $p < $best) $best = $p;
@@ -547,13 +560,21 @@ function sell_to_shop(array $u, int $itemId, int $qty, int $shopId = 0): array
     $bonus = shop_sell_bonus((int)$u['id'], $shopId);
     $chunk = max(1, mk_int('price_vol_units', 8));
     $total = 0;
+    $mkCtx = mark_ctx_shop($shopId, $itemId);
+    $mk = mark_fx((int)$u['id'], 'sell', $mkCtx);   // F01 lasting marks: on top of the batch, never past the buy-back floor
+    $room = 0;
     for ($left = $qty; $left > 0; $left -= $chunk) {
         $n = min($chunk, $left);
-        $total += sell_price_with_bonus($item, $u, $bonus) * $n;
+        $each = sell_price_with_bonus($item, $u, $bonus);
+        $total += $each * $n;
+        if ($mk > 0) $room += (($cap = shop_buy_floor($itemId, $u)) === null ? $each : max(0, $cap - $each)) * $n;
         try { market_volume_add($itemId, $n); } catch (PDOException $e) { /* pressure is a nicety */ }   // v1.0.0: selling lots of one thing lowers its price a little
     }
+    $total += min($room, mark_more($total, $mk));
     q('UPDATE users SET coins = coins + ? WHERE id = ?', [$total, $u['id']]);
+    $mkLine = implode('. ', array_filter(array_merge([mark_coins_line(mark_coins_on((int)$u['id'], 'first_sale_at_the_stops_stall', $mkCtx))],   // A4: a stall's first sale of the game day
+        array_map(fn($l) => '🏅 ' . $l, mark_charge_lines(mark_charges_fire((int)$u['id'], 'first_sale_at_the_stops_stall', $mkCtx))))));   // A3: the stallholder adds something
     db()->commit();
     calling_event((int)$u['id'], 'sell', (string)$item['slug'], $qty, ['cat' => (string)$item['category'], 'coins' => $total]);   // v0.9.4 N6: sold to a shop
-    return [true, "You sell $qty × {$item['name']} for " . number_format($total) . ' ' . setting('currency_name') . '.', $total, (string)$item['name']];
+    return [true, "You sell $qty × {$item['name']} for " . number_format($total) . ' ' . setting('currency_name') . '.' . ($mkLine !== '' ? ' ' . $mkLine . '.' : ''), $total, (string)$item['name']];
 }

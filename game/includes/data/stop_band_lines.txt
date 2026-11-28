@@ -1,0 +1,85 @@
+# Band flavour for rest stops (2026-11-28; claude/proposal-story-3-flavor.md 3). Data for journey_v2_open, read by includes/quest_data.php
+# (stop_band_lines()); nothing shows it yet, and nothing here is in the game while the setting is off.
+# Bands (master doc 2.1): 1 the Maplewold · 2 Maizehollow, Mistmoor · 3 Sunsprinkle, Rainroot, Olivewhistle, Birchbramble ·
+# 4 Dunewhisper, Spicepeak, Greatcanopy, Thornacre · 5 Blossomreach, Monsoon Tangle, Coralscatter.
+#
+# A | band | when | text                  ambience on arrival. when = the conditions of road_lines.txt (dp=dawn,day,dusk,night) joined by "/" with
+#                                         lit=0 (the stop is below tier 1) or lit=1 (tier 1 or better)
+# C | band | glow | personality | line    what a villager says to a Regular or better (stop_chat.txt's {name}). glow = how much of the area's
+#                                         road is lit: dark (no stop) · first (at least one) · half (50%) · seal (the Seal is held)
+# P | band | tier | plaque line           an alternate plaque line for a stop upgrade of that tier (stop_tier_themes.txt's last column)
+
+# ---------------------------------------------------------------- band 1, "The first lamp"
+A|1|dp=dawn/lit=0|The lantern post is cold and has a bird's nest on it. The bird looks settled.
+A|1|dp=dusk/lit=0|Nobody lights anything. Folk go in early and call it habit.
+A|1|dp=night/lit=0|Dark to the hedge and dark beyond it. Somebody walks into the post and apologises to it.
+A|1|dp=day/lit=1|The new bench is taken already. Its owner says he is only testing it.
+A|1|dp=dusk/lit=1|The lamp is lit at dusk and three doors open to look. Nobody admits to looking.
+A|1|dp=night/lit=1|One lamp, one bench, moths. Under the road the moss glows faintly, the colour of weak tea.
+C|1|dark|any|“We go to bed when the light goes, {name}. Saves candles. Saves conversation.”
+C|1|first|any|“I could see your lamp from my step last night. First time I’ve looked that way in years.”
+C|1|half|Grumpy|“Hmph. Lamps every which way. A gnome can’t trip over anything in peace.”
+C|1|seal|any|“Lit all the way to the Ridge, {name}. My sister walked over. Walked! She’s still here, mind.”
+P|1|1|A lamp, lit on purpose.
+P|1|1|A bench somebody mended and then sat on, to be sure.
+P|1|4|The first long table in the Maplewold. Three chairs short, and counting.
+
+# ---------------------------------------------------------------- band 2, "Open the stalls"
+A|2|dp=dawn/lit=0|The stall frames stand empty. A hen has taken the best pitch and pays no rent.
+A|2|dp=day/lit=0|One cistern, one cup, one queue. The well rope is knotted in four places.
+A|2|dp=night/lit=0|No lamp to steer by. The fog has the road to itself and seems to like it.
+A|2|dp=day/lit=1|Awnings up, scales out. Somebody is arguing about the price of beans, happily.
+A|2|dp=dusk/lit=1|The dusk lantern walk goes by, six lamps and a dog. The dog carries nothing and leads.
+A|2|dp=night/lit=1|From the step you can see the next lamp, and from there, they say, the next.
+C|2|dark|any|“Nothing comes up the road, {name}. Nothing goes down it. We’re very rested.”
+C|2|first|Chatty|“A pedlar came through. From the next stop! He had news. It was old news, but I hadn’t heard it.”
+C|2|half|any|“The post came, {name}. Twice. I’ve had to find where I put the letterbox.”
+C|2|seal|Proud|“Both beacons lit. Hobb says his was answered. He’s told everyone. He’s told me four times.”
+P|2|2|A stall with something on it.
+P|2|2|A scale that weighs fair, and a clerk who checked. Twice.
+P|2|3|A well that is full, and a cup that is not on a chain.
+
+# ---------------------------------------------------------------- band 3, "Across the water"
+A|3|dp=dawn/lit=0|The far shore is a grey line. Nobody on this side has asked what it is called lately.
+A|3|dp=dusk/lit=0|The ferry bell has a wasp nest in it. The ferry has a tree in it.
+A|3|dp=night/lit=0|Black water, no lamp. You can hear the other bank, but only its frogs.
+A|3|dp=dawn/lit=1|The first boat goes out with a lamp on its bow. Someone on the far jetty waves a tea towel.
+A|3|dp=day/lit=1|Crates going over, crates coming back. The porter says they are the same crates and he is tired.
+A|3|dp=night/lit=1|A lamp here, a lamp over there, and one long wobbling stripe of light on the water between.
+C|3|dark|any|“There’s folk across the water, {name}. I assume. There were when I was small.”
+C|3|first|Curious|“Somebody lit a lamp over there. I lit ours back. Now neither of us can go to bed.”
+C|3|half|any|“My cousin came over on the ferry, {name}. I didn’t know I had a cousin. He’s eaten all the plums.”
+C|3|seal|Cheerful|“The well hums the same tune as theirs! We tried it. We shouted across. They shouted ‘what?’”
+P|3|1|A lamp you can see from the other side.
+P|3|3|A pool that hums four notes. The same four as over there.
+P|3|3|A well with a boat hook beside it, for hats.
+
+# ---------------------------------------------------------------- band 4, "The long table"
+A|4|dp=dawn/lit=0|A cold hearth and one cup, upside down on a shelf. The dust on it has dust on it.
+A|4|dp=day/lit=0|The road runs on to the edge of the sky with nobody on it. The keeper sweeps anyway.
+A|4|dp=night/lit=0|More stars than anyone needs and not one lamp. A long way off, something small coughs.
+A|4|dp=day/lit=1|A pot on, a door open. The keeper is counting cups and has found a second one.
+A|4|dp=dusk/lit=1|Dust on the horizon. The whole stop comes out to watch a stranger arrive for an hour.
+A|4|dp=night/lit=1|One window lit in all that dark, and inside it a table, and at the table, room.
+C|4|dark|any|“You’re the first this season, {name}. You may also be the last. Sit anywhere.”
+C|4|first|Generous|“I’ve put the big pot on. I know there’s one of you. It’s the principle.”
+C|4|half|Sleepy|“Mm? Three travellers last night, {name}. All talking. I’d forgotten how loud a table gets.”
+C|4|seal|any|“Every seat but one, {name}. Ottilie laid it anyway. Somebody left a button on the plate.”
+P|4|4|A table at the end of a long walk.
+P|4|4|A hall where the pot is on whether or not you are coming.
+P|4|1|A lamp you can see from a day away. We measured.
+
+# ---------------------------------------------------------------- band 5, "The far end is the near end"
+A|5|dp=dawn/lit=0|The old lamp stands in blossom to its knees. It has been asked nicely. It is thinking.
+A|5|dp=day/lit=0|A bright stretch, a dark stretch, a bright stretch. The road here is lit like a badly darned sock.
+A|5|dp=dusk/lit=0|Rain on a lamp that will not light. The keeper trims the wick all the same and says goodnight to it.
+A|5|dp=dawn/lit=1|The oldest lamp burns a little green. Nobody knows why. Nobody is going to touch it to find out.
+A|5|dp=dusk/lit=1|Paper lanterns go down the river past the stop, one for each lit lamp. Children keep count aloud.
+A|5|dp=night/lit=1|The road glows under the water as well as beside it. The whole shallows hum, four notes, slowly.
+C|5|dark|any|“That lamp only likes certain hands, {name}. Not mine. Not my mother’s. We’ve stopped taking it personally.”
+C|5|first|Curious|“It lit for you? Just like that? I’d like it noted that I loosened it.”
+C|5|half|any|“They say the road goes all the way round, {name}. I always thought that was something you tell children.”
+C|5|seal|Cheerful|“A gnome walked in from the west yesterday and out to the east today. Said she was ‘just going round’.”
+P|5|1|A lamp that only likes certain hands. Yours, it turns out.
+P|5|3|A pool where you can hear the road, if you stop talking.
+P|5|4|A hall at the far end, which is also the near end. Come in either door.
