@@ -4,6 +4,7 @@ declare(strict_types=1);
 /** Home regions, known plants, guides, travel and shops. */
 
 require_once __DIR__ . '/gnome.php';   // v0.9.1: calling_perk() for travel and selling perks
+require_once __DIR__ . '/stop_mark_hooks.php';   // lasting marks (behind stop_marks_open)
 
 const HUB_REGION = 'Mossbottom';   // the hub market every player can reach from anywhere
 
@@ -285,6 +286,8 @@ function travel_to(array $u, int $regionId): array
     // v0.9.1: calling perks (Wayfinder): a Petals discount and less energy, by calling tier
     $cost = (int)round($cost * (100 - calling_perk($u, 'fast_travel_discount')) / 100);
     $energy = max(0, $energy - calling_perk($u, 'fast_travel_energy_minus'));
+    $mkFrom = mark_ctx_here((int)$u['id']);   // lasting marks: a fast travel starts where the gnome stands
+    $cost = mark_less($cost, mark_fx((int)$u['id'], 'travel', $mkFrom));   // F18 fast travel cost
     db()->beginTransaction();
     $market = q_val("SELECT id FROM locations WHERE region_id = ? AND kind = 'market' ORDER BY id LIMIT 1", [$target['id']]);
     if (q('UPDATE users SET coins = coins - ?, energy = energy - ?, location = ?, location_id = ?, arrived_at = ? WHERE id = ? AND coins >= ? AND energy >= ?',
@@ -293,7 +296,7 @@ function travel_to(array $u, int $regionId): array
         return [false, 'You need ' . number_format($cost) . ' ' . setting('currency_name') . ' and ' . $energy . ' energy to travel there.'];
     }
     $find = '';
-    if (random_int(1, 100) <= calling_perk($u, 'travel_seed_pct')) {   // v0.9.1: chance by calling tier (0 without a calling)
+    if (random_int(1, 100) <= calling_perk($u, 'travel_seed_pct') + mark_fx((int)$u['id'], 'trailseed', $mkFrom)) {   // + F23 seed on fast travel   // v0.9.1: chance by calling tier (0 without a calling)
         $options = q('SELECT DISTINCT i.id, i.name FROM plant_regions pr
                       JOIN plants p ON p.id = pr.plant_id JOIN items i ON i.id = p.seed_item_id
                       WHERE pr.region_id = ?', [$target['id']])->fetchAll();
@@ -398,6 +401,7 @@ function shop_price(array $u, int $price, int $shopId, int $itemId = 0): int
     $p = charm_price($u, $price, true);
     $d = shop_discount_pct($u, $shopId, $itemId);
     $p = $d ? max(1, (int)round($p * (100 - $d) / 100)) : $p;
+    $p = mark_buy_price($u, $p, $shopId, $itemId);   // F02 lasting marks
     return $itemId > 0 ? max(1, (int)round($p * market_buy_mult($itemId))) : $p;   // v1.0.0: seasonal seeds and crops cost a little less in season
 }
 
@@ -416,7 +420,7 @@ function shop_discount_pct(array $u, int $shopId, int $itemId = 0): int
     $d = $fd[$key];
     if ($sale && strtotime($sale . ' UTC') > time()) $d += 20;   // the weather vane (v0.7.31)
     require_once __DIR__ . '/player_perks.php';
-    $d += player_perk_pct($uid, 'silver_tongue', 'perk_silver_tongue');   // 2.6.33
+    $d += mark_vs_old($uid, 'buy', mark_ctx_shop($shopId, $itemId), 'silver_tongue', 'perk_silver_tongue')[0];   // 2.6.33 (a lasting mark that beats it: mark_buy_price instead)
     require_once __DIR__ . '/trail_sight_extras.php'; $d += trail_sight_disc_pct($uid, 'shop') + sights5_disc_item_pct($uid, $itemId);   // 2.7.00: a Trail Sight's shop discount; fifth pass: one scoped to this item's category (disc=shop:20:60:seed)
     return max(0, min(60, $d));
 }
@@ -512,6 +516,7 @@ function shop_buy_floor(int $itemId, ?array $u): ?int
         if ($u) {
             $p = charm_price($u, $p, true);
             if ($d = shop_discount_pct($u, (int)$r['shop_id'], $itemId)) $p = max(1, (int)round($p * (100 - $d) / 100));   // 2.7.58 EC3: the same discounts shop_price applies
+            $p = mark_buy_price($u, $p, (int)$r['shop_id'], $itemId);   // and the same lasting marks
         }
         $p = max(1, (int)round($p * $mult));
         if ($best === null || $p < $best) $best = $p;
@@ -551,13 +556,20 @@ function sell_to_shop(array $u, int $itemId, int $qty, int $shopId = 0): array
     $bonus = shop_sell_bonus((int)$u['id'], $shopId);
     $chunk = max(1, mk_int('price_vol_units', 8));
     $total = 0;
+    $mkCtx = mark_ctx_shop($shopId, $itemId);
+    $mk = mark_fx((int)$u['id'], 'sell', $mkCtx);   // F01 lasting marks: on top of the batch, never past the buy-back floor
+    $room = 0;
     for ($left = $qty; $left > 0; $left -= $chunk) {
         $n = min($chunk, $left);
-        $total += sell_price_with_bonus($item, $u, $bonus) * $n;
+        $each = sell_price_with_bonus($item, $u, $bonus);
+        $total += $each * $n;
+        if ($mk > 0) $room += (($cap = shop_buy_floor($itemId, $u)) === null ? $each : max(0, $cap - $each)) * $n;
         try { market_volume_add($itemId, $n); } catch (PDOException $e) { /* pressure is a nicety */ }   // v1.0.0: selling lots of one thing lowers its price a little
     }
+    $total += min($room, mark_more($total, $mk));
     q('UPDATE users SET coins = coins + ? WHERE id = ?', [$total, $u['id']]);
+    $mkLine = mark_coins_line(mark_coins_on((int)$u['id'], 'first_sale_at_the_stops_stall', $mkCtx));   // A4: a stall's first sale of the game day
     db()->commit();
     calling_event((int)$u['id'], 'sell', (string)$item['slug'], $qty, ['cat' => (string)$item['category'], 'coins' => $total]);   // v0.9.4 N6: sold to a shop
-    return [true, "You sell $qty × {$item['name']} for " . number_format($total) . ' ' . setting('currency_name') . '.', $total, (string)$item['name']];
+    return [true, "You sell $qty × {$item['name']} for " . number_format($total) . ' ' . setting('currency_name') . '.' . ($mkLine !== '' ? ' ' . $mkLine . '.' : ''), $total, (string)$item['name']];
 }

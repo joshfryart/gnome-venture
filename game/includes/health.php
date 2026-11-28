@@ -126,8 +126,10 @@ function hp_heal_points(array $u, int $n): int
     $uid = (int)$u['id'];
     [$hp, $max] = hp_get($u);
     if ($hp >= $max) return 0;
-    require_once __DIR__ . '/player_perks.php';   // 2.6.33: Good Bones perk
-    if (($gb = player_perk_pct($uid, 'good_bones', 'perk_good_bones')) > 0) $n += max(1, (int)round($n * $gb / 100));
+    require_once __DIR__ . '/stop_mark_hooks.php';   // 2.6.33: Good Bones perk; F09 lasting marks, the larger of the two
+    [$gb, $mk] = mark_vs_old($uid, 'heal', mark_ctx_here($uid), 'good_bones', 'perk_good_bones');
+    if ($gb > 0) $n += max(1, (int)round($n * $gb / 100));
+    $n += mark_more($n, $mk);
     $new = min($max, $hp + $n);
     $loc = (int)q_val('SELECT location_id FROM users WHERE id = ?', [$uid]);
     hp_store($uid, $new, $max, hp_clock_runs($uid, $loc));

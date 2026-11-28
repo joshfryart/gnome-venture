@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/stop_mark_hooks.php';   // lasting marks (behind stop_marks_open)
+
 /**
  * The gnome: stats, callings, meals, gnome level and garden level.
  * Stats work like tabletop RPGs: 10 is average, and every 2 points above 10 gives +1 modifier.
@@ -305,7 +307,9 @@ function add_xp(int $uid, int $n, string $source = ''): ?int
     $earned = $n;   // v1.2.0: player mentors: what the gnome earned before any newcomer bonus
     if ($n > 0) {   // 2.6.33: Bright Mood perk
         require_once __DIR__ . '/player_perks.php';
-        if (($bm = player_perk_pct($uid, 'bright_mood', 'perk_bright_mood')) > 0) $n += max(1, (int)round($n * $bm / 100));
+        [$bm, $mk] = mark_vs_old($uid, 'xp', mark_ctx_here($uid), 'bright_mood', 'perk_bright_mood');   // F03 lasting marks: the larger of the two
+        if ($bm > 0) $n += max(1, (int)round($n * $bm / 100));
+        $n += mark_more($n, $mk);
     }
     if ($n > 0) {
         require_once __DIR__ . '/mentors120.php';
@@ -352,10 +356,11 @@ function add_xp(int $uid, int $n, string $source = ''): ?int
 }
 
 /** Garden XP for one garden. Returns the new garden level if it went up. */
-function add_garden_xp(int $plotId, int $n): ?int
+function add_garden_xp(int $plotId, int $n, array $markCtx = []): ?int
 {
     $p = q_one('SELECT garden_level, garden_xp FROM plots WHERE id = ?', [$plotId]);
     if (!$p) return null;
+    $n += mark_more($n, mark_fx(mark_plot_owner($plotId), 'gxp', $markCtx));   // F04 lasting marks ($markCtx: the crop, for crop perks)
     $xp = (int)$p['garden_xp'] + $n;
     $level = (int)$p['garden_level'];
     while ($xp >= garden_xp_for_level($level + 1)) {
@@ -435,8 +440,9 @@ function buff_minutes(array $u, int $base, int $itemId = 0): int
 {
     require_once __DIR__ . '/food_mastery.php';
     require_once __DIR__ . '/craft_mastery.php';
-    require_once __DIR__ . '/player_perks.php';
-    $minutes = (int)round($base * (100 + calling_perk($u, 'buff_pct') + food_rank_buff_pct((int)($u['id'] ?? 0)) + player_perk_pct((int)($u['id'] ?? 0), 'packed_lunch', 'perk_packed_lunch') + craft_mastery_buff_pct((int)($u['id'] ?? 0), $itemId)) / 100);   // + craft mastery (food and potions)
+    [$old, $mk] = mark_vs_old((int)($u['id'] ?? 0), 'buff', mark_ctx_here((int)($u['id'] ?? 0)) + mark_ctx_item($itemId), 'packed_lunch', 'perk_packed_lunch');   // F08 lasting marks: the larger of the two
+    $minutes = (int)round($base * (100 + calling_perk($u, 'buff_pct') + food_rank_buff_pct((int)($u['id'] ?? 0)) + $old + craft_mastery_buff_pct((int)($u['id'] ?? 0), $itemId)) / 100);   // + craft mastery (food and potions)
+    $minutes += mark_more($minutes, $mk);
     require_once __DIR__ . '/gardens.php';
     $pct = user_building_bonus((int)$u['id'], 'kitchen')['buff_pct'];   // v0.9.5: best kitchen +25% / +50%, other gardens' kitchens add a little (stacking)
     if ($pct > 0) $minutes = (int)round($minutes * (100 + $pct) / 100);
@@ -621,8 +627,10 @@ function eat_item(array $u, int $itemId, ?bool $confirm = null): array
             $max = max_energy($u);
             $n = (int)$fx['energy'];
             if ($homeCooked) $n = dish_energy($n);   // v0.9.4: the cook_energy_percent knob (default 115) (home-cooked only)
-            require_once __DIR__ . '/player_perks.php';
-            if ($homeCooked && ($sn = player_perk_pct($uid, 'seasoned', 'perk_seasoned')) > 0) $n += max(1, (int)round($n * $sn / 100));   // 2.6.33
+            $mkCtx = mark_ctx_here($uid) + mark_ctx_item((int)$item['id']);   // F07 lasting marks: energy from dishes, the larger of it and Seasoned
+            [$sn, $mk] = mark_vs_old($uid, 'meal', $mkCtx, 'seasoned', 'perk_seasoned');
+            if ($homeCooked && $sn > 0) $n += max(1, (int)round($n * $sn / 100));   // 2.6.33
+            if ($item['category'] === 'food') $n += mark_more($n, $mk);
             $pct = ($item['category'] === 'food' && strncmp((string)$item['slug'], 'bought-', 7) !== 0) ? calling_perk($u, 'meal_energy_pct') : 0;   // v0.9.1 (v0.9.4: a percent, not +1): home-cooked meals only
             if ($pct > 0) $n += max(1, (int)round($n * $pct / 100));
             // whole numbers written into the SQL so the comparison is numeric (SQLite compares bound values as text)
