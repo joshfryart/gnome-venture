@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.96
+- **Admin > Settings: "Map v2 check".** A fold at the bottom lists, in plain words, the version, the two settings, whether the world picture and layout and each region's picture and road match are there, and which maps are new or old. Added because a site with both settings on still showed the old maps and nothing said why.
+
 ## 2.8.95
 - **Map v2: the World page banner follows it.** The picture at the top of the World page was always the old map picture; with `map_v2_open` on (and World v2 on) it now shows the lit floor picture of the region, or the delve-down world picture. Checked on a fresh install with both settings on: World page, region map with roots, places and bottom sheet, no script errors. Nothing changes with the setting off.
 
