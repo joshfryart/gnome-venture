@@ -229,6 +229,7 @@ page_header($spot ? $spot['name'] : $town . ' Town Square');
   <?= place_switcher_html($node, $hub ? 'hub' : 'here') ?>
   <?= place_header_html('stop-market.png', $town . ' town square', 'Main stop · Town square', $town, '', place_chips($u)) ?>
   <?php if (!$hub) { require_once __DIR__ . '/includes/destination.php'; echo dest_resume_html($u); }   // v1.0.4: carry on along the route ?>
+  <?php if ($hub && here_hub_map_on()): ?><p class="hubmaplink"><a class="btn" href="<?= e(url('here.php?hub=1')) ?>">🗺️ Mossbottom picture map</a></p><?php endif;   // 2.8.99b: the hub's Here picture ?>
   <?php if ($glance && ($fest = town_festival($town))): ?>
     <div class="festival"><span><?= $fest[1] ?></span><div><b>Today: the <?= e($fest[0]) ?>!</b> <?= e($fest[3]) ?><br><small>Everything in the square pays twice today, and there’s a festival stall on the Green.</small></div></div>
   <?php endif; ?>

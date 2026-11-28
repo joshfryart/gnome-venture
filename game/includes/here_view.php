@@ -448,7 +448,7 @@ function here_spots(array $u, array $node, array $L, string $back, string $kind)
             $verb = $doneF ? 'Done' : ($chip !== '' ? $chip : (HERE_VERBS[$k] ?? ''));   // v2.5.40: the verb chip (Shop, Talk, Rest...) in the list of places
             $id = 's-' . $k . ($n > 0 ? '-' . ($n + 1) : '');   // the id follows the behaviour (stable links), a second front with the same behaviour gets -2, -3
             $h = ['id' => $id, 'x' => (int)$sp['x'], 'y' => (int)$sp['y'], 'label' => $lab, 'emoji' => $emo, 'chip' => $verb, 'cls' => trim($cls . ($doneF ? ' dim is-done' : '')),
-                  'href' => $crd !== '' ? url($back . '?o=' . $id) : $href, 'card' => $crd];
+                  'href' => $crd !== '' ? url(here_o_href($back, $id)) : $href, 'card' => $crd];
             if (isset($sp['box'])) $h['box'] = $sp['box'];
             $hot[] = $h;
         }
@@ -634,16 +634,40 @@ function here_quest_ready(array $u, array $node, array $n): bool
     } catch (Throwable $e) { return false; }
 }
 
-/** The whole picture block for the page. */
-function here_view(array $u, array $node, bool $debug = false, string $open = ''): string
+/** A no-script link that opens card $id on the picture page $back ('here.php', or 'here.php?hub=1' for the Mossbottom picture). */
+function here_o_href(string $back, string $id): string
 {
-    if (!$debug && stop_is_place($node)) {   // v2.5.54: standing at a rest stop is a visit: the passport stamp comes with it (the old local page did this)
+    return $back . (str_contains($back, '?') ? '&' : '?') . 'o=' . $id;
+}
+
+/** The hub location (Mossbottom Market, kind 'hub'), or null. */
+function here_hub_node(): ?array
+{
+    return q_one("SELECT * FROM locations WHERE kind = 'hub' ORDER BY id LIMIT 1");
+}
+
+/**
+ * 2.8.99b: Mossbottom's picture from anywhere (here.php?hub=1). Mossbottom is reachable from anywhere, so a gnome looks in on it without walking there:
+ * the same town picture as standing in it (layout town-hub, art scenes/here-town-hub.png, the same fallbacks), its spots open the hub's own cards
+ * (town.php?hub=1&spot=..., the hub shops); the gateway spot ('wild') leads back to the place the gnome is standing in, and the compass says so.
+ */
+function here_hub_view(array $u, bool $debug = false, string $open = ''): string
+{
+    $hub = here_hub_node();
+    if (!$hub) return '<p class="muted">Mossbottom is not on the map yet.</p>';
+    return here_view($u, $hub, $debug, $open, true);
+}
+
+/** The whole picture block for the page. $peek: the Mossbottom picture seen from anywhere (here_hub_view), not the place the gnome stands in. */
+function here_view(array $u, array $node, bool $debug = false, string $open = '', bool $peek = false): string
+{
+    if (!$debug && !$peek && stop_is_place($node)) {   // v2.5.54: standing at a rest stop is a visit: the passport stamp comes with it (the old local page did this)
         require_once __DIR__ . '/stop_pass.php';
         foreach (stop_stamp((int)$u['id'], $node)[1] as $m) flash($m);
     }
     $kind = here_kind($node);
     $found = here_layout_find(here_layouts_all(), $kind, (string)($node['landscape'] ?? ''), (string)($node['slug'] ?? ''), here_layout_ctx($node, $kind));
-    $back = 'here.php';
+    $back = $peek ? 'here.php?hub=1' : 'here.php';
     if (!$found) {   // no template at all: the list is the page
         return '<p class="muted">No picture for this place yet. Use the list below.</p>' . here_text_list($u, $node);
     }
@@ -651,19 +675,36 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
     $gate = ($L['view'] ?? '') === 'gate';   // a gate-view picture: no exits painted on it; the compass opens the Routes list, the globe the World map
     if ($gate) { $exits = []; $more = []; } else [$exits, $more] = here_exits($u, $node, $L, $back);
     $spots = here_spots($u, $node, $L, $back, $kind);
+    if ($peek) {   // the gateway leads back to where the gnome stands (the Wild Trail is for places on a road)
+        $spots = array_values(array_filter($spots, fn($h) => !str_starts_with((string)$h['id'], 's-wild')));
+        $home = player_node($u);
+        foreach ($L['spots'] ?? [] as $sp) {
+            if ((string)($sp['as'] ?? $sp['k']) !== 'wild') continue;
+            $h = ['id' => 's-wild', 'x' => (int)$sp['x'], 'y' => (int)$sp['y'], 'label' => 'Back to ' . $home['name'], 'emoji' => '↩️', 'chip' => 'Go', 'cls' => '', 'href' => url('here.php'), 'card' => ''];
+            if (isset($sp['box'])) $h['box'] = $sp['box'];
+            $spots[] = $h;
+            break;
+        }
+    }
     [$sprites, $over] = here_sprites($u, $node, $L, $kind);
     if ($gate && ($gurl = (function () use ($u): string { require_once __DIR__ . '/gnome25.php'; return gnome25_url($u); })()) !== '') {   // you stand in the street line too, in your own colours (the 2.5D gnome rig)
         array_unshift($sprites, ['id' => 'you', 'x' => 0, 'y' => 0, 'name' => 'You', 'href' => url('gnome.php'), 'src' => $gurl, 'w' => 64, 'h' => 80, 'fw' => 64, 'fh' => 80, 'frames' => 8, 'emoji' => '🧙']);
     }
     $opts = ['layout' => $L, 'alt' => 'Where you are: ' . $node['name'], 'open' => $open, 'debug' => $debug, 'close_href' => url($back), 'title' => 'List view'];
-    $canWander = can_wander_from((int)$node['id']) && ts($u['community_shift_until'] ?? null) <= time();   // v2.6.72: Wander is a round button under the picture, like Fast travel and GPS
+    $canWander = !$peek && can_wander_from((int)$node['id']) && ts($u['community_shift_until'] ?? null) <= time();   // v2.6.72: Wander is a round button under the picture, like Fast travel and GPS
     if ($gate) {
         $opts['chrome'] = true; $opts['pills'] = true; $opts['navbar'] = true; $opts['street'] = true; $opts['legfold'] = true; $opts['twin'] = false; $GLOBALS['gnav_gate'] = true;
         $opts['nav'] = [
             'routes' => ['href' => url($back . '?o=routes'), 'title' => 'Routes', 'card' => here_routes_card($u, $node, $back)],
             'extra' => array_merge((function () use ($u, $node): array { require_once __DIR__ . '/stops.php'; $pk = stop_perk_nav($u, $node); return $pk ? [$pk] : []; })(), array_merge(here_mentor_nav($node), [['id' => 'ft', 'label' => 'Fast travel', 'icon' => 'ico-boot.png', 'href' => url('world.php?tab=travel#fasttravel')], ['id' => 'gps', 'label' => 'GPS', 'icon' => 'ico-map-pin.png', 'href' => url('world.php#gopanel')]], $canWander ? [['id' => 'wander', 'label' => 'Wander', 'title' => 'Wander off the path', 'icon' => 'ico-leaf.png', 'form' => 'wanderform']] : [])),
-            'world' => ['href' => url($back . '?o=world'), 'title' => 'World map', 'card' => '<p class="muted">The whole world, region by region.</p><p><a class="btn" href="' . e(url('world.php?tab=map#regionmap')) . '">Open region map</a></p><p><a class="btn alt" href="' . e(url('world.php')) . '">Open the World page</a> <a class="btn alt" href="' . e(url('world.php?tab=markets')) . '">🏪 Shops</a> <a class="btn alt" href="' . e(url('villagers.php')) . '">Villagers</a></p>'],
+            'world' => ['href' => url(here_o_href($back, 'world')), 'title' => 'World map', 'card' => '<p class="muted">The whole world, region by region.</p><p><a class="btn" href="' . e(url('world.php?tab=map#regionmap')) . '">Open region map</a></p><p><a class="btn alt" href="' . e(url('world.php')) . '">Open the World page</a> <a class="btn alt" href="' . e(url('world.php?tab=markets')) . '">🏪 Shops</a> <a class="btn alt" href="' . e(url('villagers.php')) . '">Villagers</a></p>'],
         ];
+        if ($peek) {   // Mossbottom from anywhere: no roads out of it, the compass leads back; no mentor or Wander here
+            $home = player_node($u);
+            $opts['nav']['routes'] = ['href' => url(here_o_href($back, 'routes')), 'title' => 'Routes', 'card' => '<p class="muted">🍄 Mossbottom is reachable from anywhere: you look in without walking.</p><p><a class="btn" href="' . e(url('here.php')) . '">↩️ Back to ' . e((string)$home['name']) . '</a></p>'];
+            $opts['nav']['extra'] = [['id' => 'ft', 'label' => 'Fast travel', 'icon' => 'ico-boot.png', 'href' => url('world.php?tab=travel#fasttravel')], ['id' => 'gps', 'label' => 'GPS', 'icon' => 'ico-map-pin.png', 'href' => url('world.php#gopanel')]];
+            $opts['close_href'] = url($back);
+        }
     }
     if ($over > 0) $opts['more'] = ['label' => '+' . $over . ' more villagers', 'href' => url('villagers.php')];
     $h = hub_scene($key, array_merge($exits, $spots), $sprites, $opts);
