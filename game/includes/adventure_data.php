@@ -653,6 +653,7 @@ function smooth_creatures(): void
     $stats = ['items' => 0, 'pages' => 0];
     import_creatures_txt($stats);
     import_pf_creatures($stats);   // 2.7.01
+    if (setting('world_v2_open') === '1') { require_once __DIR__ . '/creatures_v2.php'; creatures_v2_import(); }   // 2026-11-28: creatures added to data/creatures_v2.txt later reach a world v2 too
     $fix = ['grass-snake' => [75, 7, 15, 8, 3, 58, 6, 15, 6, 3], 'grey-heron' => [80, 8, 16, 8, 3, 66, 6, 15, 8, 3],
             'mischief-monkey' => [80, 8, 16, 8, 3, 66, 6, 15, 8, 3], 'red-fox' => [85, 8, 16, 8, 4, 76, 7, 16, 8, 3], 'raccoon' => [85, 8, 16, 8, 4, 76, 7, 16, 8, 3]];
     foreach ($fix as $slug => [$h0, $a0, $d0, $die0, $b0, $h, $a, $d, $die, $b]) {

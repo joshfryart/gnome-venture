@@ -149,6 +149,12 @@ function pfd_class_map(bool $reload = false): array
 /** The file of the creature pass (tests point $GLOBALS['PF_CREATURES_FILE'] at a fixture). */
 function pfd_creature_path(): string { return (string)($GLOBALS['PF_CREATURES_FILE'] ?? (__DIR__ . '/data/pf_creatures.txt')); }
 
+/** 2026-11-28: the rows of the world v2 creatures (data/pf_creatures_v2.txt, creatures_v2.php), read with the shipped file only while world_v2_open is on. */
+function pfd_creature_v2_path(): string
+{
+    return !isset($GLOBALS['PF_CREATURES_FILE']) && function_exists('setting') && setting('world_v2_open') === '1' ? __DIR__ . '/data/pf_creatures_v2.txt' : '';
+}
+
 /**
  * data/pf_creatures.txt (2.7.01, claude/creature-pass/SPEC.md sec 1): slug => the row's cells, parsed. The old data/creatures.txt rows are never touched; this file adds the variants and gives every row
  * (base too) its ability, ai style, regions, petals and exp. Keys: slug, family, base (bool: a base row), name, size, lands, regions (list; ['*'] = every region), level, cond, ab (ability ids), abp (id => overrides),
@@ -157,11 +163,12 @@ function pfd_creature_path(): string { return (string)($GLOBALS['PF_CREATURES_FI
 function pfd_creature_rows(bool $reload = false): array
 {
     static $R = null, $path = null;
-    $now = pfd_creature_path();
+    $now = pfd_creature_path() . '|' . pfd_creature_v2_path();
     if ($R !== null && !$reload && $path === $now) return $R;
     $R = []; $path = $now;
-    if (!is_file($now)) return $R;
-    foreach (file($now, FILE_IGNORE_NEW_LINES) as $line) {
+    $lines = [];
+    foreach (explode('|', $now) as $f) if ($f !== '' && is_file($f)) $lines = array_merge($lines, file($f, FILE_IGNORE_NEW_LINES));
+    foreach ($lines as $line) {
         $line = trim($line);
         if ($line === '' || $line[0] === '#') continue;
         $c = array_map('trim', explode('|', $line));
