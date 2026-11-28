@@ -149,13 +149,13 @@ function town_state_lines(int $uid, int $rid, ?int $left = null): array
     };
 }
 
-/** The chip and lines 1-2 for the town page ('' when off or no region). */
+/** Lines 1-2 for the town page and the Here caption ('' when off or no region); the state word and ladder are the banner's. */
 function town_chip_html(int $uid, int $rid): string
 {
     if (!town_states_on() || $rid < 1) return '';
     $st = town_state($uid, $rid);
     [$a, $b] = town_state_lines($uid, $rid);
-    return '<div class="tstate tstate-' . $st . '"><span class="chip tstate-chip">' . e(town_state_name($st)) . '</span> <span class="tstate-l1">' . e($a) . '</span>'
+    return '<div class="tstate tstate-' . $st . '"><span class="tstate-l1">' . e($a) . '</span>'   // the state word itself is in the banner (town_banner_html)
         . '<p class="tstate-l2">' . e($b) . '</p></div>';
 }
 
@@ -171,6 +171,96 @@ function town_state_count_html(int $uid, int $rid): string
 {
     if (!town_states_on() || $rid < 1 || !town_of_region($rid)) return '';
     return '<p class="help tstate-count">🏘️ Town: ' . e(town_state_name(town_state($uid, $rid))) . ' (R ' . town_r_best($uid, $rid) . ' of ' . TOWN_FIXED_AT . ')</p>';
+}
+
+// ---------------------------------------------------------------- the state banner (owner: "have the town or stop state clearly marked on the page")
+
+const TOWN_STATE_ICONS = ['ruin' => '🏚️', 'work' => '🔨', 'fixed' => '🌟'];
+
+/**
+ * The state banner for any place with a three-step (or longer) state ladder: a big word with its icon, the ladder (earlier steps ticked, the current one
+ * filled), one line on what it means and one next-step line. Plain HTML, no script, no inline style: colour comes from the class stb-<key>.
+ * $state: ['key' => current step key, 'steps' => [key => [icon, label], ...] in order, 'kicker' => 'Town state', 'means' => '...', 'next' => '...'].
+ * Built for the town states here; the stop (village) states can pass their own array unchanged. '' when the key is not one of the steps.
+ */
+function town_state_banner_html(array $state, string $placeName): string
+{
+    $key = (string)($state['key'] ?? '');
+    $steps = (array)($state['steps'] ?? []);
+    if (!isset($steps[$key])) return '';
+    [$icon, $word] = array_values($steps[$key]) + ['', ''];
+    $kick = trim((string)($state['kicker'] ?? 'State') . ($placeName !== '' ? ' · ' . $placeName : ''));
+    $h = '<section class="stb stb-' . e($key) . '" aria-label="' . e($kick . ': ' . $word) . '">'
+        . '<div class="stb-head"><span class="stb-icon" aria-hidden="true">' . e((string)$icon) . '</span><div><p class="stb-kick">' . e($kick) . '</p><p class="stb-word">' . e((string)$word) . '</p></div></div>'
+        . '<ol class="stb-ladder">';
+    $seen = false;
+    foreach ($steps as $k => $st) {
+        [$si, $sl] = array_values($st) + ['', ''];
+        $now = $k === $key;
+        $mark = $now ? 'now' : ($seen ? 'todo' : 'done');
+        if ($now) $seen = true;
+        $h .= '<li class="stb-step stb-step-' . e((string)$k) . ' is-' . $mark . '"' . ($now ? ' aria-current="step"' : '') . '><span class="stb-pip" aria-hidden="true">'
+            . ($mark === 'done' ? '✓' : ($now ? e((string)$si) : '')) . '</span><span class="stb-lab">' . e((string)$sl) . ($mark === 'done' ? '<span class="visually-hidden"> (done)</span>' : '') . '</span></li>';
+    }
+    $h .= '</ol>';
+    if (($m = (string)($state['means'] ?? '')) !== '') $h .= '<p class="stb-means">' . e($m) . '</p>';
+    if (($n = (string)($state['next'] ?? '')) !== '') $h .= '<p class="stb-next"><b>Next:</b> ' . e($n) . '</p>';
+    return $h . '</section>';
+}
+
+/** The small state tag for a header chip row ('' when the key is not one of the steps). */
+function town_state_tag_html(array $state): string
+{
+    $key = (string)($state['key'] ?? '');
+    $steps = (array)($state['steps'] ?? []);
+    if (!isset($steps[$key])) return '';
+    [$icon, $word] = array_values($steps[$key]) + ['', ''];
+    return '<span class="stb-tag stb-tag-' . e($key) . '">' . e(trim($icon . ' ' . $word)) . '</span>';
+}
+
+/** How many more villages must be mended (Repairs latched) to reach R >= $at: an untouched village adds 2 to 2F+W, one under repair 1. */
+function town_villages_to(array $p, int $at): int
+{
+    $need = (int)ceil($at * 2 * $p['n'] / 100) - (2 * $p['f'] + $p['w']);
+    if ($need <= 0) return 0;
+    $fresh = max(0, $p['n'] - $p['f'] - $p['w']);
+    return $need <= 2 * $fresh ? (int)ceil($need / 2) : $fresh + ($need - 2 * $fresh);
+}
+
+/** The town's state array for town_state_banner_html (key, steps, kicker, what it means for the shop, the next step with the real R numbers). */
+function town_state_info(int $uid, int $rid): array
+{
+    $st = town_state($uid, $rid);
+    $p = town_region_parts($uid, $rid);
+    $region = (string)q_val('SELECT gnomish_name FROM regions WHERE id = ?', [$rid]);
+    $steps = [];
+    foreach (TOWN_STATE_NAMES as $k => $name) $steps[$k] = [TOWN_STATE_ICONS[$k], $name];
+    $back = match ($st) {
+        'ruin' => 'empty for now.',
+        'work' => TOWN_BACKROOM['work']['staple'] . ' staple seeds a day kept for you.',
+        default => TOWN_BACKROOM['fixed']['staple'] . ' staple seeds and ' . TOWN_BACKROOM['fixed']['rare'] . ' rarer seeds a day, and one guide, kept for you.',
+    };
+    if ($st === 'fixed') $next = 'The whole region is mended.';
+    else {
+        [$to, $at] = $st === 'ruin' ? ['work', TOWN_WORK_AT] : ['fixed', TOWN_FIXED_AT];
+        $k = max(1, town_villages_to($p, $at));
+        $next = 'Mend ' . $k . ' more ' . ($k === 1 ? 'village' : 'villages') . ' in ' . $region . ' to reach ' . town_state_name($to) . ' (R ' . $p['r'] . ' of ' . $at . ').';
+    }
+    return ['key' => $st, 'steps' => $steps, 'kicker' => 'Town state', 'means' => 'The shop door is always open. Back room: ' . $back, 'next' => $next];
+}
+
+/** The banner for a region town ('' when town states are off, or the hub). */
+function town_banner_html(int $uid, int $rid, string $placeName): string
+{
+    if (!town_states_on() || $rid < 1) return '';
+    return town_state_banner_html(town_state_info($uid, $rid), $placeName);
+}
+
+/** The small tag for a region town's header chip row ('' when off, or the hub). */
+function town_tag_html(int $uid, int $rid): string
+{
+    if (!town_states_on() || $rid < 1) return '';
+    return town_state_tag_html(town_state_info($uid, $rid));
 }
 
 /** Is this shop a region town's (not the hub, not a pet shop)? Returns the town's region id, or 0. */
@@ -192,7 +282,8 @@ function town_shop_line_html(array $u, array $shop): string
         $left = 0;
         foreach (q('SELECT id FROM shop_stock WHERE shop_id = ?', [(int)$shop['id']])->fetchAll(PDO::FETCH_COLUMN) as $sid) if (town_backroom_class(town_backroom_row((int)$sid)) === 'staple') $left += town_backroom_left($u, (int)$sid);
     }
-    return '<p class="tstate tstate-' . $st . ' tstate-shop"><span class="chip tstate-chip">' . e(town_state_name($st)) . '</span> ' . e(town_state_lines($uid, $rid, $left)[2]) . '</p>';
+    $t = town_of_region($rid);
+    return town_banner_html($uid, $rid, (string)($t['name'] ?? '')) . '<p class="tstate tstate-' . $st . ' tstate-shop">' . e(town_state_lines($uid, $rid, $left)[2]) . '</p>';   // the banner, then line 3
 }
 
 // ---------------------------------------------------------------- pictures

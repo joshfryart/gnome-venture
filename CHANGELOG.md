@@ -8,6 +8,7 @@
   - **The far shelf:** shop rows can be kept for a town state (`shop_stock.min_town_state`, default 0). No row uses it yet.
   - The town pictures look for `here-town-<code>-ruin.png` / `-work.png` and `stop-market-ruin.png` / `-work.png`; while one is missing the normal picture is shown (on the Here picture slightly greyed).
   - With it off, towns and shops are exactly as before. Test: `tests/town_states.sh` (new).
+- **The town state is marked clearly on the page** (town states on): a coloured State banner under the town square's header, the Here page's name line and the town's shop header: a big word with its icon (🏚️ Run low, 🔨 Mending, 🌟 Thriving), a three-step ladder (earlier steps ticked, the current one filled), what it means for the shop ("The shop door is always open. Back room: ...") and the next step with the real numbers ("Mend 4 more villages in The Maplewold to reach Thriving (R 15 of 50)."; at Thriving "The whole region is mended."). A small state tag joins the Day / Rain / Season chips on the town page and the clock line on the Here page. It replaces the small grey chip; the story and Wren lines stay. One function (`town_state_banner_html`) takes a plain state array, so the stop states can use it later. Setting off: nothing changes. Test: `tests/town_state_banner.sh` (new).
 
 ## 2.8.99
 - **Sights v2, switched off behind `sights_v2_open` (Admin, Settings, Hollow group; default Off).** The first three steps of the Sights rework (`claude/proposal-sights-rework.md`). With it on:
