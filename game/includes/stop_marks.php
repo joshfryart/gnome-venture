@@ -263,11 +263,22 @@ function mark_after(array $u, array $loc, array $a, string $note, bool $fest): a
 {
     $uid = (int)$u['id'];
     $lines = [];
-    foreach (mark_points($uid, $loc, $a, $note, $fest) as $bar => $pts) {
+    $byBar = mark_points($uid, $loc, $a, $note, $fest);
+    $townBefore = '';
+    if (isset($byBar['repairs']) && (int)($loc['region_id'] ?? 0) > 0 && setting('town_states_open') === '1') {   // 2.8.100 town states: does this Repairs add lift the region's town?
+        require_once __DIR__ . '/town_states.php';
+        if (town_states_on()) $townBefore = town_state($uid, (int)$loc['region_id']);
+    }
+    foreach ($byBar as $bar => $pts) {
         $was = isset(mark_latched($uid, (int)$loc['id'])[$bar]);
         [, $perk] = mark_bar_add($uid, $loc, $bar, $pts);
         $lines[] = STOP_METERS[$bar][0] . ' ' . STOP_METERS[$bar][1] . ($was ? ' kept up' : ' +' . $pts);
         if ($perk) $lines[] = '🌟 ' . STOP_METERS[$bar][1] . ' is ' . strtolower(MARK_BARS[$bar]) . ' at ' . $loc['name'] . ', for good. ' . trim($perk['icon'] . ' ' . $perk['name'] . ($perk['effect'] !== '' ? ': ' . $perk['effect'] : '')) . '.';
+    }
+    if ($townBefore !== '') {
+        town_states_reset();
+        $t = town_of_region((int)$loc['region_id']);
+        if ($t && ($tl = town_lift_line($townBefore, town_state($uid, (int)$loc['region_id']), (string)$t['name'])) !== '') $lines[] = $tl;
     }
     return $lines;
 }

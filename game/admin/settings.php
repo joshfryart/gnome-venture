@@ -68,6 +68,7 @@ if (is_post()) {
         if ($changes) admin_log('settings', '', json_encode($changes, JSON_UNESCAPED_UNICODE));
         if (isset($changes['guide_price'])) { setting('__reload__'); require_once __DIR__ . '/../includes/journey.php'; ensure_guide_price(); }   // v0.7.65: reprice the guides in every shop
         if (isset($changes['gourmand_open'])) { setting('__reload__'); require_once __DIR__ . '/../includes/gourmand.php'; gourmand_sync_active(); }   // Pomeroy is only on the folk lists while the feature is on
+        if (($changes['seed_ladder_open'][1] ?? '') === '1') { setting('__reload__'); require_once __DIR__ . '/../includes/seed_ladder.php'; seed_ladder_ensure(); }   // 2.8.100: the gates and the switch-on time (gnomes made before it keep their seeds)
         flash('Settings saved.');
         redirect('admin/settings.php' . ($sq !== '' || $showAdv ? '?' . http_build_query(array_filter(['q' => $sq, 'adv' => $showAdv ? '1' : ''])) : ''));
     }

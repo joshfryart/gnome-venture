@@ -492,7 +492,7 @@ function world_map2_svg(array $u, ?int $sel = null): string
     // the hub
     [$hx, $hy] = world2_xy((float)$W['hub']['x'], (float)$W['hub']['y']);
     $hly = (int)round(((float)($W['hub']['label_y'] ?? $W['hub']['y'] + 30)) * $sy) - $hy;
-    $svg .= '<a href="' . e(url('town.php?hub=1')) . '" aria-label="Mossbottom hub"><title>Mossbottom: the hub, reachable from anywhere</title>'
+    $svg .= '<a href="' . e(url(hub_entry_url())) . '" aria-label="Mossbottom hub"><title>Mossbottom: the hub, reachable from anywhere</title>'
         . map_mark($hx, $hy, '<text y="8" text-anchor="middle" font-size="28">🍄</text>' . map2_plate(0, $hly, 'Mossbottom', 13)) . '</a>';
     $me = player_map_pos($u);
     if ($me) {

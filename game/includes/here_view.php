@@ -730,7 +730,19 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
         }
     }
     if ($over > 0) $opts['more'] = ['label' => '+' . $over . ' more villagers', 'href' => url('villagers.php')];
-    $h = hub_scene($key, array_merge($exits, $spots), $sprites, $opts);
+    $tsCap = '';
+    if ($kind === 'town' && !$peek && ($node['kind'] ?? '') === 'market' && setting('town_states_open') === '1') {   // 2.8.100 town states: the state twin of the scene (else the fixed one under a filter) and a caption
+        require_once __DIR__ . '/town_states.php';
+        if (town_states_on() && ($tsRid = (int)($node['region_id'] ?? 0)) > 0) {
+            $tsSt = town_state((int)$u['id'], $tsRid);
+            $file = here_layout_file($key);
+            $twin = town_state_art($file, $tsSt);
+            $opts['cls'] = 'tstate-' . $tsSt . ($tsSt !== 'fixed' && $twin === $file ? ' tstate-filter' : '');
+            if ($twin !== $file) $opts['src'] = 'assets/img/scenes/' . $twin;
+            $tsCap = '<div class="tstate-cap">' . town_chip_html((int)$u['id'], $tsRid) . town_wren_html((int)$u['id'], $tsRid) . '</div>';
+        }
+    }
+    $h = hub_scene($key, array_merge($exits, $spots), $sprites, $opts) . $tsCap;
     if ($gate && $canWander) $h .= '<form method="post" action="' . e(url('adventure.php')) . '" id="wanderform" hidden>' . csrf_field() . '<input type="hidden" name="do" value="explore"></form>';
     if ($more) $h .= '<p><a class="btn alt" href="' . e($more['href']) . '">' . e($more['label']) . '</a></p>';
     if ((int)($u['home_village_id'] ?? 0) === (int)$node['id']) $h .= '<p class="herehovel"><a class="btn alt" href="' . e(url('hovel.php')) . '">🏠 Hovel</a></p>';   // your home village: the way into your hovel

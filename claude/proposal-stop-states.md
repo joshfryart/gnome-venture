@@ -112,7 +112,7 @@ A ruined stop can already be stocked or merry (bars fill side by side): bunting 
 | Stop | State | Reason |
 |---|---|---|
 | The hub, Mossbottom Market | always `fixed` | Not in a region, has no bars. Home base |
-| The 14 market towns | always `fixed` building; overlays only | The safe harbour of each area: fast travel lands there, the shops must read as open, and the story says the roads went dark, not the towns. Also 14 one-off town scenes that would each need two hand-made twins |
+| The 14 market towns | always `fixed` building; overlays only | The safe harbour of each area: fast travel lands there, the shops must read as open, and the story says: "The towns kept one lamp lit and the door open. Then the carts stopped coming." (town states: `proposal-town-states.md`, 2.8.100). Also 14 one-off town scenes that would each need two hand-made twins |
 | The gnome's home village (`users.home_village_id`) | never `ruin`: starts at `work` | The first screen of a new gnome should be hopeful: neighbours on the scaffolding already. The first Repairs acts finish it, so M1 "The First Lamp" teaches the whole idea in one stop |
 | Havens | their own system, not the Repairs bar (below) | 12 of the 18 were never ruined: the kept-up refuges of the Hollow |
 

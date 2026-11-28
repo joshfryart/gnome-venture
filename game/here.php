@@ -26,7 +26,9 @@ $kindIcons = ['village' => '🏡', 'haven' => '🏕️', 'wonder' => '✨', 'lai
 <?php if (!gnav_on()): ?><p class="box notice">👀 Preview for admins: picture navigation is switched off for players (Admin → Settings → gnav_on).</p><?php endif; ?>
 <div class="herepage"><div class="crumbs">🌍 <a href="<?= e(url('world.php')) ?>">World</a> › <?= e((string)$node['region']) ?> › <b><?= e($node['name']) ?></b></div>
 <h1><?= $kindIcons[loc_real_kind($node)] ?? '📍' ?> <?= e($node['name']) ?></h1>
-<p class="hereinfo"><span class="muted">🕰️ It’s <?= e(hour_label(gclock_my_hour())) ?> in the Hollow, <?= e(gclock_my_weekday()) ?></span></p>
+<?php $tsRid = !$peek && $node['kind'] === 'market' && setting('town_states_open') === '1' ? (function () use ($node): int { require_once __DIR__ . '/includes/town_states.php'; return town_states_on() ? (int)$node['region_id'] : 0; })() : 0;   // 2.8.100 state banner ?>
+<p class="hereinfo"><span class="muted">🕰️ It’s <?= e(hour_label(gclock_my_hour())) ?> in the Hollow, <?= e(gclock_my_weekday()) ?></span><?= $tsRid ? ' ' . town_tag_html($uid, $tsRid) : '' ?></p>
+<?= $tsRid ? town_banner_html($uid, $tsRid, (string)$node['name']) : '' ?>
 <?php if ($peek): ?><p class="hereinfo"><span class="muted">🍄 Reachable from anywhere: you look in without walking.</span> <a class="btn alt small" href="<?= e(url('town.php?hub=1')) ?>">🏘️ Town square</a> <a class="btn alt small" href="<?= e(url('here.php')) ?>">↩️ Back to <?= e((string)player_node($u)['name']) ?></a></p>
 <?php else: require_once __DIR__ . '/includes/explore.php'; ?>
 <?= wander_step_once('road') /* v2.5.49: the gnome stepping back onto the road, once (art optional) */ ?>
