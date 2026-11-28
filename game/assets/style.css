@@ -9096,7 +9096,7 @@ label.check input[type=checkbox] { width: 24px; height: 24px; flex: none; }
 
 /* 2.8.93 Map v2: the lit floor region map widget (includes/map_v2.php region_map_block, assets/mapv2.js). Without JavaScript the map is a 16:9 picture
    with the list under it; with it (.mv2.on) the map pans and zooms inside a tall viewport and the list is a sheet over its bottom edge. */
-.mv2 { max-width: 760px; margin: 0 auto; }
+.mv2 { width: 100%; max-width: 980px; margin: 0 auto; }   /* 2.8.97: width 100% (inside a grid the auto margins shrank it to 314 px on a desktop) */
 .mv2-vp { position: relative; }
 .mv2-vp:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .mv2-svg { display: block; width: 100%; height: auto; background: #0e0f09; }
@@ -9136,7 +9136,7 @@ label.check input[type=checkbox] { width: 24px; height: 24px; flex: none; }
 .mv2-key { display: inline-block; width: 22px; height: 4px; border-radius: 2px; vertical-align: middle; background: #f0c85a; box-shadow: 0 0 0 2px #14110a; }
 .mv2-key.un { background: repeating-linear-gradient(90deg, #a39f8f 0 3px, transparent 3px 8px); }
 /* with JavaScript: a tall viewport the map pans in, controls top right, the list a sheet over the bottom */
-.mv2.on .mv2-vp { height: min(520px, 68vh); overflow: hidden; touch-action: none; border-radius: var(--radius); background: #0e0f09; cursor: grab; }
+.mv2.on .mv2-vp { height: min(620px, 72vh); overflow: hidden; touch-action: none; border-radius: var(--radius); background: #0e0f09; cursor: grab; }
 .mv2.on .mv2-vp.drag { cursor: grabbing; }
 .mv2.on .mv2-svg { width: 100%; height: 100%; max-width: none; border-radius: 0; box-shadow: none; user-select: none; -webkit-user-select: none; }
 .mv2.on .mv2-ctl { position: absolute; top: 8px; right: 8px; flex-direction: column; z-index: 3; }
@@ -9148,6 +9148,15 @@ label.check input[type=checkbox] { width: 24px; height: 24px; flex: none; }
 .mv2.on .mv2-rows { max-height: 0; overflow: auto; padding-bottom: 0; transition: max-height .3s ease; }
 .mv2.on .mv2-sheet.open .mv2-rows { max-height: min(240px, 34vh); padding-bottom: 10px; }
 .mv2.on .mv2-sheet .chip { background: transparent; color: #b5b09f; border-color: #3a3d30; }
-@media (min-width: 721px) { .mv2.on .mv2-vp { height: auto; aspect-ratio: 16 / 9; max-width: 760px; margin: 0 auto; } }
+@media (min-width: 721px) { .mv2.on .mv2-vp { height: auto; aspect-ratio: 16 / 9; max-width: 980px; margin: 0 auto; } }
+/* 2.8.97: a phone on its side (short screen): the map fills what is left above the bottom bar, the list sheet stays small */
+@media (max-height: 520px) and (orientation: landscape) {
+  .mv2.on .mv2-vp { height: max(200px, calc(100vh - 120px)); aspect-ratio: auto; max-width: none; }
+  .mv2.on .mv2-sheet { left: auto; top: 0; bottom: 0; width: clamp(240px, 46%, 320px); border-radius: 14px 0 0 14px; border-top: 0; border-left: 1px solid #3a3d30; display: flex; flex-direction: column; }
+  .mv2.on .mv2-sheet:not(.open) { bottom: auto; border-radius: 0 0 0 14px; }
+  .mv2.on .mv2-sheet.open .mv2-rows { max-height: none; flex: 1; min-height: 0; }
+  .mv2.on .mv2-ctl { right: auto; left: 8px; }
+  .mv2-hd { min-height: 48px; padding-block: 4px; }
+}
 @media (prefers-reduced-motion: reduce) { .mv2-rows, .mv2-sheet, .mv2.on .mv2-rows { transition: none; } }
 .worldmap.v2 .w2ruler text { paint-order: normal; }

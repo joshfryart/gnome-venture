@@ -843,3 +843,22 @@ function rl_spread_problems(array $L1, array $spread): array
     $min['root_longest'] = $longest;
     return ['bad' => $bad, 'min' => array_map(fn($v) => is_infinite($v) ? null : round($v, 1), $min), 'side' => $side, 'roots' => count($L2['trails']), 'off' => count($off)];
 }
+
+/** 2.8.96: why Map v2 is (or is not) showing on this site, as plain lines for Admin > Settings. */
+function map_v2_report(): array
+{
+    require_once __DIR__ . '/scene.php';
+    $o = [];
+    $o[] = 'Site version ' . APP_VERSION . '. Map v2 setting: ' . (map_v2_on() ? 'on' : 'OFF') . '. World v2 setting: ' . (world_v2_on() ? 'on' : 'OFF') . '.';
+    $wp = scene_path('map2', 'world') !== '';
+    $o[] = 'World map: picture map2-world.png ' . ($wp ? 'found' : 'MISSING') . ', layout world_v2_layout.json ' . (world2_layout() ? 'ok' : 'MISSING or bad') . ' -> ' . (map_v2_world_on() ? 'new map ON' : 'old map');
+    $all = rl_spread_all();
+    $o[] = 'Region data region_spread.json: ' . (isset($all['_meta']) ? 'found (' . rl_spread_ver() . ')' : 'MISSING');
+    foreach (array_keys(REGION_MAP) as $code) {
+        $L = function_exists('region_layout') ? region_layout($code, false) : null;
+        $pic = scene_path('map2', $code) !== '';
+        $sig = $L && ($all['_meta']['sig'][$code] ?? '') === rl_stop_sig($L);
+        $o[] = $code . ': picture ' . ($pic ? 'found' : 'MISSING') . ', roads ' . ($sig ? 'match' : 'DO NOT match') . ' -> ' . (map_v2_region_on($code) ? 'new map ON' : 'old map');
+    }
+    return $o;
+}

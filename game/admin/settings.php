@@ -138,5 +138,6 @@ foreach ($sections as $sec => $defs) {
   <?php endforeach; ?>
   <div class="savebar"><button class="btn">Save settings</button></div>
 </form>
+<?php require_once dirname(__DIR__) . '/includes/maps.php'; require_once dirname(__DIR__) . '/includes/region_layout.php'; if (function_exists('map_v2_report')): ?><details class="card"><summary>Map v2 check (why the new maps show or not)</summary><ul><?php foreach (map_v2_report() as $ln): ?><li><?= e($ln) ?></li><?php endforeach; ?></ul></details><?php endif; ?>
 <?php endif; ?>
 <?php page_footer();
