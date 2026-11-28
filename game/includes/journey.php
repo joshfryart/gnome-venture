@@ -83,17 +83,22 @@ const JOURNEY_LOCKS = ['maplewold-sugar-shack' => 'spot:na-sugarshack,place:lm-n
 /** The unfinished chapter that keeps this town spot ("spot") or place ("place") closed for this gnome, or null. */
 function journey_lock(int $uid, string $type, string $slug): ?array
 {
-    static $locks = null;
-    if ($locks === null) {
-        $locks = [];
+    static $all = [];
+    $play = array_column(journey_chapters(), 'id');   // (seeds the v2 chapters first while journey_v2_open is on)
+    $mode = (setting('journey_v2_open') === '1' ? 'v2:' : 'v1:') . setting('journey_v2_seeded');   // once v2 chapters exist they can hold locks too
+    if (!isset($all[$mode])) {
+        $all[$mode] = [];
         foreach (q("SELECT * FROM quest_chapters WHERE active = 1 AND locks IS NOT NULL AND locks <> ''")->fetchAll() as $c) {
-            foreach (array_filter(array_map('trim', explode(',', (string)$c['locks']))) as $l) $locks[$l] = $c;
+            foreach (array_filter(array_map('trim', explode(',', (string)$c['locks']))) as $l) $all[$mode][$l][] = $c;
         }
     }
-    $c = $locks[$type . ':' . $slug] ?? null;
-    if (!$c) return null;
-    $done = q_val('SELECT 1 FROM user_quests WHERE user_id = ? AND chapter_id = ? AND done_at IS NOT NULL', [$uid, $c['id']]);
-    return $done ? null : $c + ['region' => (string)q_val('SELECT gnomish_name FROM regions WHERE id = ?', [$c['region_id']])];
+    $held = $all[$mode][$type . ':' . $slug] ?? [];
+    if (!$held) return null;
+    // 2026-11-28: a v2 chapter can hold the lock of the old chapter it replaces; finishing either one opens the place
+    $in = implode(',', array_map(fn($c) => (int)$c['id'], $held));
+    if (q_val("SELECT 1 FROM user_quests WHERE user_id = ? AND chapter_id IN ($in) AND done_at IS NOT NULL", [$uid])) return null;
+    $c = current(array_filter($held, fn($c) => in_array($c['id'], $play))) ?: $held[0];
+    return $c + ['region' => (string)q_val('SELECT gnomish_name FROM regions WHERE id = ?', [$c['region_id']])];
 }
 
 /** A short "closed for repairs" note with a link to the chapter. */
@@ -161,11 +166,33 @@ function ensure_journey(): void
     }
 }
 
+/** The chapters in play. 2026-11-28: with journey_v2_open on, the v2 chapters (seeded here) and not the old ones they replace; off, the old ones only. */
 function journey_chapters(): array
 {
-    static $all = null;
-    return $all ??= q('SELECT c.*, r.gnomish_name AS region, r.min_level FROM quest_chapters c JOIN regions r ON r.id = c.region_id
-                       WHERE c.active = 1 ORDER BY c.sort_order, c.id')->fetchAll();
+    static $all = [];
+    $v2 = (int)(setting('journey_v2_open') === '1');
+    if (!isset($all[$v2])) {
+        if ($v2) { require_once __DIR__ . '/journey_v2.php'; journey_v2_seed(); }
+        $rows = q('SELECT c.*, r.gnomish_name AS region, r.min_level FROM quest_chapters c JOIN regions r ON r.id = c.region_id
+                   WHERE c.active = 1 ORDER BY c.sort_order, c.id')->fetchAll();
+        $all[$v2] = $v2 ? journey_v2_in_play($rows) : array_values(array_filter($rows, fn($c) => (int)($c['engine'] ?? 0) === 0));
+    }
+    return $all[$v2];
+}
+
+/** The Repair of an area for Standing (seals.php): [stages done, stages] over the area's chapters in play. */
+function journey_repair_progress(int $uid, int $regionId): array
+{
+    $done = 0; $stages = 0;
+    foreach (journey_chapters() as $ch) {
+        if ((int)$ch['region_id'] !== $regionId) continue;
+        $s = (int)q_val("SELECT COUNT(*) FROM quest_tasks WHERE chapter_id = ? AND kind = 'stage'", [$ch['id']]);
+        $row = q_one('SELECT stage, done_at FROM user_quests WHERE user_id = ? AND chapter_id = ?', [$uid, $ch['id']]);
+        $built = (int)($ch['engine'] ?? 0) === 1 && journey_v2_replaced_done($uid, $ch);
+        $stages += $s;
+        $done += $row ? ($row['done_at'] || $built ? $s : min($s, (int)$row['stage'])) : 0;
+    }
+    return [$done, $stages];
 }
 
 function journey_tasks(int $chapterId): array
@@ -179,6 +206,7 @@ function journey_row(int $uid, array $ch): ?array
     $row = q_one('SELECT * FROM user_quests WHERE user_id = ? AND chapter_id = ?', [$uid, $ch['id']]);
     if ($row) return $row;
     if (!q_val('SELECT 1 FROM region_visits WHERE user_id = ? AND region_id = ?', [$uid, $ch['region_id']])) return null;
+    if ((int)($ch['engine'] ?? 0) === 1 && !journey_v2_needs_met($uid, $ch)) return null;
     try {
         db_insert('user_quests', ['user_id' => $uid, 'chapter_id' => $ch['id'], 'stage' => 0, 'started_at' => now()]);
     } catch (PDOException $e) {
@@ -224,21 +252,12 @@ function journey_need_status(array $u, string $spec): array
  */
 function journey_status(array $u, array $ch): array
 {
+    if ((int)($ch['engine'] ?? 0) === 1) { require_once __DIR__ . '/journey_v2.php'; return journey_v2_status($u, $ch); }
     $uid = (int)$u['id'];
     $row = journey_row($uid, $ch);
-    $rid = (int)$ch['region_id'];
     $out = ['row' => $row, 'tasks' => [], 'explore_done' => true, 'stages_done' => 0, 'next_stage' => null, 'complete' => false];
     $stageNo = 0;
     foreach (journey_tasks((int)$ch['id']) as $t) {
-        $goal = max(1, (int)$t['qty']);
-        if ($t['kind'] === 'grow') {   // never ask for more crops than the region has
-            $avail = (int)q_val('SELECT COUNT(DISTINCT plant_id) FROM plant_regions WHERE region_id = ?' . ($t['spec'] === 'any' || $t['spec'] === '' ? '' : ' AND tier = ' . db()->quote((string)$t['spec'])), [$rid]);
-            if ($avail > 0) $goal = min($goal, $avail);
-        }
-        if ($t['kind'] === 'find') {   // nor more hidden places than it has
-            $avail = (int)q_val("SELECT COUNT(DISTINCT l.id) FROM locations l JOIN routes r ON r.b_id = l.id AND r.kind = 'side' WHERE l.region_id = ?", [$rid]);
-            if ($avail > 0) $goal = min($goal, $avail);
-        }
         if ($t['kind'] === 'stage') {
             $stageNo++;
             $done = $row && (int)$row['stage'] >= $stageNo;
@@ -247,21 +266,38 @@ function journey_status(array $u, array $ch): array
             $out['tasks'][] = [$t, $done ? 1 : 0, 1, $done];
             continue;
         }
-        $now = match ($t['kind']) {
-            'visit' => $row ? 1 : 0,
-            'grow' => (int)q_val('SELECT COUNT(DISTINCT pr.plant_id) FROM plant_regions pr JOIN user_plant_knowledge k ON k.plant_id = pr.plant_id AND k.user_id = ? AND k.knowledge > 0
-                                  WHERE pr.region_id = ?' . ($t['spec'] === 'any' || $t['spec'] === '' ? '' : ' AND pr.tier = ' . db()->quote((string)$t['spec'])), [$uid, $rid]),
-            'friend' => (int)q_val('SELECT COUNT(*) FROM npc_friends f JOIN npcs n ON n.id = f.npc_id JOIN town_spots s ON s.id = n.fav_spot_id
-                                    WHERE f.user_id = ? AND s.region = ? AND f.points >= ?', [$uid, $ch['region'], FRIEND_LEVELS[min(count(FRIEND_LEVELS) - 1, $goal)][0] ?? 1]) > 0 ? $goal : 0,
-            'find' => journey_found($uid, $rid),
-            default => 0,
-        };
+        [$now, $goal] = journey_task_now($uid, $ch, $t, $row);
         $done = $now >= $goal;
         if (!$done) $out['explore_done'] = false;
         $out['tasks'][] = [$t, min($now, $goal), $goal, $done];
     }
     $out['complete'] = $row && $out['explore_done'] && !$out['next_stage'];
     return $out;
+}
+
+/** Progress of a visit / grow / friend / find task: [now, goal]. */
+function journey_task_now(int $uid, array $ch, array $t, ?array $row): array
+{
+    $rid = (int)$ch['region_id'];
+    $goal = max(1, (int)$t['qty']);
+    if ($t['kind'] === 'grow') {   // never ask for more crops than the region has
+        $avail = (int)q_val('SELECT COUNT(DISTINCT plant_id) FROM plant_regions WHERE region_id = ?' . ($t['spec'] === 'any' || $t['spec'] === '' ? '' : ' AND tier = ' . db()->quote((string)$t['spec'])), [$rid]);
+        if ($avail > 0) $goal = min($goal, $avail);
+    }
+    if ($t['kind'] === 'find') {   // nor more hidden places than it has
+        $avail = (int)q_val("SELECT COUNT(DISTINCT l.id) FROM locations l JOIN routes r ON r.b_id = l.id AND r.kind = 'side' WHERE l.region_id = ?", [$rid]);
+        if ($avail > 0) $goal = min($goal, $avail);
+    }
+    $now = match ($t['kind']) {
+        'visit' => $row ? 1 : 0,
+        'grow' => (int)q_val('SELECT COUNT(DISTINCT pr.plant_id) FROM plant_regions pr JOIN user_plant_knowledge k ON k.plant_id = pr.plant_id AND k.user_id = ? AND k.knowledge > 0
+                              WHERE pr.region_id = ?' . ($t['spec'] === 'any' || $t['spec'] === '' ? '' : ' AND pr.tier = ' . db()->quote((string)$t['spec'])), [$uid, $rid]),
+        'friend' => (int)q_val('SELECT COUNT(*) FROM npc_friends f JOIN npcs n ON n.id = f.npc_id JOIN town_spots s ON s.id = n.fav_spot_id
+                                WHERE f.user_id = ? AND s.region = ? AND f.points >= ?', [$uid, $ch['region'], FRIEND_LEVELS[min(count(FRIEND_LEVELS) - 1, $goal)][0] ?? 1]) > 0 ? $goal : 0,
+        'find' => journey_found($uid, $rid),
+        default => 0,
+    };
+    return [$now, $goal];
 }
 
 /** Hidden places (side-path villages and landmarks) of a region this gnome has found. */
@@ -286,7 +322,7 @@ function journey_hand_in(array $u, int $chapterId): array
     $st = journey_status($u, $ch);
     if (!$st['row']) return [false, 'Reach ' . $ch['region'] . ' first.'];
     if ($st['row']['done_at']) return [false, 'You’ve already finished this chapter.'];
-    if (!$st['explore_done']) return [false, 'Get to know ' . $ch['region'] . ' first (the tasks above).'];
+    if (!$st['explore_done'] && (int)($ch['engine'] ?? 0) !== 1) return [false, 'Get to know ' . $ch['region'] . ' first (the tasks above).'];   // a v2 chapter's stages wait only for each other
     $stage = $st['next_stage'];
     if (!$stage) return [false, 'Every stage is done. Finish the chapter!'];
     $u = q_one('SELECT * FROM users WHERE id = ?', [$uid]);
@@ -294,21 +330,7 @@ function journey_hand_in(array $u, int $chapterId): array
         if ($have < $need) return [false, 'You need ' . $need . ' × ' . $label . ' (you have ' . $have . ').'];
     }
     db()->beginTransaction();
-    foreach (journey_needs((string)$stage['spec']) as $need) {
-        [$type, , $qty] = $need;
-        if ($type === 'coins') {
-            if (q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$qty, $uid, $qty])->rowCount() !== 1) { db()->rollBack(); return [false, 'You need ' . money($qty) . '.']; }
-            continue;
-        }
-        $left = $qty;
-        foreach (rebuild_supply($uid, $need) as $it) {
-            $take = min($left, (int)$it['qty']);
-            if ($take > 0 && !give_item($uid, (int)$it['id'], -$take)) { db()->rollBack(); return [false, 'Something went missing from your satchel.']; }
-            $left -= $take;
-            if ($left <= 0) break;
-        }
-        if ($left > 0) { db()->rollBack(); return [false, 'You don’t have enough for this stage.']; }
-    }
+    if (($err = journey_take_needs($uid, (string)$stage['spec'])) !== '') { db()->rollBack(); return [false, $err]; }
     if (q('UPDATE user_quests SET stage = stage + 1 WHERE id = ? AND stage = ?', [$st['row']['id'], (int)$stage['_n'] - 1])->rowCount() !== 1) {
         db()->rollBack();
         return [false, 'That stage is already done.'];
@@ -318,6 +340,28 @@ function journey_hand_in(array $u, int $chapterId): array
     $nextSt = journey_status(q_one('SELECT * FROM users WHERE id = ?', [$uid]) ?: $u, $ch);   // v1.0.0: say what comes next
     $tail = $nextSt['complete'] ? ' Everything is built: finish the chapter!' : ($nextSt['next_stage'] ? ' Next: ' . preg_replace('/\s*\(.*\)$/', '', (string)$nextSt['next_stage']['label']) . '.' : '');
     return [true, $ch['project_icon'] . ' ' . preg_replace('/\s*\(.*\)$/', '', (string)$stage['label']) . ': done!' . $tail];
+}
+
+/** Take what a spec needs from the gnome, inside the caller's transaction. '' when taken, else what went wrong (the caller rolls back). */
+function journey_take_needs(int $uid, string $spec): string
+{
+    require_once __DIR__ . '/rebuild.php';
+    foreach (journey_needs($spec) as $need) {
+        [$type, , $qty] = $need;
+        if ($type === 'coins') {
+            if (q('UPDATE users SET coins = coins - ? WHERE id = ? AND coins >= ?', [$qty, $uid, $qty])->rowCount() !== 1) return 'You need ' . money($qty) . '.';
+            continue;
+        }
+        $left = $qty;
+        foreach (rebuild_supply($uid, $need) as $it) {
+            $take = min($left, (int)$it['qty']);
+            if ($take > 0 && !give_item($uid, (int)$it['id'], -$take)) return 'Something went missing from your satchel.';
+            $left -= $take;
+            if ($left <= 0) break;
+        }
+        if ($left > 0) return 'You don’t have enough for this stage.';
+    }
+    return '';
 }
 
 /** Finish a chapter: rewards, the region's guide (or Petals if already studied), Wren's letter. */
@@ -340,23 +384,25 @@ function journey_finish(array $u, int $chapterId): array
         give_item($uid, $iid, max(1, (int)$ch['reward_qty']));
         $lines[] = '+' . max(1, (int)$ch['reward_qty']) . ' × ' . q_val('SELECT name FROM items WHERE id = ?', [$iid]);
     }
+    $v2 = (int)($ch['engine'] ?? 0) === 1;   // 2026-11-28: a v2 chapter pays the region guide and benefit only at the Seal (the chapter with a benefit)
     // The region's guide: studied straight away
-    $code = strtolower((string)q_val('SELECT code FROM regions WHERE id = ?', [$ch['region_id']]));
-    $key = 'region:' . $code;
-    if (q_val('SELECT 1 FROM user_guides WHERE user_id = ? AND guide_key = ?', [$uid, $key])) {
-        $extra = intdiv((int)setting('guide_price'), 2);
-        q('UPDATE users SET coins = coins + ? WHERE id = ?', [$extra, $uid]);
-        $lines[] = '+' . money($extra) . ' (you’d already studied ' . $ch['region'] . ')';
-    } else {
-        db_insert('user_guides', ['user_id' => $uid, 'guide_key' => $key, 'read_at' => now()]);
-        $lines[] = '📗 ' . $ch['region'] . ' studied: all its crops now grow at full speed and harvest';
+    if (!$v2 || (string)$ch['benefit'] !== '') {
+        $code = strtolower((string)q_val('SELECT code FROM regions WHERE id = ?', [$ch['region_id']]));
+        $key = 'region:' . $code;
+        if (q_val('SELECT 1 FROM user_guides WHERE user_id = ? AND guide_key = ?', [$uid, $key])) {
+            $extra = intdiv((int)setting('guide_price'), 2);
+            q('UPDATE users SET coins = coins + ? WHERE id = ?', [$extra, $uid]);
+            $lines[] = '+' . money($extra) . ' (you’d already studied ' . $ch['region'] . ')';
+        } else {
+            db_insert('user_guides', ['user_id' => $uid, 'guide_key' => $key, 'read_at' => now()]);
+            $lines[] = '📗 ' . $ch['region'] . ' studied: all its crops now grow at full speed and harvest';
+        }
     }
     if ($ch['reward_title']) $lines[] = '🎩 New title: “' . $ch['reward_title'] . '” (choose it in your Almanac → Milestones)';
     db()->commit();
-    // v0.9.1: chapters pay only journey_xp_percent of the listed XP
-    $jxp = (int)round((int)$ch['reward_xp'] * (int)setting('journey_xp_percent') / 100);
+    $jxp = journey_paid_xp($ch);
     if ($jxp > 0) { add_xp($uid, $jxp, 'Journey chapters'); $lines[] = '+' . $jxp . ' XP'; }
-    $lines[] = $ch['project_icon'] . ' ' . $ch['benefit_text'];
+    if ((string)$ch['benefit_text'] !== '') $lines[] = $ch['project_icon'] . ' ' . $ch['benefit_text'];
     // Where the story goes next: the chapter after this one (what Wren's letter names), not the first one you haven't started
     $nx = null;
     $all = journey_chapters();
@@ -370,11 +416,17 @@ function journey_finish(array $u, int $chapterId): array
     return [true, ''];
 }
 
+/** The XP a chapter pays: v0.9.1 old chapters pay journey_xp_percent of the listed XP; v2 chapters list what they pay (40% of the band, master doc 16). */
+function journey_paid_xp(array $ch): int
+{
+    return (int)($ch['engine'] ?? 0) === 1 ? (int)$ch['reward_xp'] : (int)round((int)$ch['reward_xp'] * (int)setting('journey_xp_percent') / 100);
+}
+
 /** v0.7.68: what a chapter is waiting on: 'finish' (ready to finish), 'stage' (next stage can be handed in now), or ''. */
 function journey_ready(array $u, array $st): string
 {
     $row = $st['row'];
-    if (!$row || $row['done_at'] || !$st['explore_done']) return '';
+    if (!$row || $row['done_at'] || (!$st['explore_done'] && empty($st['v2']))) return '';   // a v2 chapter's stages wait only for each other
     if ($st['complete']) return 'finish';
     if ($st['next_stage']) {
         foreach (journey_need_status($u, (string)$st['next_stage']['spec']) as [, $need, $have]) if ($have < $need) return '';
@@ -456,6 +508,11 @@ function journey_next_hint(array $u, array $ch, array $st): ?array
     if (!$st['explore_done']) {
         foreach ($st['tasks'] as [$t, $now, $goal, $done]) {
             if ($done || $t['kind'] === 'stage') continue;
+            if ((int)($ch['engine'] ?? 0) === 1 && ((int)$t['opt'] || !in_array($t['kind'], JOURNEY_V2_OLD_KINDS, true))) {
+                if ((int)$t['opt'] || $t['kind'] === 'seal') continue;
+                [$how, $link] = journey_v2_how($t);
+                return [preg_replace('/\s*\(.*\)$/', '', (string)$t['label']) . ($goal > 1 ? ' (' . $now . ' of ' . $goal . ' so far)' : '') . '. ' . $how, $link];
+            }
             $how = ['grow' => 'Plant and harvest it in any garden; the region’s market sells the seeds.', 'friend' => 'Chat with them and give a gift from their villager page.',
                     'find' => 'At a road stop in the region, choose Wander off the path.', 'visit' => 'Walk there from a neighbouring region.'][$t['kind']] ?? '';
             return [preg_replace('/\s*\(.*\)$/', '', (string)$t['label']) . ($goal > 1 ? ' (' . $now . ' of ' . $goal . ' so far)' : '') . '. ' . $how, $t['kind'] === 'grow' ? 'garden.php' : ($t['kind'] === 'friend' ? 'town.php?view=villagers' : 'world.php')];

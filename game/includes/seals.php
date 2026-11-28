@@ -241,13 +241,8 @@ function region_standing_live(int $uid, int $rid): array
     $p['hearth'] = (float)([0 => 0, 1 => 1, 2 => 2, 3 => 4][$best] ?? ($best >= 4 ? 6 : 0));
 
     // Wren's flagship Repair: the area's chapter stages done (a finished chapter is full)
-    $stages = 0; $done = 0;
-    foreach (q('SELECT id FROM quest_chapters WHERE region_id = ? AND active = 1', [$rid])->fetchAll(PDO::FETCH_COLUMN) as $chId) {
-        $s = (int)q_val("SELECT COUNT(*) FROM quest_tasks WHERE chapter_id = ? AND kind = 'stage'", [$chId]);
-        $row = q_one('SELECT stage, done_at FROM user_quests WHERE user_id = ? AND chapter_id = ?', [$uid, $chId]);
-        $stages += $s;
-        $done += $row ? ($row['done_at'] ? $s : min($s, (int)$row['stage'])) : 0;
-    }
+    require_once __DIR__ . '/journey.php';
+    [$done, $stages] = journey_repair_progress($uid, $rid);   // the chapters in play (journey v2 or the old ones)
     if ($stages > 0) $p['repair'] = 15 * $done / $stages;
 
     // Places found: every village and off-road place of the area (not the town)

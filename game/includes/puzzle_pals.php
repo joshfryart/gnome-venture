@@ -335,6 +335,7 @@ function ppal_on_solve(int $uid, int $picId, string $tier, string $src, int $run
 {
     try {
         if ($tier !== 'advanced' && $tier !== 'expert') return [];
+        if (setting('journey_v2_open') === '1' && !is_guest_uid($uid)) { require_once __DIR__ . '/journey_v2.php'; journey_v2_puzzle_solved($uid, $picId, $tier); }   // journey v2: the puzzle step (M1)
         if (is_guest_uid($uid) || !ppal_open() || !ppal_ensure()) return [];
         $pic = q_one("SELECT * FROM puzzle_pics WHERE id = ? AND kind = 'still'", [$picId]);
         if (!$pic) return [];
