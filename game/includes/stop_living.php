@@ -60,7 +60,8 @@ function stop_meter_add(int $uid, int $locId, string $name, int $amt): array
 /** @return array<string,string> perks running for this player at this stop: meter name => last day */
 function stop_perks(int $uid, int $locId): array
 {
-    if ($uid < 1 || setting('perk_old_retired') === '1') return [];   // the old "was full here" rows go with the old perks
+    require_once __DIR__ . '/player_perks.php';
+    if ($uid < 1 || player_perks_retired()) return [];   // the old "was full here" rows go with the old perks
     $out = [];
     $today = gclock_my_date();
     foreach (q("SELECT k, data FROM stop_prog WHERE user_id = ? AND location_id = ? AND k LIKE 'perk:%'", [$uid, $locId])->fetchAll() as $r) {

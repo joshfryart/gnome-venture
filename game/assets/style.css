@@ -9078,3 +9078,14 @@ details.craftall.craftall--pop > summary, details.craftall.craftall--pop .crafta
 }
 label.check { min-height: 44px; align-items: center; }
 label.check input[type=checkbox] { width: 24px; height: 24px; flex: none; }
+/* Lasting marks (stop_marks.php): a full bar's stamp, the pips per stop on the Perks card, a perk still to earn, the plaque lines */
+.mk-bars .mk-full { display: flex; align-items: center; gap: 6px; font-size: 0.9em; }
+.mk-stamp { padding: 1px 8px; border: 2px solid var(--st-ink, currentColor); border-radius: 4px; transform: rotate(-3deg); letter-spacing: .05em; }
+.mk-list { list-style: none; margin: 0 0 8px; padding: 0; }
+.mk-list li { margin: 4px 0; }
+.mk-pips { display: inline-flex; gap: 3px; vertical-align: middle; }
+.mk-pip { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--ol, currentColor); }
+.mk-pip.on { background: var(--accent); }
+.mk-name { font-size: 0.9em; }
+.pkperk.mk-off { opacity: .6; filter: grayscale(1); }
+.mk-plaque { margin: 4px 0; font-style: italic; }

@@ -319,7 +319,7 @@ function here_homes_card(array $homed, int $locId): string
  *  its own buttons post to town.php (do=local) and come back to this picture. Returns [[label, emoji, card html], ...] by front; fewer acts than fronts leaves the rest out. */
 function here_do_fronts(array $u, array $node, string $back, int $fronts, bool $skipStall = false): array
 {
-    if ($fronts < 1 || (string)$node['kind'] !== 'village') return $fronts > 0 ? array_fill(0, $fronts, ['Do here', '🎯', '<p><a class="btn" href="' . e(url('town.php')) . '">Open this place ›</a></p>']) : [];
+    if ($fronts < 1 || !stop_is_place($node)) return $fronts > 0 ? array_fill(0, $fronts, ['Do here', '🎯', '<p><a class="btn" href="' . e(url('town.php')) . '">Open this place ›</a></p>']) : [];
     require_once __DIR__ . '/local.php';
     $pool = stop_pool($node, null, (int)$u['id']);
     $visit = stop_visit_key($u);
@@ -369,7 +369,7 @@ function here_do_reply(array $u, string $slug, string $msg, bool $ok, string $ba
     $u = q_one('SELECT * FROM users WHERE id = ?', [(int)$u['id']]) ?: $u;
     $node = player_node($u);
     $a = null;
-    if (($node['kind'] ?? '') === 'village') foreach (stop_pool($node, null, (int)$u['id'])['offer'] as $x) if ((string)$x['slug'] === $slug) { $a = $x; break; }
+    if (stop_is_place($node)) foreach (stop_pool($node, null, (int)$u['id'])['offer'] as $x) if ((string)$x['slug'] === $slug) { $a = $x; break; }
     header('Content-Type: application/json; charset=utf-8');
     if (!$a) { echo json_encode(['ok' => false, 'msg' => $msg !== '' ? $msg : 'That is not here any more.', 'html' => ''], JSON_UNESCAPED_SLASHES); exit; }
     $done = stop_done_today((int)$u['id'], (int)$node['id']);   // 2.8.64: each activity once a game day here
@@ -386,7 +386,7 @@ function here_do_reply(array $u, string $slug, string $msg, bool $ok, string $ba
  *  stall today returns []: here_spots then gives those spots back to "Do here". Returns [[label, emoji, card html], ...] by front. */
 function here_stall_fronts(array $u, array $node, string $back, int $fronts): array
 {
-    if ($fronts < 1 || (string)$node['kind'] !== 'village') return [];
+    if ($fronts < 1 || !stop_is_place($node)) return [];
     require_once __DIR__ . '/local.php';
     $stalls = array_values(array_filter(stop_pool($node, null, (int)$u['id'])['offer'], fn($a) => in_array((string)$a['kind'], ['buy', 'snack'], true)));
     if (!$stalls) return [];
@@ -636,7 +636,7 @@ function here_quest_ready(array $u, array $node, array $n): bool
 /** The whole picture block for the page. */
 function here_view(array $u, array $node, bool $debug = false, string $open = ''): string
 {
-    if (($node['kind'] ?? '') === 'village' && !$debug) {   // v2.5.54: standing at a rest stop is a visit: the passport stamp comes with it (the old local page did this)
+    if (!$debug && stop_is_place($node)) {   // v2.5.54: standing at a rest stop is a visit: the passport stamp comes with it (the old local page did this)
         require_once __DIR__ . '/stop_pass.php';
         foreach (stop_stamp((int)$u['id'], $node)[1] as $m) flash($m);
     }
@@ -679,7 +679,7 @@ function here_view(array $u, array $node, bool $debug = false, string $open = ''
  */
 function here_extra_do(array $u, array $node, string $back, array $spots): string
 {
-    if ((string)$node['kind'] !== 'village' || !dock_on($u)) return '';
+    if (!stop_is_place($node) || !dock_on($u)) return '';
     require_once __DIR__ . '/local.php';
     $fronts = 0; $stall = false;
     foreach ($spots as $sp) { if (str_starts_with((string)$sp['id'], 's-do')) $fronts++; elseif (str_starts_with((string)$sp['id'], 's-shops')) $stall = true; }
