@@ -932,6 +932,8 @@ function post_update_news(string $from): void
         . "[*][b]History[/b]: tap a past move to see the whole story of that turn.[/list]"],
     '2.8.85' => ['🔏 Update 2.8.85: behind the scenes for Seals',
         "Behind the scenes: Wren is getting ready to bind her Almanac one area at a time. Nothing changes in play yet. When this opens, an area's [b]Expedition Standing[/b] and its [b]Seal[/b] will show on Wren's Journey, and you will always keep every place you have already been."],
+    '2.8.86' => ['🧩 Update 2.8.86: Puzzle Pals wait where you can go',
+        "A Puzzle Pal released by a jigsaw now waits only in a region you can reach: your home, a region with one of your gardens, or one you have walked to. Pals that were waiting somewhere you have never been go back to the jigsaw and turn up again closer by. Walk into a new region and more pals can show up there."],
 ];
     foreach (UPDATE_NEWS as $v => $post) {
         if (version_compare((string)$v, $from, '>') && version_compare((string)$v, APP_VERSION, '<=')) $todo[(string)$v] = $post;
