@@ -1,0 +1,32 @@
+# The seed ladder (2.8.100; claude/proposal-seed-ladder.md 2 and 3). Read by includes/seed_ladder.php (seed_ladder_ensure()), only while the
+# setting seed_ladder_open is on. It fills shop_stock.ladder_gate of a seed row once (rows already set, also by Admin, are never changed).
+# Gate '' = on the shelf from the first visit. Others open per gnome (garden way or road way) and latch for good.
+#
+# H | gate | plant slugs (comma)        Twigg's Seed Emporium (the hub). Gate '' = the start 14. A hub seed not listed gets m4.
+# F | area code | plant slugs (comma)   Wren's five: a region town's start shelf (gate '').
+#
+# Region town rule (every row not in its five), in this order, cheapest first (price_min, then slug):
+#   r1 = the staples left + the 3 cheapest flowers · r2 = the cheaper half of the uncommons left (rounded up) · r3 = the flowers left ·
+#   r4 = the dearer half of the uncommons, and anything else (treasure, hybrids).
+# Totals on a fresh install: Twigg's 14 / 20 / 26 / 32 / 36; the 14 towns 70 / 119 / 154 / 266 / 293.
+
+H||radish,lettuce,carrot,tomato,onion,potato,pea,mint,basil,dill,strawberry,sunflower,white-clover,pumpkin
+H|m1|beet,cucumber,spinach,turnip,green-bean,garlic
+H|m2|coriander,parsley,thyme,lemon-balm,peppermint,kale
+H|m3|cabbage,broccoli,cauliflower,celery,fennel,crimson-clover
+H|m4|winter-rye,garden-sage,rosemary,horseradish
+
+F|NA|oats,lentil,wild-rice,apple,goldenrod
+F|CA|corn,black-bean,tomatillo,amaranth,marigold
+F|NWE|rye,leek,barley,brussels-sprouts,heather
+F|CB|sweet-potato,plantain,pigeon-pea,breadfruit,frangipani
+F|SA|cassava,peanut,quinoa,yerba-mate,passionflower
+F|SE|artichoke,fava-bean,oregano,olive,lavender
+F|EE|buckwheat,plum,bell-pepper,sorrel,chamomile
+F|MENA|chickpea,eggplant,cumin,date,damask-rose
+F|CSA|wheat,mung-bean,ginger,turmeric,sacred-lotus
+F|WCA|yam,okra,millet,fonio,wild-gardenia
+F|ESA|teff,sorghum,collard,banana,king-protea
+F|EA|bok-choy,daikon,adzuki,persimmon,sakura
+F|SEA|rice,kangkong,lemongrass,bitter-melon,sampaguita
+F|OC|taro,coconut,pandanus,warrigal-greens,tiare

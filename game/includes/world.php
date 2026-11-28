@@ -375,6 +375,12 @@ function buy_from_shop(array $u, int $stockId, int $qty): array
     if (($needB = pfd_belt_level_need($slugB)) > (int)($u['level'] ?? 1)) return [false, 'The ' . $s['name'] . ' needs gnome level ' . $needB . '. Come back when you are old enough to wear it.'];
     require_once __DIR__ . '/wearables.php';
     if ($wb = wear_shop_block($u, $slugB)) return [false, $wb];   // the regional outfitters (setting + region level)
+    $slDrawer = 0;
+    if (setting('seed_ladder_open') === '1') {   // 2.8.100 the seed ladder (seed_ladder.php): a row not on this gnome's shelf yet is refused with its hint; a bare start row sells from the bottom drawer
+        require_once __DIR__ . '/seed_ladder.php';
+        if (($slWhy = seed_ladder_buy_block($u, $s)) !== '') return [false, $slWhy];
+        if ($qty > (int)$s['current_stock']) $slDrawer = seed_ladder_drawer_left($u, $stockId);
+    }
     if (!shop_reachable($u, ['location_id' => $s['location_id']])) return [false, 'You need to be in that town first.'];
     if ($why = gclock_closed_reason($u, $s)) return [false, $why];
     if (!staff_on_duty((int)$s['sid'])) return [false, 'Nobody is at the counter right now.'];
@@ -384,14 +390,15 @@ function buy_from_shop(array $u, int $stockId, int $qty): array
         return [false, 'You’ve already read this guide.'];
     }
     // 2.8.100 town states (town_states.php): a far-shelf row waits for its town state; an order the shelf cannot fill takes the rest from this gnome's back room
-    $back = 0; $backLeft = 0;
-    if ((int)($s['min_town_state'] ?? 0) > 0 || ($qty > (int)$s['current_stock'] && setting('town_states_open') === '1')) {
+    $back = 0; $backLeft = 0; $drawer = false;
+    if ((int)($s['min_town_state'] ?? 0) > 0 || ($qty > (int)$s['current_stock'] && (setting('town_states_open') === '1' || $slDrawer > 0))) {
         require_once __DIR__ . '/town_states.php';
         $tsRid = (int)q_val('SELECT region_id FROM locations WHERE id = ?', [(int)$s['location_id']]);
         if (!town_far_ok((int)$u['id'], $tsRid, (int)($s['min_town_state'] ?? 0))) return [false, 'That is not on the shelf.'];
-        if ($qty > (int)$s['current_stock'] && ($backLeft = town_backroom_left($u, $stockId)) > 0) {
+        if ($qty > (int)$s['current_stock'] && ($backLeft = max($tsLeft = town_backroom_left($u, $stockId), $slDrawer)) > 0) {   // the seed ladder's bottom drawer shares the back room's table and price
+            $drawer = $slDrawer > $tsLeft;
             $back = $qty - max(0, (int)$s['current_stock']);
-            if ($back > $backLeft) return [false, 'There aren’t ' . $qty . ' ' . $s['name'] . ' left: ' . max(0, (int)$s['current_stock']) . ' on the shelf and ' . $backLeft . ' in the back room for you today.'];
+            if ($back > $backLeft) return [false, 'There aren’t ' . $qty . ' ' . $s['name'] . ' left: ' . max(0, (int)$s['current_stock']) . ' on the shelf and ' . $backLeft . ($drawer ? ' in the bottom drawer' : ' in the back room') . ' for you today.'];
         }
     }
     $cost = shop_price($u, (int)$s['current_price'], (int)$s['shop_id'], (int)$s['item_id']) * ($qty - $back)
@@ -415,7 +422,7 @@ function buy_from_shop(array $u, int $stockId, int $qty): array
     give_item((int)$u['id'], (int)$s['item_id'], $qty);
     $mkLine = mark_buy_charges((int)$u['id'], (int)$s['sid'], (int)$s['item_id'], (string)$s['item_category'], (string)$s['name']);   // A3 lasting marks: one extra
     db()->commit();
-    return [true, "You buy $qty × {$s['name']}" . ($back > 0 ? ' (' . $back . ' from the back room)' : '') . ' for ' . number_format($cost) . ' ' . setting('currency_name') . '.' . ($mkLine !== '' ? ' ' . $mkLine . '.' : ''), $cost, (string)$s['name']];
+    return [true, "You buy $qty × {$s['name']}" . ($back > 0 ? ' (' . $back . ($drawer ? ' from the bottom drawer)' : ' from the back room)') : '') . ' for ' . number_format($cost) . ' ' . setting('currency_name') . '.' . ($mkLine !== '' ? ' ' . $mkLine . '.' : ''), $cost, (string)$s['name']];
 }
 
 /** What a player pays in a shop: Charm, then any friendship discount with the staff (v0.7.13). */

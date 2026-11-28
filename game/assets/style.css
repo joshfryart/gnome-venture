@@ -9203,6 +9203,17 @@ label.check input[type=checkbox] { width: 24px; height: 24px; flex: none; }
 .tstate-cap { margin: 6px 0; }
 .hubscene.tstate-filter.tstate-ruin .pix.back { filter: saturate(.55) brightness(.9); }
 .hubscene.tstate-filter.tstate-work .pix.back { filter: saturate(.8); }
+/* 2.8.100 the seed ladder (includes/seed_ladder.php): the "Not on the shelf yet" list, Wren's line, the bottom drawer note */
+.sl-locked { margin: 12px 0; padding: 8px 12px; border-radius: 10px; background: var(--surface); box-shadow: var(--frame-lite); }
+.sl-locked summary { cursor: pointer; font-weight: 700; padding: 4px 0; }
+.sl-gate { margin: 8px 0; }
+.sl-gate .sl-hint { margin: 4px 0; font-size: 14px; font-style: italic; }
+.sl-gate ul { list-style: none; margin: 0; padding: 0; }
+.sl-lrow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; padding: 4px 0; border-top: 1px solid var(--line); }
+.sl-lrow form { margin: 0; }
+.sl-wren { margin: 6px 0 10px; padding: 8px 12px; border-left: 4px solid var(--line); font-size: 14px; }
+.sl-town { margin: 4px 0 8px; }
+.sl-tag { opacity: .85; }
 
 /* ---- 2.8.100 state banner (includes/town_states.php town_state_banner_html; town, Here and shop pages; reusable for stop states) ---- */
 .stb { --stb-bg: var(--surface); --stb-ink: var(--ink); --stb-line: var(--line-2);

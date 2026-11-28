@@ -248,7 +248,9 @@ function admin_resources(): array
                 'restock_chance' => ['type' => 'int', 'min' => 0, 'max' => 100, 'help' => '% chance it restocks each restock cycle'],
                 'current_stock' => ['type' => 'int', 'min' => 0],
                 'current_price' => ['type' => 'int', 'min' => 0],
-            ],
+            ] + ((function (): bool { try { q('SELECT ladder_gate FROM shop_stock LIMIT 1'); return true; } catch (Throwable $e) { return false; } })()
+                ? ['ladder_gate' => ['type' => 'select', 'label' => 'Seed ladder gate', 'options' => ['' => 'On the shelf from the start', 'm1' => 'm1 Kitchen row (Twigg\'s)', 'm2' => 'm2 Herb shelf (Twigg\'s)', 'm3' => 'm3 Field sacks (Twigg\'s)', 'm4' => 'm4 Top shelf (Twigg\'s)',
+                    'r1' => 'r1 Sown (town)', 'r2' => 'r2 Mending (town)', 'r3' => 'r3 Merry (town)', 'r4' => 'r4 Thriving (town)'], 'help' => 'seed_ladder_open (2.8.100): which gate puts this seed on a gnome\'s shelf. Only seed rows of Twigg\'s and the region seed shops use it']] : []),   // 2.8.100 the seed ladder (the column is made on first use on an install that upgraded before it)
         ],
         'encyclopedia_entries' => [
             'table' => 'encyclopedia_entries', 'label' => 'Almanac entries', 'title_col' => 'title',

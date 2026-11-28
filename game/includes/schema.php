@@ -1625,5 +1625,7 @@ function schema_statements(string $driver): array
     [$qkt, $qki, $qkc] = quick_schema($PK, $ID, $END);
     require_once __DIR__ . '/journey_v2.php';   // 2026-11-28 journey v2: user_quest_steps, chapter and task columns
     [$jvt, $jvi, $jvc] = journey_v2_schema($PK, $ID, $END);
-    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt, $hrt, $gct, $hst, $pfdt, $wrt, $teat, $s6t, $qkt, $jvt), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi, $hri, $gci, $hsi, $teai, $s6i, $qki, $jvi), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc, $hrc, $gcc, $hsc, $teac, $s6c, $qkc, $jvc)];
+    require_once __DIR__ . '/seed_ladder.php';   // 2.8.100 the seed ladder: shop_stock.ladder_gate, seed_ladder_gates / _items / _orders
+    [$slt, $sli, $slc] = seed_ladder_schema($PK, $ID, $END);
+    return [array_merge($t, $st, $mt, $gt, $pt, $bt, $ment, $s169t, $trt, $rtt, $wst, $pzt, $ppt, $gmt, $hrt, $gct, $hst, $pfdt, $wrt, $teat, $s6t, $qkt, $jvt, $slt), array_merge($i, $si, $mi, $gi, $pi, $bi, $mei, $s169i, $tri, $rti, $wsi, $pzi, $ppi, $gmi, $hri, $gci, $hsi, $teai, $s6i, $qki, $jvi, $sli), array_merge($c, $sc, $mc, $gc, $pc, $bc, $mec, $s169c, $trc, $rtc, $wsc, $pzc, $ppc, $gmc, $hrc, $gcc, $hsc, $teac, $s6c, $qkc, $jvc, $slc)];
 }

@@ -61,6 +61,13 @@ if (is_post()) {
         }
         redirect('shop.php?id=' . $sid . '&tab=sell');
     }
+    if ($do === 'sl_order' && setting('seed_ladder_open') === '1') {   // 2.8.100 the seed ladder: a special order of a seed not on this gnome's shelf yet
+        require_once __DIR__ . '/includes/seed_ladder.php';
+        $slStock = (int)($_POST['stock'] ?? 0);
+        [$ok, $msg] = (int)q_val('SELECT shop_id FROM shop_stock WHERE id = ?', [$slStock]) === $sid ? seed_ladder_order($u, $slStock) : [false, 'That isn’t sold here.'];
+        flash($msg, $ok ? 'ok' : 'err');
+        redirect('shop.php?id=' . $sid);
+    }
     $want = [];
     foreach ((array)($_POST['qty'] ?? []) as $id => $n) {
         if ((int)$id > 0 && (int)$n > 0) $want[(int)$id] = min(999, (int)$n);
@@ -140,17 +147,38 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
 
 <?php if ($tab === 'buy'):
     $tsOn = setting('town_states_open') === '1' && (function (): bool { require_once __DIR__ . '/includes/town_states.php'; return town_states_on(); })();   // 2.8.100 town states
+    $slOn = setting('seed_ladder_open') === '1' && (function () use ($sid): bool { require_once __DIR__ . '/includes/seed_ladder.php'; require_once __DIR__ . '/includes/town_states.php'; seed_ladder_ensure(); $c = seed_ladder_shop_ctx($sid); return $c && $c['kind'] !== ''; })();   // 2.8.100 the seed ladder (Twigg's and the region seed shops)
     $stock = q('SELECT st.*, i.id AS iid, i.name, i.slug, i.category, i.description, i.rarity, i.effects, i.base_price, p.id AS plant_id, p.seasons AS plant_seasons FROM shop_stock st
                 JOIN items i ON i.id = st.item_id LEFT JOIN plants p ON p.seed_item_id = i.id
-                WHERE st.shop_id = ?' . ($tsOn ? '' : ' AND st.current_stock > 0') . ' ORDER BY i.category, i.name', [$sid])->fetchAll();
+                WHERE st.shop_id = ?' . ($tsOn || $slOn ? '' : ' AND st.current_stock > 0') . ' ORDER BY i.category, i.name', [$sid])->fetchAll();
     $backLeft = [];
+    $slLocked = []; $slDrawer = [];
+    $slAsNew = $slOn && is_admin() && ($_GET['view'] ?? '') === 'new';   // Admin: the shelf as a new gnome sees it
+    if ($slOn) {   // the seed ladder: a row not on this gnome's shelf yet goes to the "Not on the shelf yet" list
+        $stock = array_values(array_filter($stock, function ($r) use ($u, $slAsNew, &$slLocked) {
+            if (seed_ladder_row_open($u, $r, $slAsNew)) return true;
+            $slLocked[(string)$r['ladder_gate']][] = $r;
+            return false;
+        }));
+    }
     if ($tsOn) {   // 2.8.100 town states: a bare shelf row shows while this gnome's back room holds some; a far-shelf row only from its town state
         $tsRid = town_shop_region($shop);
-        $stock = array_values(array_filter($stock, function ($r) use ($u, $tsRid, &$backLeft) {
+        $stock = array_values(array_filter($stock, function ($r) use ($u, $tsRid, &$backLeft, $slOn) {
             if ($tsRid > 0 && !town_far_ok((int)$u['id'], $tsRid, (int)($r['min_town_state'] ?? 0))) return false;
             $backLeft[(int)$r['id']] = town_backroom_left($u, (int)$r['id']);
-            return (int)$r['current_stock'] > 0 || $backLeft[(int)$r['id']] > 0;
+            return (int)$r['current_stock'] > 0 || $backLeft[(int)$r['id']] > 0 || $slOn;   // the ladder decides bare rows below
         }));
+    }
+    if ($slOn) {   // the bottom drawer: a bare start row still sells to this gnome; any other bare row is hidden as before
+        $stock = array_values(array_filter($stock, function ($r) use ($u, &$backLeft, &$slDrawer) {
+            if ((int)$r['current_stock'] > 0 && empty($backLeft[(int)$r['id']])) return true;
+            $d = seed_ladder_drawer_left($u, (int)$r['id']);
+            if ($d > ($backLeft[(int)$r['id']] ?? 0)) { $slDrawer[(int)$r['id']] = $d; $backLeft[(int)$r['id']] = $d; }
+            return (int)$r['current_stock'] > 0 || ($backLeft[(int)$r['id']] ?? 0) > 0;
+        }));
+        foreach (seed_ladder_new_lines($u, $sid, true) as $slNew) echo '<div class="flash ok sl-new">🌱 ' . e($slNew) . '</div>';
+        echo seed_ladder_wren_html($u, $sid);
+        if (is_admin()) echo '<p class="help sl-admin">🪜 Seed ladder: you see ' . ($slAsNew ? 'the shelf of a new gnome' : 'every row, with its gate') . '. <a href="' . e(url('shop.php?id=' . $sid . ($slAsNew ? '' : '&view=new'))) . '">' . ($slAsNew ? 'View as yourself' : 'View as a new gnome') . '</a></p>';
     }
     require_once __DIR__ . '/includes/pfdeck.php';
     if (!pfd_gear_open($u)) $stock = array_values(array_filter($stock, fn($r) => !pfd_gear_slug((string)$r['slug'])));   // 2.7.08: belts only for admins (or everyone once pfight_v1 is on for all)
@@ -184,7 +212,9 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
           . ($unknown ? '<p class="help">📕 Unstudied: you can plant it, but it grows ' . unstudied_slow_pct($u) . '% slower and gives ' . (100 - unstudied_yield_pct($u)) . '% less until you study its region (this guide, or the region’s questline in Almanac → Journey) or master the crop.</p>' : '')
           . (!empty($owned[(int)$s['iid']]) ? '<p class="help">👜 You have ' . (int)$owned[(int)$s['iid']] . '.</p>' : '')
           . '<p class="help">' . (int)$s['current_stock'] . ' on the shelf</p>'
-          . ($back ? '<p class="help tstate-back">🚪 ' . $back . ' in the back room for you today, at ' . money(shop_price($u, town_backroom_price(town_backroom_row((int)$s['id'])), $sid, (int)$s['iid'])) . ' each (after the shelf).</p>' : '');
+          . ($back && isset($slDrawer[(int)$s['id']]) ? '<p class="help sl-drawer">' . ((int)$s['current_stock'] > 0 ? '' : 'Sold out. More within the half hour. ') . 'Or from the bottom drawer: ' . money(shop_price($u, town_backroom_price(town_backroom_row((int)$s['id'])), $sid, (int)$s['iid'])) . ', ' . $back . ' left today.</p>'
+              : ($back ? '<p class="help tstate-back">🚪 ' . $back . ' in the back room for you today, at ' . money(shop_price($u, town_backroom_price(town_backroom_row((int)$s['id'])), $sid, (int)$s['iid'])) . ' each (after the shelf).</p>' : ''));
+      if ($slOn && is_admin() && (string)($s['ladder_gate'] ?? '') !== '') $tags[] = '<span class="tag sl-tag" title="Seed ladder gate">🪜 ' . e((string)$s['ladder_gate']) . '</span>';
       require_once __DIR__ . '/includes/pfdeck.php';   // 2.7.05: a fight belt above the gnome's level is dimmed with a note (buy_from_shop refuses it too)
       $beltNeed = pfd_belt_level_need((string)$s['slug']); $beltLow = $beltNeed > (int)$u['level'];
       if ($beltLow) $info .= '<p class="help">🔒 Needs gnome level ' . $beltNeed . ' (you are level ' . (int)$u['level'] . ').</p>';
@@ -203,6 +233,7 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
   endforeach; ?>
   </div></div>
   </div>
+  <?= $slOn ? seed_ladder_locked_html($u, $shop, $slLocked, (bool)$open) : '' ?>
   <?php if ($stock && $friendOff): ?><p class="help">💛 Prices include your friends discount.</p><?php endif; ?>
   <?php if (!$stock): ?><p class="muted">The shelves are bare. New stock arrives every <?= (int)$shop['restock_minutes'] ?> minutes or so.</p><?php endif; ?>
 
