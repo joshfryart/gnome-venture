@@ -17,6 +17,7 @@ require_once __DIR__ . '/hollow_clock.php';
 require_once __DIR__ . '/events.php';   // apply_event_effect (energy, buffs)
 
 require_once __DIR__ . '/stop_living.php';
+require_once __DIR__ . '/stop_marks.php';   // lasting marks, behind stop_marks_open
 
 const STOP_DP_WORDS = ['dawn' => 'at dawn', 'day' => 'by day', 'dusk' => 'at dusk', 'night' => 'at night'];
 const STOP_WEATHER_WORDS = ['sun' => 'sunny', 'cloud' => 'cloudy', 'rain' => 'rainy', 'storm' => 'stormy', 'frost' => 'frosty', 'heat' => 'hot', 'wind' => 'windy', 'fog' => 'foggy', 'snow' => 'snowy'];
@@ -169,12 +170,32 @@ function stops100_schema(string $PK, string $ID, string $END): array
         adopted_at DATETIME NOT NULL,
         perk_day VARCHAR(10) NULL
     )$END";
+    // lasting marks (stop_marks.php): a bar that reached 100, for good; perk_key is the perk earned then (data/stop_perks.txt)
+    $t[] = "CREATE TABLE IF NOT EXISTS stop_marks (
+        user_id $ID NOT NULL,
+        location_id $ID NOT NULL,
+        bar VARCHAR(8) NOT NULL,
+        perk_key VARCHAR(40) NOT NULL DEFAULT '',
+        filled_on VARCHAR(10) NOT NULL,
+        latched_at DATETIME NOT NULL,
+        kept INT NOT NULL DEFAULT 0,
+        PRIMARY KEY (user_id, location_id, bar)
+    )$END";
+    // lasting marks: a daily charge taken (one row per perk per game day; perk_key 'a4' = the A4 coins given that day)
+    $t[] = "CREATE TABLE IF NOT EXISTS stop_mark_use (
+        user_id $ID NOT NULL,
+        day VARCHAR(10) NOT NULL,
+        perk_key VARCHAR(40) NOT NULL,
+        used INT NOT NULL DEFAULT 1,
+        PRIMARY KEY (user_id, day, perk_key)
+    )$END";
     $i = [
         'CREATE INDEX idx_stoplog_day ON stop_log (user_id, day)',
         'CREATE INDEX idx_stopfriend_folk ON stop_friend (folk_id)',
         'CREATE INDEX idx_stoperr_user ON stop_errands (user_id, status)',
         'CREATE INDEX idx_stopadopt_user ON stop_adoptions (user_id)',
         'CREATE INDEX idx_stoperr_target ON stop_errands (target_folk_id)',
+        'CREATE INDEX idx_stopmarks_perk ON stop_marks (user_id, perk_key)',
         'CREATE UNIQUE INDEX uq_stopsets ON stop_sets (scope, target, need)',   // v1.0.0: the import is check-then-insert; this stops a double run duplicating the sets
     ];
     $c = [['locations', 'stop_type', 'VARCHAR(20) NULL'], ['stop_friend', 'last_gift', 'VARCHAR(10) NULL'], ['stop_acts', 'region', 'VARCHAR(80) NULL'], ['stop_adoptions', 'upkeep_month', 'VARCHAR(7) NULL'], ['stop_adoptions', 'upkeep_pool', 'TEXT NULL']];   // v2.0.78: region = comma list of region codes the activity belongs to (blank = anywhere)   // v2.0.77: last_gift = one gift a day per villager   // v1.0.0: admin-set stop type (blank = worked out from the landscape)
@@ -336,6 +357,7 @@ function stop_type_of(array $loc): string
     $types = stop_types();
     $t = (string)($loc['stop_type'] ?? '');
     if ($t !== '' && isset($types[$t])) return $t;
+    if (($loc['kind'] ?? 'village') !== 'village' && stop_marks_on() && ($t = mark_place_type($loc)) !== '') return $t;   // a market town or haven as a stop
     return stop_derive_type($loc);
 }
 
@@ -810,7 +832,7 @@ function stop_collect_parts(string $spec): array
 function stop_do(array $u, array $loc, string $slug, array $in): array
 {
     $uid = (int)$u['id'];
-    if (($loc['kind'] ?? '') !== 'village') return [false, 'There’s nothing like that here.'];
+    if (!stop_is_place($loc)) return [false, 'There’s nothing like that here.'];
     $acts = stop_acts();
     $a = $acts[$slug] ?? null;
     if (!$a) return [false, 'There’s nothing like that here.'];
@@ -1057,7 +1079,7 @@ function stop_do(array $u, array $loc, string $slug, array $in): array
     if ($folk) {   // a little chat tag so the villager appears in the text sometimes
         $msg = trim($msg);
     }
-    if ($kind !== 'thread') $lines = array_merge($lines ?? [], stop_living_after($u, $loc, $a));   // v2.5.72: the place remembers
+    if ($kind !== 'thread' || stop_marks_active($uid)) $lines = array_merge($lines ?? [], stop_living_after($u, $loc, $a, $note));   // v2.5.72: the place remembers (lasting marks: a thread beat feeds its bar too)
     calling_event($uid, 'townact', 'stop:' . $slug, 1, ['stop' => (string)$loc['slug']]);
     return [true, trim($msg . ($lines ? ' (' . implode(', ', $lines) . ')' : ''))];
 }
