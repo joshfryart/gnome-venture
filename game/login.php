@@ -6,6 +6,25 @@ require __DIR__ . '/includes/bootstrap.php';
 if (current_user()) {
     redirect('index.php');
 }
+// Private test site (config.php 'lockdown', includes/lockdown.php): 'sso' = only the "Sign in with gnomeventure.ca" button, no password form;
+// 'admin' = the usual form, but only the lockdown admin's account gets in.
+$lockMode = '';
+if (!empty($CONFIG['lockdown'])) { require_once __DIR__ . '/includes/lockdown.php'; $lockMode = lockdown_mode(); }
+if ($lockMode === 'sso') {
+    if (is_post()) { http_response_code(403); exit('This is a private test site.'); }
+    $main = rtrim((string)($CONFIG['sso_main'] ?? 'https://gnomeventure.ca'), '/');
+    if (!preg_match('~^https://[A-Za-z0-9.\-]+(:\d+)?$~', $main)) $main = 'https://gnomeventure.ca';
+    page_header('Sign in');
+    ?>
+<div class="box narrow">
+  <h2>Private test site</h2>
+  <p>This copy of the game is for testing. Sign in with your admin account on the main site.</p>
+  <p><a class="btn" href="<?= e($main . '/sso_issue.php?to=' . rawurlencode(sso_host())) ?>">Sign in with <?= e((string)parse_url($main, PHP_URL_HOST)) ?></a></p>
+</div>
+<?php
+    page_footer();
+    exit;
+}
 
 $error = '';
 $username = '';
@@ -21,7 +40,7 @@ if (is_post()) {
         $u = q_one('SELECT * FROM users WHERE username = ?', [$username]);
         // password_verify on a dummy hash when the user doesn't exist, so timing doesn't reveal valid usernames
         $hash = $u['password_hash'] ?? '$2y$10$u9xY8hOGvagnFdBa/wPzTeZgKUW2jWG081etOX2xNKbSHPaF40wSu';
-        if (password_verify($password, $hash) && $u) {
+        if (password_verify($password, $hash) && $u && ($lockMode === '' || lockdown_user_ok($u))) {   // locked down: any other account reads as a wrong password
             if ((int)$u['banned'] === 1) {
                 $error = 'This account is banned' . ($u['ban_reason'] ? ': ' . $u['ban_reason'] : '.');
             } elseif (!empty($u['banned_until']) && strtotime($u['banned_until'] . ' UTC') > time()) {
@@ -53,7 +72,9 @@ page_header('Log in');
     <label>Password <input type="password" name="password" required autocomplete="current-password"></label>
     <button class="btn">Log in</button>
   </form>
+  <?php if ($lockMode === ''): ?>
   <p><a href="<?= e(url('forgot.php')) ?>">Forgotten your password?</a></p>
   <p>New here? <a href="<?= e(url('register.php')) ?>">Claim your plot</a>.</p>
+  <?php else: ?><p class="help">Private test site: only its admin can sign in.</p><?php endif; ?>
 </div>
 <?php page_footer();

@@ -169,10 +169,11 @@ if ($u && !$admin && !$onboarding && !in_array($page, ['adventure.php', 'world.p
   <?php else: ?>
     <a href="<?= e(url('index.php')) ?>">Home</a>
     <a href="<?= e(url('login.php')) ?>">Log in</a>
+    <?php if (empty($GLOBALS['CONFIG']['lockdown'])): // a private test site (includes/lockdown.php) has no sign-ups and no public pages ?>
     <a href="<?= e(url('register.php')) ?>">Join</a>
     <?php foreach (q('SELECT slug, title FROM pages WHERE published = 1 AND show_in_nav = 1 ORDER BY title')->fetchAll() as $p): ?>
       <a href="<?= e(url('page.php?p=' . urlencode($p['slug']))) ?>"><?= e($p['title']) ?></a>
-    <?php endforeach; ?>
+    <?php endforeach; endif; ?>
   <?php endif; ?>
   <?php endif; ?>
 <?php endif; ?>

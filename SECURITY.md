@@ -20,6 +20,6 @@ This is a small hobby project run by one person. You can expect:
 
 ## Scope
 
-In scope: the PHP code in this repository (`game/`), including accounts and sessions, CSRF, XSS, SQL injection, access control, uploads, the admin panel and the in-place updater.
+In scope: the PHP code in this repository (`game/`), including accounts and sessions, the private test-site lockdown and its sign-on from the main site (`sso_issue.php`, `sso.php`, see [docs/TEST-SITE-SETUP.md](docs/TEST-SITE-SETUP.md)), CSRF, XSS, SQL injection, access control, uploads, the admin panel and the in-place updater.
 
 Out of scope: your own host or server configuration, a live install that still has `install.php` or a weak admin password, denial of service by volume, social engineering, and issues that need access to `config.php` or the server already. Please test only on your own install, not on the live site at gnomeventure.ca.

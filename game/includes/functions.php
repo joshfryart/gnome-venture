@@ -392,6 +392,8 @@ function settings_schema(): array
         'registration_open'  => ['label' => 'Sign-ups: allow new sign-ups', 'type' => 'bool', 'default' => '1'],
         'maintenance_mode'   => ['label' => 'Maintenance: only admins can use the site', 'type' => 'bool', 'default' => '0'],
         'maintenance_message'=> ['label' => 'Maintenance: message', 'type' => 'text', 'default' => 'The garden gates are closed for tending. Back soon!'],
+        'sso_secret'         => ['label' => 'Test site sign-in: SSO secret shared with the private test site (blank = off; 32+ characters; shown once by the test site installer)', 'type' => 'secret', 'default' => ''],
+        'sso_targets'        => ['label' => 'Test site sign-in: SSO targets, the test site hosts admins may sign in to (comma separated, the first is the default)', 'type' => 'text', 'default' => 'test.gnomeventure.ca'],
         'currency_name'      => ['label' => 'Currency: name', 'type' => 'text', 'default' => 'Petals'],
         'starting_coins'     => ['label' => 'Start: currency', 'type' => 'int', 'default' => '500', 'min' => 0, 'max' => 1000000],
         'starting_plot_size' => ['label' => 'Start: plot size (squares per side)', 'type' => 'int', 'default' => '4', 'min' => 2, 'max' => 20],

@@ -722,6 +722,7 @@ start_secure_session();
 
 $CURRENT_USER = load_current_user();
 if ($CURRENT_USER && gclock_crew_mornings($CURRENT_USER)) $CURRENT_USER = load_current_user();   // the garden crew works a 06:00 the gnome stayed up past (pal_crew.php pcrew_mornings)
+if (!empty($CONFIG['lockdown'])) { require_once __DIR__ . '/lockdown.php'; lockdown_gate(); }   // private test site (config.php 'lockdown'): only its admin gets in, never on the command line (includes/lockdown.php)
 require_once __DIR__ . '/action_log.php';
 action_log_boot();   // 2.6.27: last 100 actions per player (admin-only view)
 
