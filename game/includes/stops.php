@@ -190,6 +190,23 @@ function stops100_schema(string $PK, string $ID, string $END): array
         used INT NOT NULL DEFAULT 1,
         PRIMARY KEY (user_id, day, perk_key)
     )$END";
+    // 2.8.100 town states (town_states.php): the best state a gnome reached for a region's town (0 Run low, 1 Mending, 2 Thriving), written only when it rises
+    $t[] = "CREATE TABLE IF NOT EXISTS town_state_best (
+        user_id $ID NOT NULL,
+        region_id $ID NOT NULL,
+        state INT NOT NULL DEFAULT 0,
+        r_best INT NOT NULL DEFAULT 0,
+        updated_at DATETIME NOT NULL,
+        PRIMARY KEY (user_id, region_id)
+    )$END";
+    // 2.8.100 the back room: what a gnome took from behind the counter of a town shop row on one of its own game days
+    $t[] = "CREATE TABLE IF NOT EXISTS town_backroom (
+        user_id $ID NOT NULL,
+        stock_id $ID NOT NULL,
+        day VARCHAR(10) NOT NULL,
+        n INT NOT NULL DEFAULT 0,
+        PRIMARY KEY (user_id, stock_id, day)
+    )$END";
     $i = [
         'CREATE INDEX idx_stoplog_day ON stop_log (user_id, day)',
         'CREATE INDEX idx_stopfriend_folk ON stop_friend (folk_id)',
@@ -199,7 +216,7 @@ function stops100_schema(string $PK, string $ID, string $END): array
         'CREATE INDEX idx_stopmarks_perk ON stop_marks (user_id, perk_key)',
         'CREATE UNIQUE INDEX uq_stopsets ON stop_sets (scope, target, need)',   // v1.0.0: the import is check-then-insert; this stops a double run duplicating the sets
     ];
-    $c = [['locations', 'stop_type', 'VARCHAR(20) NULL'], ['stop_friend', 'last_gift', 'VARCHAR(10) NULL'], ['stop_acts', 'region', 'VARCHAR(80) NULL'], ['stop_adoptions', 'upkeep_month', 'VARCHAR(7) NULL'], ['stop_adoptions', 'upkeep_pool', 'TEXT NULL']];   // v2.0.78: region = comma list of region codes the activity belongs to (blank = anywhere)   // v2.0.77: last_gift = one gift a day per villager   // v1.0.0: admin-set stop type (blank = worked out from the landscape)
+    $c = [['locations', 'stop_type', 'VARCHAR(20) NULL'], ['stop_friend', 'last_gift', 'VARCHAR(10) NULL'], ['stop_acts', 'region', 'VARCHAR(80) NULL'], ['stop_adoptions', 'upkeep_month', 'VARCHAR(7) NULL'], ['stop_adoptions', 'upkeep_pool', 'TEXT NULL'], ['shop_stock', 'min_town_state', 'INT NOT NULL DEFAULT 0']];   // 2.8.100: the far shelf (town_states.php): a row shown only from this town state up (0 = always)   // v2.0.78: region = comma list of region codes the activity belongs to (blank = anywhere)   // v2.0.77: last_gift = one gift a day per villager   // v1.0.0: admin-set stop type (blank = worked out from the landscape)
     return [$t, $i, $c];
 }
 

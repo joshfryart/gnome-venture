@@ -121,6 +121,7 @@ $shopArt = scene_shop_key($shop); ?>
   <?= $staff ? '🧑‍🌾 At the counter: ' . implode(', ', array_map(fn($n) => '<a href="' . e(url('villagers.php?id=' . (int)$n['id'])) . '">' . e($n['name']) . '</a> the ' . e(strtolower($n['personality']) . ' ' . strtolower($n['species'])), $staff)) . ' <span class="muted">(tap a name to chat)</span>' : '🚪 Nobody is on shift. Come back later.' ?>
   · You have <b class="mycoins" data-coins="<?= $fresh ?>"><?= money($fresh) ?></b>
 </p>
+<?php if (setting('town_states_open') === '1') { require_once __DIR__ . '/includes/town_states.php'; echo town_shop_line_html($u, $shop); }   // 2.8.100 town states: line 3 (Run low / Mending / Thriving) ?>
 
 <?php if (!$reachable): ?>
   <div class="flash err">🧭 This shop is in <b><?= e($shopTown['name'] ?? '?') ?></b> (<?= e((string)($shopTown['region'] ?? '')) ?>). You can look at the shelves, but you need to be there to buy or sell. <a href="<?= e(url('world.php')) ?>">Where to next →</a></div>
@@ -138,9 +139,19 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
 
 
 <?php if ($tab === 'buy'):
+    $tsOn = setting('town_states_open') === '1' && (function (): bool { require_once __DIR__ . '/includes/town_states.php'; return town_states_on(); })();   // 2.8.100 town states
     $stock = q('SELECT st.*, i.id AS iid, i.name, i.slug, i.category, i.description, i.rarity, i.effects, i.base_price, p.id AS plant_id, p.seasons AS plant_seasons FROM shop_stock st
                 JOIN items i ON i.id = st.item_id LEFT JOIN plants p ON p.seed_item_id = i.id
-                WHERE st.shop_id = ? AND st.current_stock > 0 ORDER BY i.category, i.name', [$sid])->fetchAll();
+                WHERE st.shop_id = ?' . ($tsOn ? '' : ' AND st.current_stock > 0') . ' ORDER BY i.category, i.name', [$sid])->fetchAll();
+    $backLeft = [];
+    if ($tsOn) {   // 2.8.100 town states: a bare shelf row shows while this gnome's back room holds some; a far-shelf row only from its town state
+        $tsRid = town_shop_region($shop);
+        $stock = array_values(array_filter($stock, function ($r) use ($u, $tsRid, &$backLeft) {
+            if ($tsRid > 0 && !town_far_ok((int)$u['id'], $tsRid, (int)($r['min_town_state'] ?? 0))) return false;
+            $backLeft[(int)$r['id']] = town_backroom_left($u, (int)$r['id']);
+            return (int)$r['current_stock'] > 0 || $backLeft[(int)$r['id']] > 0;
+        }));
+    }
     require_once __DIR__ . '/includes/pfdeck.php';
     if (!pfd_gear_open($u)) $stock = array_values(array_filter($stock, fn($r) => !pfd_gear_slug((string)$r['slug'])));   // 2.7.08: belts only for admins (or everyone once pfight_v1 is on for all)
     usort($stock, fn($a, $b) => [shop_cat_rank($a), $a['name']] <=> [shop_cat_rank($b), $b['name']]);   // v0.7.83: grouped in chip order ?>
@@ -153,7 +164,8 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
       $unknown = $s['plant_id'] && !isset($known[(int)$s['plant_id']]);
       $gkey = $s['category'] === 'guide' ? (string)((json_decode((string)$s['effects'], true) ?: [])['guide'] ?? '') : '';
       $read = $gkey !== '' && isset($readGuides[$gkey]);
-      $myPrice = shop_price($u, (int)$s['current_price'], $sid, (int)$s['iid']);   // v1.0.0: seasonal seeds and crops follow the season a little
+      $back = $backLeft[(int)$s['id']] ?? 0;   // 2.8.100: what the back room holds for this gnome today
+      $myPrice = shop_price($u, (int)$s['current_stock'] > 0 || !$back ? (int)$s['current_price'] : town_backroom_price(town_backroom_row((int)$s['id'])), $sid, (int)$s['iid']);   // v1.0.0: seasonal seeds and crops follow the season a little
       $tags = [];
       $bc = market_buy_chip((int)$s['iid']);
       $sc = $s['plant_id'] ? season_chip(['seasons' => (string)$s['plant_seasons']]) : '';   // v1.0.0: in season / off season
@@ -171,7 +183,8 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
           . ($read ? '<p class="good">✔ You’ve already read this guide. No need to buy it again.</p>' : '')
           . ($unknown ? '<p class="help">📕 Unstudied: you can plant it, but it grows ' . unstudied_slow_pct($u) . '% slower and gives ' . (100 - unstudied_yield_pct($u)) . '% less until you study its region (this guide, or the region’s questline in Almanac → Journey) or master the crop.</p>' : '')
           . (!empty($owned[(int)$s['iid']]) ? '<p class="help">👜 You have ' . (int)$owned[(int)$s['iid']] . '.</p>' : '')
-          . '<p class="help">' . (int)$s['current_stock'] . ' on the shelf</p>';
+          . '<p class="help">' . (int)$s['current_stock'] . ' on the shelf</p>'
+          . ($back ? '<p class="help tstate-back">🚪 ' . $back . ' in the back room for you today, at ' . money(shop_price($u, town_backroom_price(town_backroom_row((int)$s['id'])), $sid, (int)$s['iid'])) . ' each (after the shelf).</p>' : '');
       require_once __DIR__ . '/includes/pfdeck.php';   // 2.7.05: a fight belt above the gnome's level is dimmed with a note (buy_from_shop refuses it too)
       $beltNeed = pfd_belt_level_need((string)$s['slug']); $beltLow = $beltNeed > (int)$u['level'];
       if ($beltLow) $info .= '<p class="help">🔒 Needs gnome level ' . $beltNeed . ' (you are level ' . (int)$u['level'] . ').</p>';
@@ -184,8 +197,8 @@ if (($shop['shop_type'] ?? '') === 'florist') { require_once __DIR__ . '/include
               . '<figcaption><span class="spk">Puzzle piece it gives</span> <b class="spn">' . e($wpc[0]) . '</b> <span class="spv">' . e(ucfirst($wpc[1])) . ' ' . (int)$wpc[2] . '</span></figcaption></figure>';
       }
       $priceHtml = money($myPrice) . ($myPrice < (int)$s['current_price'] ? ' <s class="muted">' . number_format((int)$s['current_price']) . '</s>' : '');
-      echo shop_tile(['id' => (int)$s['id'], 'item' => $item, 'piece' => $wearPiece, 'price' => $myPrice, 'max' => (int)$s['current_stock'], 'priceHtml' => $priceHtml, 'mini' => shop_mini(implode(' ', $tags)),
-          'tags' => $tags, 'info' => $info, 'dim' => $read || $beltLow || (bool)$wearBlock, 'offNote' => $read ? '✔ Read' : ($beltLow ? 'Level ' . $beltNeed : ($wearBlock ? 'Locked' : '')), 'badge' => (string)(int)$s['current_stock'], 'mode' => 'buy', 'action' => url('shop.php?id=' . $sid), 'open' => (bool)$open, 'basket' => true,
+      echo shop_tile(['id' => (int)$s['id'], 'item' => $item, 'piece' => $wearPiece, 'price' => $myPrice, 'max' => (int)$s['current_stock'] + $back, 'priceHtml' => $priceHtml, 'mini' => shop_mini(implode(' ', $tags)),
+          'tags' => $tags, 'info' => $info, 'dim' => $read || $beltLow || (bool)$wearBlock, 'offNote' => $read ? '✔ Read' : ($beltLow ? 'Level ' . $beltNeed : ($wearBlock ? 'Locked' : '')), 'badge' => (string)((int)$s['current_stock'] + $back), 'mode' => 'buy', 'action' => url('shop.php?id=' . $sid), 'open' => (bool)$open, 'basket' => true,
           'coins' => $open ? $fresh : null]);
   endforeach; ?>
   </div></div>

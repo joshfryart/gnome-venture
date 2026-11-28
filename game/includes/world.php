@@ -383,9 +383,28 @@ function buy_from_shop(array $u, int $stockId, int $qty): array
     if ($gkey !== '' && q_val('SELECT 1 FROM user_guides WHERE user_id = ? AND guide_key = ?', [$u['id'], $gkey])) {
         return [false, 'You’ve already read this guide.'];
     }
-    $cost = shop_price($u, (int)$s['current_price'], (int)$s['shop_id'], (int)$s['item_id']) * $qty;
+    // 2.8.100 town states (town_states.php): a far-shelf row waits for its town state; an order the shelf cannot fill takes the rest from this gnome's back room
+    $back = 0; $backLeft = 0;
+    if ((int)($s['min_town_state'] ?? 0) > 0 || ($qty > (int)$s['current_stock'] && setting('town_states_open') === '1')) {
+        require_once __DIR__ . '/town_states.php';
+        $tsRid = (int)q_val('SELECT region_id FROM locations WHERE id = ?', [(int)$s['location_id']]);
+        if (!town_far_ok((int)$u['id'], $tsRid, (int)($s['min_town_state'] ?? 0))) return [false, 'That is not on the shelf.'];
+        if ($qty > (int)$s['current_stock'] && ($backLeft = town_backroom_left($u, $stockId)) > 0) {
+            $back = $qty - max(0, (int)$s['current_stock']);
+            if ($back > $backLeft) return [false, 'There aren’t ' . $qty . ' ' . $s['name'] . ' left: ' . max(0, (int)$s['current_stock']) . ' on the shelf and ' . $backLeft . ' in the back room for you today.'];
+        }
+    }
+    $cost = shop_price($u, (int)$s['current_price'], (int)$s['shop_id'], (int)$s['item_id']) * ($qty - $back)
+        + ($back > 0 ? shop_price($u, town_backroom_price(town_backroom_row($stockId)), (int)$s['shop_id'], (int)$s['item_id']) * $back : 0);
     db()->beginTransaction();
-    if (q('UPDATE shop_stock SET current_stock = current_stock - ? WHERE id = ? AND current_stock >= ?', [$qty, $stockId, $qty])->rowCount() !== 1) {
+    if ($back > 0) {   // shelf first (exactly what was on it), then the back room; the shared shelf never goes below what it had
+        $onShelf = $qty - $back;
+        if (($onShelf > 0 && q('UPDATE shop_stock SET current_stock = current_stock - ? WHERE id = ? AND current_stock = ?', [$onShelf, $stockId, $onShelf])->rowCount() !== 1)
+            || !town_backroom_take((int)$u['id'], $stockId, $back, $backLeft)) {
+            db()->rollBack();
+            return [false, 'The shelf just changed. Try again.'];
+        }
+    } elseif (q('UPDATE shop_stock SET current_stock = current_stock - ? WHERE id = ? AND current_stock >= ?', [$qty, $stockId, $qty])->rowCount() !== 1) {
         db()->rollBack();
         return [false, 'There aren’t ' . $qty . ' ' . $s['name'] . ' left on the shelf.'];
     }
@@ -396,7 +415,7 @@ function buy_from_shop(array $u, int $stockId, int $qty): array
     give_item((int)$u['id'], (int)$s['item_id'], $qty);
     $mkLine = mark_buy_charges((int)$u['id'], (int)$s['sid'], (int)$s['item_id'], (string)$s['item_category'], (string)$s['name']);   // A3 lasting marks: one extra
     db()->commit();
-    return [true, "You buy $qty × {$s['name']} for " . number_format($cost) . ' ' . setting('currency_name') . '.' . ($mkLine !== '' ? ' ' . $mkLine . '.' : ''), $cost, (string)$s['name']];
+    return [true, "You buy $qty × {$s['name']}" . ($back > 0 ? ' (' . $back . ' from the back room)' : '') . ' for ' . number_format($cost) . ' ' . setting('currency_name') . '.' . ($mkLine !== '' ? ' ' . $mkLine . '.' : ''), $cost, (string)$s['name']];
 }
 
 /** What a player pays in a shop: Charm, then any friendship discount with the staff (v0.7.13). */
